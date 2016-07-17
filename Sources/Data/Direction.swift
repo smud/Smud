@@ -1,5 +1,5 @@
 //
-// main.swift
+// Direction.swift
 //
 // This source file is part of the SMUD open source project
 //
@@ -10,3 +10,13 @@
 // See CONTRIBUTORS.txt for the list of SMUD project authors
 //
 
+import Foundation
+
+enum Direction {
+    case north
+    case eash
+    case south
+    case west
+    case up
+    case down
+}

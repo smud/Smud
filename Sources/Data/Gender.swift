@@ -1,5 +1,5 @@
 //
-// main.swift
+// Gender.swift
 //
 // This source file is part of the SMUD open source project
 //
@@ -10,3 +10,10 @@
 // See CONTRIBUTORS.txt for the list of SMUD project authors
 //
 
+import Foundation
+
+enum Gender {
+    case male
+    case female
+    case neutral
+}
