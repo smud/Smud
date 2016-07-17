@@ -10,3 +10,4 @@
 // See CONTRIBUTORS.txt for the list of SMUD project authors
 //
 
+let connectionManager = ConnectionManager()
