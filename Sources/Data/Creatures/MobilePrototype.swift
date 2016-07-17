@@ -1,5 +1,5 @@
 //
-// MobPrototype.swift
+// MobilePrototype.swift
 //
 // This source file is part of the SMUD open source project
 //
@@ -12,7 +12,7 @@
 
 import Foundation
 
-struct MobPrototype {
+struct MobilePrototype {
     var tags: [String]
     
     var name: String
