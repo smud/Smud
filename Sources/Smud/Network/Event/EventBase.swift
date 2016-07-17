@@ -17,6 +17,9 @@ let evFeatureET = Int32(EV_FEATURE_ET.rawValue)
 let evFeatureO1 = Int32(EV_FEATURE_O1.rawValue)
 let evFeatureFDS = Int32(EV_FEATURE_FDS.rawValue)
 
+let evloopOnce = EVLOOP_ONCE
+let evloopNonblock = EVLOOP_NONBLOCK
+
 class EventBase {
     let eventBase: OpaquePointer?
     
@@ -39,5 +42,9 @@ class EventBase {
     
     func dispatch() -> Int32 {
         return event_base_dispatch(eventBase)
+    }
+    
+    func loop(flags: Int32) -> Int32 {
+        return event_base_loop(eventBase, flags)
     }
 }

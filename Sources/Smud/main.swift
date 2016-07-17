@@ -13,30 +13,26 @@
 import Foundation
 import Dispatch
 
-// Run connection manager in a separate thread
-DispatchQueue.global(attributes: .qosBackground).async() {
-    if let connectionManager = ConnectionManager() {
-        while true {
-            autoreleasepool {
-                connectionManager.dispatch()
-            }
-        }
-    }
-}
+var terminated = false
+guard let connectionManager = ConnectionManager() else { exit(1) }
 
 DispatchQueue.main.after(when: DispatchTime.now() + 3) {
     print("3 seconds passed")
+    terminated = true
 }
 
-DispatchQueue.main.after(when: DispatchTime.now() + 5) {
-    print("Stopping")
-    CFRunLoopStop(CFRunLoopGetCurrent())
+while !terminated {
+    switch connectionManager.loop() {
+    case 1:
+        break // Just idling
+    case 0:
+        print("Libevent: processed event(s)")
+    default: // -1
+        print("Unhandled error in network backend")
+        exit(1)
+    }
+    RunLoop.current().run(mode: RunLoopMode.defaultRunLoopMode,
+                          before: Date(timeIntervalSinceNow: 0.01))
 }
-
-DispatchQueue.main.after(when: DispatchTime.now() + 7) {
-    print("7 seconds passed")
-}
-
-CFRunLoopRun() // RunLoop.current().run()
 
 print("Quitting")

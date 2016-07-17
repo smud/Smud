@@ -39,8 +39,8 @@ class ConnectionManager {
         print("All FD types: \(fds ? "YES" : "NO")")
     }
     
-    func dispatch() {
-        eventBase.dispatch()
+    func loop() -> Int32 {
+        return eventBase.loop(flags: evloopNonblock)
     }
 }
 
