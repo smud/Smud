@@ -13,7 +13,8 @@
 import Foundation
 
 class ConnectionManager {
-   
+    let eventBase: EventBase
+    
     init?() {
         let version = eventGetVersion()
         print("Libevent version: \(version)")
@@ -22,6 +23,7 @@ class ConnectionManager {
         print("Supported methods: \(methods)")
         
         guard let eventBase = EventBase() else { return nil }
+        self.eventBase = eventBase
 
         let method = eventBase.getMethod()
         print("Using method: \(method)")
@@ -35,6 +37,10 @@ class ConnectionManager {
         
         let fds = (features & evFeatureFDS) != 0
         print("All FD types: \(fds ? "YES" : "NO")")
+    }
+    
+    func dispatch() {
+        eventBase.dispatch()
     }
 }
 

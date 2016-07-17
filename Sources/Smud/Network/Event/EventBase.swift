@@ -36,4 +36,8 @@ class EventBase {
     func getFeatures() -> Int32 {
         return event_base_get_features(eventBase)
     }
+    
+    func dispatch() -> Int32 {
+        return event_base_dispatch(eventBase)
+    }
 }
