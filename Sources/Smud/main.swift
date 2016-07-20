@@ -14,19 +14,29 @@ import Foundation
 import Dispatch
 
 var terminated = false
-guard let connectionManager = ConnectionManager() else { exit(1) }
+guard let server = Server() else { exit(1) }
 
-DispatchQueue.main.after(when: DispatchTime.now() + 3) {
-    print("3 seconds passed")
-    terminated = true
+//DispatchQueue.main.after(when: DispatchTime.now() + 3) {
+//    print("3 seconds passed")
+//    terminated = true
+//}
+
+let listener = ConnectionListener(server: server)
+do {
+    try listener.listen(port: 4000)
+} catch {
+    print(error)
+    exit(1)
 }
 
+print("Ready to accept connections")
+
 while !terminated {
-    switch connectionManager.loop() {
+    switch server.loop() {
     case 1:
         break // Just idling
     case 0:
-        print("Libevent: processed event(s)")
+        break //print("Libevent: processed event(s)")
     default: // -1
         print("Unhandled error in network backend")
         exit(1)

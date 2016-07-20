@@ -1,5 +1,5 @@
 //
-// ConnectionManager.swift
+// Server.swift
 //
 // This source file is part of the SMUD open source project
 //
@@ -12,7 +12,7 @@
 
 import Foundation
 
-class ConnectionManager {
+class Server {
     let eventBase: EventBase
     
     init?() {
