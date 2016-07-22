@@ -69,7 +69,11 @@ class ConnectionListener {
         }
         
         let base = evconnlistener_get_base(listener)
-        let bev = bufferevent_socket_new(base, fd, Int32(BEV_OPT_CLOSE_ON_FREE.rawValue))
+        let bevSocket = bufferevent_socket_new(base, fd, Int32(BEV_OPT_CLOSE_ON_FREE.rawValue))
+        guard let bev = bevSocket else {
+            print("Unable to accept connection")
+            return
+        }
         
         let context = unsafeBitCast(self, to: UnsafeMutablePointer<Void>.self)
         bufferevent_setcb(bev,
@@ -87,6 +91,9 @@ class ConnectionListener {
             },
             /* cbarg */ context)
         bufferevent_enable(bev, Int16(EV_READ)|Int16(EV_WRITE))
+
+        let connection = Connection(bufferEvent: bev)
+        connection.send("Hello")
     }
     
     func onAcceptError(listener: OpaquePointer?) {
@@ -100,6 +107,14 @@ class ConnectionListener {
     
     func onRead(bev: OpaquePointer?) {
         print("onRead")
+        guard let bev = bev else { return }
+        //let input = bufferevent_get_input(bev)
+        //let output = bufferevent_get_output(bev)
+        let connection = Connection(bufferEvent: bev)
+        while let line = connection.readLine() {
+            print("Got line: \(line)")
+            connection.send("Got line: \(line)")
+        }
     }
 
     func onWrite(bev: OpaquePointer?) {
@@ -108,5 +123,14 @@ class ConnectionListener {
 
     func onEvent(bev: OpaquePointer?, events: Int16) {
         print("onEvent")
+        if 0 != events & Int16(BEV_EVENT_ERROR) {
+            perror("Error from bufferevent")
+        }
+        if 0 != events & Int16(BEV_EVENT_EOF) {
+            print("Connection closed by remote")
+        }
+        if (0 != events & (Int16(BEV_EVENT_EOF) | Int16(BEV_EVENT_ERROR))) {
+            bufferevent_free(bev);
+        }
     }
 }
