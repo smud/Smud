@@ -12,4 +12,7 @@ rebuild: clean build
 clean:
 	swift build --clean
 
-.PHONY: all build rebuild clean
+distclean:
+	swift build --clean dist
+
+.PHONY: all build rebuild clean distclean
