@@ -15,4 +15,9 @@ clean:
 distclean:
 	swift build --clean dist
 
-.PHONY: all build rebuild clean distclean
+fetch-master:
+	swift package fetch
+	(cd Packages/CEvent-*; git checkout master; git pull)
+	(cd Packages/ConfigFile-*; git checkout master; git pull)
+
+.PHONY: all build rebuild clean distclean pull-master
