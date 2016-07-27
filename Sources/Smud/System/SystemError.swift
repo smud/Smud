@@ -12,7 +12,7 @@
 
 import Foundation
 
-struct SystemError: ErrorProtocol, CustomStringConvertible, CustomDebugStringConvertible {
+struct SystemError: Error, CustomStringConvertible, CustomDebugStringConvertible {
     let errorNumber: Int32
     var text: String
     

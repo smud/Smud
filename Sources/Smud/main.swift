@@ -41,8 +41,8 @@ while !terminated {
         print("Unhandled error in network backend")
         exit(1)
     }
-    RunLoop.current().run(mode: RunLoopMode.defaultRunLoopMode,
-                          before: Date(timeIntervalSinceNow: 0.01))
+    RunLoop.current.run(mode: RunLoopMode.defaultRunLoopMode,
+                        before: Date(timeIntervalSinceNow: 0.01))
 }
 
 print("Quitting")

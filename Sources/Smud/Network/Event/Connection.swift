@@ -32,7 +32,7 @@ struct Connection {
     ///
     /// - SeeAlso: `debugPrint`, `Streamable`, `CustomStringConvertible`,
     ///   `CustomDebugStringConvertible`
-    func send(_ items: Swift.Any..., separator: String = "", terminator: String = "\n", rfc1123EOLs: Bool = true) {
+    func send(_ items: Any..., separator: String = "", terminator: String = "\n", rfc1123EOLs: Bool = true) {
         let output = bufferevent_get_output(bufferEvent)
 
         let separatorProcessed = rfc1123EOLs ? separator.replacingOccurrences(of: "\n", with: "\r\n") : separator
