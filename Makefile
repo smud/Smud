@@ -20,4 +20,7 @@ fetch-master:
 	(cd Packages/CEvent-*; git checkout master; git pull)
 	(cd Packages/ConfigFile-*; git checkout master; git pull)
 
-.PHONY: all build rebuild clean distclean pull-master
+tags:
+	ctags -R ./ ../swift-corelibs-foundation/
+
+.PHONY: all build rebuild clean distclean pull-master tags
