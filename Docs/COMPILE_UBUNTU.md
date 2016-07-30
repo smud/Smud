@@ -25,23 +25,7 @@ swiftenv install swift-DEVELOPMENT-SNAPSHOT-2016-07-25-a
 
 For building libdispatch clang 3.8+ is required.
 
-Add llvm repository:
-
 ```
-wget -O - http://llvm.org/apt/llvm-snapshot.gpg.key|sudo apt-key add -
-```
-
-Add to:
-/etc/apt/sources.list
-
-```
-deb http://llvm.org/apt/trusty/ llvm-toolchain-trusty-3.8 main
-```
-
-Install clang:
-
-```
-sudo apt-get update
 sudo apt-get install clang-3.8 lldb-3.8
 sudo update-alternatives --install /usr/bin/clang clang /usr/bin/clang-3.8 100
 sudo update-alternatives --install /usr/bin/clang++ clang++ /usr/bin/clang++-3.8 100
