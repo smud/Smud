@@ -33,7 +33,7 @@ class ConnectionListener {
         //sin.sin_len = UInt8(sizeofValue(sockaddr_in))
         sin.sin_family = sa_family_t(AF_INET)
         sin.sin_addr = in_addr(s_addr: inet_addr("0.0.0.0"))
-        sin.sin_port = Int(OSHostByteOrder()) == OSLittleEndian ? _OSSwapInt16(port) : port
+        sin.sin_port = port.bigEndian
         
         var bind_addr = sockaddr()
         memcpy(&bind_addr, &sin, Int(sizeofValue(sin)))
