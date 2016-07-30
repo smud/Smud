@@ -1,4 +1,7 @@
 Smud.xcodeproj
+.idea/
+*.bak
+*.swp
 
 # Xcode
 #
