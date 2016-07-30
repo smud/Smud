@@ -4,7 +4,7 @@ test:
 	swift test
 
 build:
-	swift build
+	swift build -Xcc -fblocks
 #	swift build -Xswiftc -j1
 
 rebuild: clean build
@@ -19,6 +19,7 @@ fetch-master:
 	swift package fetch
 	(cd Packages/CEvent-*; git checkout master; git pull)
 	(cd Packages/ConfigFile-*; git checkout master; git pull)
+	(cd Packages/Utils-*; git checkout master; git pull)
 
 tags:
 	ctags -R ./ ../swift-corelibs-foundation/

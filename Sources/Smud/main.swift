@@ -13,36 +13,49 @@
 import Foundation
 import Dispatch
 
-var terminated = false
-guard let server = Server() else { exit(1) }
+func main() {
+    let terminated = false
+    guard let server = Server() else { exit(1) }
 
-//DispatchQueue.main.after(when: DispatchTime.now() + 3) {
-//    print("3 seconds passed")
-//    terminated = true
-//}
+    //DispatchQueue.main.after(when: DispatchTime.now() + 3) {
+    //    print("3 seconds passed")
+    //    terminated = true
+    //}
 
-let listener = ConnectionListener(server: server)
-do {
-    try listener.listen(port: 4000)
-} catch {
-    print(error)
-    exit(1)
-}
-
-print("Ready to accept connections")
-
-while !terminated {
-    switch server.loop() {
-    case 1:
-        break // Just idling
-    case 0:
-        break //print("Libevent: processed event(s)")
-    default: // -1
-        print("Unhandled error in network backend")
+    let listener = ConnectionListener(server: server)
+    do {
+        try listener.listen(port: 4000)
+    } catch {
+        print(error)
         exit(1)
     }
-    RunLoop.current.run(mode: RunLoopMode.defaultRunLoopMode,
-                        before: Date(timeIntervalSinceNow: 0.01))
+
+    print("Ready to accept connections")
+
+    while !terminated {
+        switch server.loop() {
+        case 1:
+            break // Just idling
+        case 0:
+            break //print("Libevent: processed event(s)")
+        default: // -1
+            print("Unhandled error in network backend")
+            exit(1)
+        }
+        #if os(Linux)
+            let success = RunLoop.current().run(mode: RunLoopMode.defaultRunLoopMode,
+                                                before: Date(timeIntervalSinceNow: 0.01))
+        #else
+            let success = RunLoop.current.run(mode: RunLoopMode.defaultRunLoopMode,
+                                              before: Date(timeIntervalSinceNow: 0.01))
+        #endif
+        guard success else {
+            print("Unable to start RunLoop")
+            exit(1)
+        }
+    }
 }
 
+main()
 print("Quitting")
+
