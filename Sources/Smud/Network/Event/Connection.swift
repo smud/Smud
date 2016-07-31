@@ -15,6 +15,7 @@ import CEvent
 
 class Connection {
     let bufferEvent: OpaquePointer
+    let telnetStreamParser = TelnetStreamParser()
     static let promptTerminator: [UInt8] = [TelnetCommand.interpretAsCommand.rawValue, TelnetCommand.goAhead.rawValue]
     
     var context: ConnectionContext? {
@@ -85,7 +86,7 @@ class Connection {
                      Connection.promptTerminator,
                      Connection.promptTerminator.count)
     }
-    
+
     func readLine() -> String? {
         let input = bufferevent_get_input(bufferEvent)
 

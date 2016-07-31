@@ -16,6 +16,7 @@ import CEvent
 class Server {
     let eventBase: EventBase
     var connections = [OpaquePointer: Connection]()
+    var buffer = [UInt8](repeating: 0, count: 256)
     
     init?() {
         let version = eventGetVersion()
@@ -74,13 +75,32 @@ class Server {
     func onRead(bev: OpaquePointer?) {
         print("onRead")
         guard let bev = bev else { return }
+        guard let connection = connections[bev] else { return }
         //let input = bufferevent_get_input(bev)
-        //let output = bufferevent_get_output(bev)
-        let connection = Connection(bufferEvent: bev)
-        while let line = connection.readLine() {
-            print("Got line: \(line)")
-            connection.send("Got line: \(line)")
+        
+        buffer.withUnsafeMutableBufferPointer { data in
+            //print("data.baseAddress=\(data.baseAddress) data.count=\(data.count)")
+
+            while true {
+                let n = bufferevent_read(bev, data.baseAddress, data.count)
+                guard n > 0 else { break }
+                connection.telnetStreamParser.readLines(
+                    buffer: data.baseAddress!, count: n) { line, truncated in
+                        if truncated {
+                            connection.send("WARNING: Your input was truncated.")
+                        }
+                        connection.send("Got line: \(line)")
+                }
+            }
+            
         }
+        
+        //let output = bufferevent_get_output(bev)
+        //let connection = Connection(bufferEvent: bev)
+        //while let line = connection.readLine() {
+        //    print("Got line: \(line)")
+        //    connection.send("Got line: \(line)")
+        //}
     }
     
     func onWrite(bev: OpaquePointer?) {
