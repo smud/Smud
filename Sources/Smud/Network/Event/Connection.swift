@@ -13,8 +13,19 @@
 import Foundation
 import CEvent
 
-struct Connection {
+class Connection {
     let bufferEvent: OpaquePointer
+    static let promptTerminator: [UInt8] = [TelnetCommand.interpretAsCommand.rawValue, TelnetCommand.goAhead.rawValue]
+    
+    var context: ConnectionContext? {
+        didSet {
+            context?.greet(connection: self)
+        }
+    }
+    
+    init(bufferEvent: OpaquePointer) {
+        self.bufferEvent = bufferEvent
+    }
     
     /// Sends the textual representations of `items`, separated by
     /// `separator` and terminated by `terminator` to the remote endpoint.
@@ -32,7 +43,7 @@ struct Connection {
     ///
     /// - SeeAlso: `debugPrint`, `Streamable`, `CustomStringConvertible`,
     ///   `CustomDebugStringConvertible`
-    func send(_ items: Any..., separator: String = "", terminator: String = "\n", rfc1123EOLs: Bool = true) {
+    func send(items: [Any], separator: String = "", terminator: String = "\n", rfc1123EOLs: Bool = true) {
         let output = bufferevent_get_output(bufferEvent)
 
         let separatorProcessed = rfc1123EOLs ? separator.replacingOccurrences(of: "\n", with: "\r\n") : separator
@@ -60,12 +71,26 @@ struct Connection {
             evbuffer_add(output, terminatorData, terminatorUtf8.count)
         }
     }
+
+    func send(_ items: Any..., separator: String = "", terminator: String = "\n", rfc1123EOLs: Bool = true) {
+        send(items: items, separator: separator, terminator: terminator, rfc1123EOLs: rfc1123EOLs)
+    }
+
+    func sendPrompt(_ items: Any..., separator: String = "", rfc1123EOLs: Bool = true) {
+        
+        send(items: items, separator: separator, terminator: "", rfc1123EOLs: rfc1123EOLs)
+        
+        let output = bufferevent_get_output(bufferEvent)
+        evbuffer_add(output,
+                     Connection.promptTerminator,
+                     Connection.promptTerminator.count)
+    }
     
     func readLine() -> String? {
         let input = bufferevent_get_input(bufferEvent)
 
         var bytesRead: Int = 0
-        let result = evbuffer_readln(input, &bytesRead, EVBUFFER_EOL_CRLF)
+        let result: UnsafeMutablePointer<Int8>? = evbuffer_readln(input, &bytesRead, EVBUFFER_EOL_CRLF)
         guard let cString = result else {
             return nil
         }
