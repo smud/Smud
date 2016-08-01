@@ -17,6 +17,7 @@ class Connection {
     let bufferEvent: OpaquePointer
     let telnetStreamParser = TelnetStreamParser()
     static let promptTerminator: [UInt8] = [TelnetCommand.interpretAsCommand.rawValue, TelnetCommand.goAhead.rawValue]
+    var hasSentAnything = false
     
     var context: ConnectionContext? {
         didSet {
@@ -77,13 +78,15 @@ class Connection {
         send(items: items, separator: separator, terminator: terminator, rfc1123EOLs: rfc1123EOLs)
     }
 
-    func sendPrompt(_ items: Any..., separator: String = "", rfc1123EOLs: Bool = true) {
-        
-        send(items: items, separator: separator, terminator: "", rfc1123EOLs: rfc1123EOLs)
-        
+    func sendGoAhead() {
         let output = bufferevent_get_output(bufferEvent)
         evbuffer_add(output,
                      Connection.promptTerminator,
                      Connection.promptTerminator.count)
+    }
+    
+    func sendPrompt(_ items: Any..., separator: String = "", rfc1123EOLs: Bool = true) {
+        send("")
+        send(items: items, separator: separator, terminator: "", rfc1123EOLs: rfc1123EOLs)
     }
 }

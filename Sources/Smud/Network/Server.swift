@@ -118,6 +118,8 @@ class Server {
     }
     
     func process(line: String, connection: Connection) {
+        connection.hasSentAnything = false
+        
         guard let context = connection.context else { return }
         let scanner = Scanner(string: line)
         let args = Arguments(scanner: scanner)
@@ -128,6 +130,10 @@ class Server {
             context.greet(connection: connection)
         case .next(let context):
             connection.context = context
+        }
+        
+        if connection.hasSentAnything {
+            connection.sendGoAhead()
         }
     }
 }
