@@ -89,18 +89,12 @@ class Server {
                         if truncated {
                             connection.send("WARNING: Your input was truncated.")
                         }
-                        connection.send("Got line: \(line)")
+                        //connection.send("Got line: \(line)")
+                        process(line: line, connection: connection)
                 }
             }
             
         }
-        
-        //let output = bufferevent_get_output(bev)
-        //let connection = Connection(bufferEvent: bev)
-        //while let line = connection.readLine() {
-        //    print("Got line: \(line)")
-        //    connection.send("Got line: \(line)")
-        //}
     }
     
     func onWrite(bev: OpaquePointer?) {
@@ -120,6 +114,20 @@ class Server {
                 connections.removeValue(forKey: bev)
             }
             bufferevent_free(bev);
+        }
+    }
+    
+    func process(line: String, connection: Connection) {
+        guard let context = connection.context else { return }
+        let scanner = Scanner(string: line)
+        let args = Arguments(scanner: scanner)
+        let action = context.process(args: args, connection: connection)
+        switch action {
+        case .retry(let reason):
+            connection.send(reason)
+            context.greet(connection: connection)
+        case .next(let context):
+            connection.context = context
         }
     }
 }

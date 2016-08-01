@@ -86,16 +86,4 @@ class Connection {
                      Connection.promptTerminator,
                      Connection.promptTerminator.count)
     }
-
-    func readLine() -> String? {
-        let input = bufferevent_get_input(bufferEvent)
-
-        var bytesRead: Int = 0
-        let result: UnsafeMutablePointer<Int8>? = evbuffer_readln(input, &bytesRead, EVBUFFER_EOL_CRLF)
-        guard let cString = result else {
-            return nil
-        }
-        defer { free(cString) }
-        return String(cString: cString)
-    }
 }

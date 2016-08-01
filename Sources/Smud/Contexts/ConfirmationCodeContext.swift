@@ -1,5 +1,5 @@
 //
-// CreateAccountContext.swift
+// ConfirmationCodeContext.swift
 //
 // This source file is part of the SMUD open source project
 //
@@ -12,17 +12,13 @@
 
 import Foundation
 
-class ChooseAccountContext: ConnectionContext {
+class ConfirmationCodeContext: ConnectionContext {
     
     func greet(connection: Connection) {
-        connection.sendPrompt("Please enter your email address: ")
+        connection.sendPrompt("Please enter the confirmation code: ")
     }
     
     func process(args: Arguments, connection: Connection) -> ContextAction {
-        guard let email = args.scanWord(),
-            email.contains("@") else { return .retry("Ivalid email address.") }
-
-        connection.send("Confirmation email has been sent to your email address.")
-        return .next(ConfirmationCodeContext())
+        return .retry("Ivalid confirmation code.")
     }
 }

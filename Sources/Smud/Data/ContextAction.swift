@@ -1,5 +1,5 @@
 //
-// CreateAccountContext.swift
+// ContextAction.swift
 //
 // This source file is part of the SMUD open source project
 //
@@ -12,7 +12,7 @@
 
 import Foundation
 
-protocol ConnectionContext {
-    func greet(connection: Connection)
-    func process(args: Arguments, connection: Connection) -> ContextAction
+enum ContextAction {
+    case retry(String)
+    case next(ConnectionContext)
 }
