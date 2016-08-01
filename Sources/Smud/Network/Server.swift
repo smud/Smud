@@ -123,7 +123,9 @@ class Server {
         guard let context = connection.context else { return }
         let scanner = Scanner(string: line)
         let args = Arguments(scanner: scanner)
-        let action = context.process(args: args, connection: connection)
+        
+        let action = context.processResponse(args: args, connection: connection)
+        
         switch action {
         case .retry(let reason):
             connection.send(reason)

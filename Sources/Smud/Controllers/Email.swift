@@ -1,5 +1,5 @@
 //
-// CreateAccountContext.swift
+// Email.swift
 //
 // This source file is part of the SMUD open source project
 //
@@ -12,7 +12,9 @@
 
 import Foundation
 
-protocol ConnectionContext {
-    func greet(connection: Connection)
-    func processResponse(args: Arguments, connection: Connection) -> ContextAction
+class Email {
+    static func isValidEmail(_ email: String) -> Bool {
+        let emailRegex = "[A-Z0-9a-z._%+-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,6}"
+        return NSPredicate(format: "SELF MATCHES %@", emailRegex).evaluate(with: email)
+    }
 }

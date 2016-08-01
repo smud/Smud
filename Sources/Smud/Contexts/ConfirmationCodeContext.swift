@@ -18,7 +18,7 @@ class ConfirmationCodeContext: ConnectionContext {
         connection.sendPrompt("Please enter the confirmation code: ")
     }
     
-    func process(args: Arguments, connection: Connection) -> ContextAction {
+    func processResponse(args: Arguments, connection: Connection) -> ContextAction {
         return .retry("Ivalid confirmation code.")
     }
 }
