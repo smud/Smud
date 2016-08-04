@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.4)
-project(SmudFile)
+project(Smud)
 
 if(UNIX AND NOT APPLE)
     set(Swift "/home/user/.swiftenv/shims/swift")
@@ -9,12 +9,12 @@ endif()
 
 file(GLOB_RECURSE SRC "*.swift")
 
-add_custom_target(SmudFile
+add_custom_target(Smud
     COMMAND ${Swift} build
     WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
     SOURCES ${SRC})
 
-add_custom_target(SmudFileTest
+add_custom_target(SmudTest
     COMMAND ${Swift} test
     WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
     SOURCES ${SRC})
