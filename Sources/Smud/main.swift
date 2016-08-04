@@ -12,15 +12,14 @@
 
 import Foundation
 import Dispatch
+#if os(Linux)
+import CoreFoundation
+#endif
+
+var terminated = false
 
 func main() {
-    let terminated = false
     guard let server = Server() else { exit(1) }
-
-    //DispatchQueue.main.after(when: DispatchTime.now() + 3) {
-    //    print("3 seconds passed")
-    //    terminated = true
-    //}
 
     let listener = ConnectionListener(server: server)
     do {
@@ -30,30 +29,49 @@ func main() {
         exit(1)
     }
 
-    print("Ready to accept connections")
+    let maxLatencySeconds = 0.01
 
+    print("Ready to accept connections")
+    #if os(OSX)
     while !terminated {
         switch server.loop() {
-        case 1:
-            break // Just idling
-        case 0:
-            break //print("Libevent: processed event(s)")
+        case 1: break // Just idling
+        case 0: break //print("Libevent: processed event(s)")
         default: // -1
             print("Unhandled error in network backend")
             exit(1)
         }
-        #if os(Linux)
-            let success = RunLoop.current().run(mode: RunLoopMode.defaultRunLoopMode,
-                                                before: Date(timeIntervalSinceNow: 0.01))
-        #else
-            let success = RunLoop.current.run(mode: RunLoopMode.defaultRunLoopMode,
-                                              before: Date(timeIntervalSinceNow: 0.01))
-        #endif
+        let success = RunLoop.current.run(mode: RunLoopMode.defaultRunLoopMode,
+                                          before: Date(timeIntervalSinceNow: maxLatencySec))
         guard success else {
             print("Unable to start RunLoop")
             exit(1)
         }
     }
+    #else
+    let queue = dispatch_get_main_queue()
+    let timer = dispatch_source_create(DISPATCH_SOURCE_TYPE_TIMER, 0, 0, queue)
+    let interval = maxLatencySeconds
+    let block: () -> () = {
+        guard !terminated else {
+            print("Quitting")
+            exit(0)
+        }
+        switch server.loop() {
+        case 1: break // Just idling
+        case 0: break //print("Libevent: processed event(s)")
+        default: // -1
+            print("Unhandled error in network backend")
+            exit(1)
+        }
+    }
+    block()
+    let fireTime = dispatch_time(DISPATCH_TIME_NOW, Int64(interval * Double(NSEC_PER_SEC)))
+    dispatch_source_set_timer(timer, fireTime, UInt64(interval * Double(NSEC_PER_SEC)), UInt64(NSEC_PER_SEC) / 10)
+    dispatch_source_set_event_handler(timer, block)
+    dispatch_resume(timer)
+    dispatch_main()
+    #endif
 }
 
 main()
