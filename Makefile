@@ -22,6 +22,6 @@ fetch-master:
 	(cd Packages/Utils-*; git checkout master; git pull)
 
 tags:
-	ctags -R ./ ../swift-corelibs-foundation/
+	ctags -R ./ ../swift-corelibs-foundation/ ../swift-corelibs-libdispatch/
 
 .PHONY: all build rebuild clean distclean pull-master tags
