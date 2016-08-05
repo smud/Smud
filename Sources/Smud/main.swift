@@ -42,7 +42,7 @@ func main() {
             exit(1)
         }
         let success = RunLoop.current.run(mode: RunLoopMode.defaultRunLoopMode,
-                                          before: Date(timeIntervalSinceNow: maxLatencySec))
+                                          before: Date(timeIntervalSinceNow: maxLatencySeconds))
         guard success else {
             print("Unable to start RunLoop")
             exit(1)

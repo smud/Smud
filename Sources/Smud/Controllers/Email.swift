@@ -12,6 +12,10 @@
 
 import Foundation
 
+#if os(OSX)
+typealias RegularExpression = NSRegularExpression
+#endif
+
 class Email {
     static func isValidEmail(_ email: String) -> Bool {
         let regex = try! RegularExpression(pattern: "^[A-Z0-9._%+-]+@[A-Z0-9.-]+\\.[A-Z]{2,6}$",
