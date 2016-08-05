@@ -128,7 +128,9 @@ class Server {
         
         switch action {
         case .retry(let reason):
-            connection.send(reason)
+            if let reason = reason {
+                connection.send(reason)
+            }
             context.greet(connection: connection)
         case .next(let context):
             connection.context = context

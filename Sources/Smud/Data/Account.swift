@@ -1,5 +1,5 @@
 //
-// ContextAction.swift
+// Account.swift
 //
 // This source file is part of the SMUD open source project
 //
@@ -12,7 +12,16 @@
 
 import Foundation
 
-enum ContextAction {
-    case retry(String?)
-    case next(ConnectionContext)
+struct Account {
+    var id: Int
+    
+    var email: String
+}
+
+extension Account: Hashable {
+    var hashValue: Int { return id }
+    
+    static func ==(lhs: Account, rhs: Account) -> Bool {
+        return lhs.id == rhs.id
+    }
 }

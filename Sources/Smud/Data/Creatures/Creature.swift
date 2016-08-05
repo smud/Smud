@@ -13,5 +13,5 @@
 import Foundation
 
 class Creature {
-    
+    var name: String = ""
 }

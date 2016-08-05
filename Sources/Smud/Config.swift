@@ -15,3 +15,7 @@ import Foundation
 // Networking
 let maximumLineLengthBytes = 1024
 
+// Character naming
+let playerNameLength = 2...16
+let playerNameAllowedCharacters = CharacterSet(charactersIn: "abcdefghijklmnopqrstuvwxyz")
+let playerNameInvalidCharactersMessage = "Name contains invalid characters. Allowed characters: a-z"

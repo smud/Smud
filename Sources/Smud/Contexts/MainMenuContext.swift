@@ -1,5 +1,5 @@
 //
-// ConfirmationCodeContext.swift
+// MainMenuContext.swift
 //
 // This source file is part of the SMUD open source project
 //
@@ -12,14 +12,18 @@
 
 import Foundation
 
-class ConfirmationCodeContext: ConnectionContext {
+class MainMenuContext: ConnectionContext {
     
     func greet(connection: Connection) {
-        connection.sendPrompt("Please enter the confirmation code: ")
+        guard let name = connection.player?.name else { return }
+        connection.sendPrompt(
+            "Welcome \(name)!\n" +
+            "1. Play\n" +
+            "0. Exit\n" +
+            "What would you like to do? ")
     }
     
     func processResponse(args: Arguments, connection: Connection) -> ContextAction {
-        //return .retry("Ivalid confirmation code.")
-        return .next(PlayerNameContext())
+        return .retry("Unknown option.")
     }
 }

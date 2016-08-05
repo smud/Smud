@@ -13,5 +13,4 @@
 import Foundation
 
 class Player: Creature {
-    
 }

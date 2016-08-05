@@ -1,5 +1,5 @@
 //
-// ContextAction.swift
+// Players.swift
 //
 // This source file is part of the SMUD open source project
 //
@@ -12,7 +12,6 @@
 
 import Foundation
 
-enum ContextAction {
-    case retry(String?)
-    case next(ConnectionContext)
+class Players {
+    static var byAccount = [Account: Players]()
 }

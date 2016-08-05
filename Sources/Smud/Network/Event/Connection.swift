@@ -14,11 +14,14 @@ import Foundation
 import CEvent
 
 class Connection {
+    static let promptTerminator: [UInt8] = [TelnetCommand.interpretAsCommand.rawValue, TelnetCommand.goAhead.rawValue]
+
     let bufferEvent: OpaquePointer
     let telnetStreamParser = TelnetStreamParser()
-    static let promptTerminator: [UInt8] = [TelnetCommand.interpretAsCommand.rawValue, TelnetCommand.goAhead.rawValue]
     var hasSentAnything = false
-    
+
+    var player: Player?
+
     var context: ConnectionContext? {
         didSet {
             context?.greet(connection: self)
