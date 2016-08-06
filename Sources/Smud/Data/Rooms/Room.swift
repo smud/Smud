@@ -13,9 +13,17 @@
 import Foundation
 
 class Room {
-    var prototype: RoomPrototype    
-    
-    init(from prototype: RoomPrototype) {
-        self.prototype = prototype
+    struct Exit {
+        var tag: String
+        var description: String
     }
+    
+    var tags: [String]
+    
+    var name: String
+    
+    var description: String
+    var keywordsText: [String: String]
+    
+    var exits: [Direction: Exit]
 }
