@@ -32,3 +32,7 @@ enum TelnetCommand: UInt8 {
     case interpretAsCommand = 255
 }
 
+enum TelnetOption: UInt8 {
+    case binary = 0
+    case echo = 1
+}

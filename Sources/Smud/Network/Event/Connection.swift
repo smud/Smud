@@ -14,7 +14,11 @@ import Foundation
 import CEvent
 
 class Connection {
-    static let promptTerminator: [UInt8] = [TelnetCommand.interpretAsCommand.rawValue, TelnetCommand.goAhead.rawValue]
+    static let doBinary: [UInt8] = [TelnetCommand.interpretAsCommand.rawValue,
+                                    TelnetCommand.doOption.rawValue,
+                                    TelnetOption.binary.rawValue]
+    static let promptTerminator: [UInt8] = [TelnetCommand.interpretAsCommand.rawValue,
+                                            TelnetCommand.goAhead.rawValue]
 
     let bufferEvent: OpaquePointer
     let telnetStreamParser = TelnetStreamParser()
@@ -30,6 +34,11 @@ class Connection {
     
     init(bufferEvent: OpaquePointer) {
         self.bufferEvent = bufferEvent
+
+        let output = bufferevent_get_output(bufferEvent)
+        evbuffer_add(output,
+                     Connection.doBinary,
+                     Connection.doBinary.count)
     }
     
     /// Sends the textual representations of `items`, separated by
