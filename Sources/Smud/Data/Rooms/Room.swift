@@ -18,12 +18,12 @@ class Room {
         var description: String
     }
     
-    var tags: [String]
+    var tags: [String] = []
     
-    var name: String
+    var name: String = ""
     
-    var description: String
-    var keywordsText: [String: String]
+    var description: String = ""
+    var keywordsText: [String: String] = [:]
     
-    var exits: [Direction: Exit]
+    var exits: [Direction: Exit] = [:]
 }
