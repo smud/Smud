@@ -23,7 +23,7 @@ class TelnetStreamParser {
         case option
     }
     
-    typealias OnLineReady = @noescape (line: String, truncated: Bool)->()
+    typealias OnLineReady = @noescape (_ line: String, _ truncated: Bool)->()
     
     var parseState: ParseState = .data
     var subnegotiationActive = false
@@ -83,7 +83,7 @@ class TelnetStreamParser {
         lineBuffer.append(0) // Zero-terminated C string
         let line = String(cString: lineBuffer)
 
-        onLineReady(line: line, truncated: lineTruncated)
+        onLineReady(line, lineTruncated)
         
         lineBuffer.removeAll()
         lineTruncated = false

@@ -38,7 +38,7 @@ class ConnectionListener {
         sin.sin_port = port.bigEndian
         
         var bind_addr = sockaddr()
-        memcpy(&bind_addr, &sin, Int(sizeofValue(sin)))
+        memcpy(&bind_addr, &sin, Int(MemoryLayout<sockaddr_in>.size))
         
         let context = unsafeBitCast(self, to: UnsafeMutablePointer<Void>.self)
         listener = evconnlistener_new_bind(eventBase,
@@ -50,7 +50,7 @@ class ConnectionListener {
             LEV_OPT_CLOSE_ON_FREE | LEV_OPT_REUSEABLE,
             -1,
             &bind_addr,
-            Int32(sizeofValue(sin)))
+            Int32(MemoryLayout<sockaddr_in>.size))
         if listener == nil {
             throw SystemError("Couldn't create listener")
         }
@@ -62,7 +62,8 @@ class ConnectionListener {
  
     func onAccept(listener: OpaquePointer?, fd: Int32, address: UnsafeMutablePointer<sockaddr>?, socklen: Int32) {
         if let address = address {
-            if let sin = UnsafePointer<sockaddr_in>(address)?.pointee,
+            let addressOpaquePointer = OpaquePointer(address)
+            if let sin = UnsafePointer<sockaddr_in>(addressOpaquePointer)?.pointee,
                 let addressCString = inet_ntoa(sin.sin_addr) {
                     let addressString = String(cString: addressCString)
                 print("New connection: \(addressString)")

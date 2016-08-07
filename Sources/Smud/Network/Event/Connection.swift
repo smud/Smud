@@ -70,7 +70,7 @@ class Connection {
             if !isFirst && !separator.isEmpty {
                 evbuffer_add(output, separatorData, separatorUtf8Count)
             }
-            let text = String(item)
+            let text = String(describing: item)
             let textProcessed = rfc1123EOLs ? text.replacingOccurrences(of: "\n", with: "\r\n") : text
             let textUtf8 = textProcessed.utf8
             let data = [UInt8](textUtf8)
