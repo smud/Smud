@@ -13,5 +13,8 @@
 import Foundation
 
 class Creature {
-    var name: String = ""
+    var name = ""
+
+    var gender: Gender = .male
+    var plural: Bool = false
 }

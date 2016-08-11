@@ -13,5 +13,14 @@
 import Foundation
 
 class Mobile: Creature {
+    var tags: [String] = []
     
+    var synonyms: [String] = []
+    
+    var description = ""
+    var descriptionInRoom = ""
+    var keywordsText: [String: String] = [:]
+    
+    var health = 0
+
 }
