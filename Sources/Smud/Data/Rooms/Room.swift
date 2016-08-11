@@ -20,9 +20,9 @@ class Room {
     
     var tags: [String] = []
     
-    var name: String = ""
+    var name = ""
     
-    var description: String = ""
+    var description = ""
     var keywordsText: [String: String] = [:]
     
     var exits: [Direction: Exit] = [:]

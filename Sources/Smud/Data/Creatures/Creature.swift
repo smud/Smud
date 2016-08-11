@@ -17,4 +17,6 @@ class Creature {
 
     var gender: Gender = .male
     var plural: Bool = false
+    
+    var room: Room?
 }
