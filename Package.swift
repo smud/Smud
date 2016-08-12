@@ -6,6 +6,7 @@ let package = Package(
         .Package(url: "https://github.com/smud/CEvent.git", majorVersion: 0),
         .Package(url: "https://github.com/smud/ConfigFile.git", majorVersion: 0),
         .Package(url: "https://github.com/smud/Utils.git", majorVersion: 0),
+        .Package(url: "https://github.com/zmeyc/GRDB.swift.git", majorVersion: 0),
     ]
 )
 
