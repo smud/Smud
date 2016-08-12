@@ -18,7 +18,7 @@ Install Swift and it's dependencies:
 
 ```
 sudo apt-get install clang
-swiftenv install swift-DEVELOPMENT-SNAPSHOT-2016-07-25-a
+swiftenv install swift-DEVELOPMENT-SNAPSHOT-2016-08-04-a
 ```
 
 ## libdispatch
@@ -35,8 +35,8 @@ Build and install libdispatch:
 
 ```
 sudo apt-get install autoconf libtool libkqueue-dev libkqueue0 libcurl4-openssl-dev libbsd-dev libblocksruntime-dev
-export SWIFT_HOME=~/.swiftenv/versions/DEVELOPMENT-SNAPSHOT-2016-07-25-a
-git clone --recursive -b experimental/foundation https://github.com/apple/swift-corelibs-libdispatch.git
+export SWIFT_HOME=~/.swiftenv/versions/DEVELOPMENT-SNAPSHOT-2016-08-04-a
+git clone --recursive -b swift-3.0-branch https://github.com/apple/swift-corelibs-libdispatch.git
 cd swift-corelibs-libdispatch
 sh ./autogen.sh
 ./configure --with-swift-toolchain=$SWIFT_HOME/usr --prefix=$SWIFT_HOME/usr
@@ -97,5 +97,18 @@ make tags
 
 Now press CTRL-] in VIM to go to the method definition.
 Alternatively, press 'g' then ']' to choose from multiple overloads.
+
+## Editing packages
+
+To checkout a particular branch of a package:
+
+```
+swift package fetch
+cd Packages/GRDB.swift
+git config --local --add remote.origin.fetch +refs/heads/*:refs/remotes/origin/*
+git fetch
+git branch -r
+git checkout SPM
+```
 
 
