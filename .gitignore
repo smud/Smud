@@ -4,6 +4,7 @@ Smud.xcodeproj
 *.swp
 tags
 Packages/
+Data/
 
 # Xcode
 #

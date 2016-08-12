@@ -14,5 +14,5 @@ import Foundation
 
 protocol ConnectionContext {
     func greet(connection: Connection)
-    func processResponse(args: Arguments, connection: Connection) -> ContextAction
+    func processResponse(args: Arguments, connection: Connection) throws -> ContextAction
 }

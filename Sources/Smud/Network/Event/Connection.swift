@@ -24,6 +24,7 @@ class Connection {
     let telnetStreamParser = TelnetStreamParser()
     var hasSentAnything = false
 
+    var account: Account?
     var player: Player?
 
     var context: ConnectionContext? {

@@ -19,6 +19,16 @@ import CoreFoundation
 var terminated = false
 
 func main() {
+    print("Smud starting")
+    
+    print("Checking if database is up to date")
+    do {
+        try MigrationController.migrate()
+    } catch {
+        print("Error while migrating the database: \(error)")
+        exit(1)
+    }
+    
     guard let server = Server() else { exit(1) }
 
     let listener = ConnectionListener(server: server)

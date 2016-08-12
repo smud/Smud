@@ -24,6 +24,17 @@ class Account: Record {
         email = row.value(named: "email")
         super.init(row: row)
     }
+    
+    override init() {
+        super.init()
+    }
+    
+    static func with(email: String) -> Account? {
+        return DB.queue.inDatabase { db in
+            Account.fetchOne(db, "SELECT * FROM accounts WHERE email = ?",
+                             arguments: [email])
+        }
+    }
 
     override var persistentDictionary: [String: DatabaseValueConvertible?] {
         return ["account_id": accountId,

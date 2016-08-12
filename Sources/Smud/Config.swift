@@ -19,3 +19,5 @@ let maximumLineLengthBytes = 1024
 let playerNameLength = 2...16
 let playerNameAllowedCharacters = CharacterSet(charactersIn: "abcdefghijklmnopqrstuvwxyz")
 let playerNameInvalidCharactersMessage = "Name contains invalid characters. Allowed characters: a-z"
+
+let internalErrorMessage =  "An internal error has occured, the developers have been notified. If the error persists, please contact the support."

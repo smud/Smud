@@ -18,10 +18,21 @@ class ChooseAccountContext: ConnectionContext {
         connection.sendPrompt("Please enter your email address: ")
     }
     
-    func processResponse(args: Arguments, connection: Connection) -> ContextAction {
+    func processResponse(args: Arguments, connection: Connection) throws -> ContextAction {
         guard let email = args.scanWord(),
             Email.isValidEmail(email) else { return .retry("Invalid email address.") }
+        
+        if let account = Account.with(email: email) {
+            connection.account = account
+            return .retry("Account found")
+        }
+        
+        let account = Account()
+        account.email = email
+        try account.save()
 
+        connection.account = account
+        
         connection.send("Confirmation email has been sent to your email address.")
         return .next(ConfirmationCodeContext())
     }

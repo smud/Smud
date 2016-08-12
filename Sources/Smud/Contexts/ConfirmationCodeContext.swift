@@ -19,7 +19,12 @@ class ConfirmationCodeContext: ConnectionContext {
     }
     
     func processResponse(args: Arguments, connection: Connection) -> ContextAction {
-        //return .retry("Ivalid confirmation code.")
+        guard let code = args.scanWord(), code == "123" else {
+            return .retry("Ivalid confirmation code.")
+        }
+        
+        connection.send("Your account has been succesfully created.")
+        
         return .next(PlayerNameContext())
     }
 }

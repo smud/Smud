@@ -124,7 +124,15 @@ class Server {
         let scanner = Scanner(string: line)
         let args = Arguments(scanner: scanner)
         
-        let action = context.processResponse(args: args, connection: connection)
+        let action: ContextAction
+        do {
+            action = try context.processResponse(args: args, connection: connection)
+        } catch {
+            connection.send(internalErrorMessage)
+            print("Error in context \(context): \(error)")
+            context.greet(connection: connection)
+            return
+        }
         
         switch action {
         case .retry(let reason):
