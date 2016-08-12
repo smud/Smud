@@ -12,7 +12,8 @@
 
 import Foundation
 
-class ChooseAccountContext: ConnectionContext {
+final class ChooseAccountContext: ConnectionContext {
+    static var name = "chooseAccount"
     
     func greet(connection: Connection) {
         connection.sendPrompt("Please enter your email address: ")

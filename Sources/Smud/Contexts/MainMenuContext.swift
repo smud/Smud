@@ -12,7 +12,8 @@
 
 import Foundation
 
-class MainMenuContext: ConnectionContext {
+final class MainMenuContext: ConnectionContext {
+    static var name = "mainMenu"
     
     func greet(connection: Connection) {
         guard let name = connection.player?.name else { return }

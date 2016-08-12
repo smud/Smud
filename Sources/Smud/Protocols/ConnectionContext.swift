@@ -13,6 +13,16 @@
 import Foundation
 
 protocol ConnectionContext {
+    static var name: String { get }
+    init()
     func greet(connection: Connection)
     func processResponse(args: Arguments, connection: Connection) throws -> ContextAction
+}
+
+extension ConnectionContext {
+    subscript(name: String) -> ConnectionContext? {
+        get {
+            return ConnectionContextBuilder.createContext(named: name)
+        }
+    }
 }

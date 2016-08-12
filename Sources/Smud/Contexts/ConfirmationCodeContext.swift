@@ -12,7 +12,8 @@
 
 import Foundation
 
-class ConfirmationCodeContext: ConnectionContext {
+final class ConfirmationCodeContext: ConnectionContext {
+    static var name = "confirmationCode"
     
     func greet(connection: Connection) {
         connection.sendPrompt("Please enter the confirmation code: ")

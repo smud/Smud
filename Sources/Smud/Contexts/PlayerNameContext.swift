@@ -12,7 +12,8 @@
 
 import Foundation
 
-class PlayerNameContext: ConnectionContext {
+final class PlayerNameContext: ConnectionContext {
+    static var name = "playerName"
     
     func greet(connection: Connection) {
         connection.sendPrompt("Please choose a name for your character: ")
