@@ -11,17 +11,37 @@
 //
 
 import Foundation
+import GRDB
 
-struct Account {
-    var id: Int
+class Account: Record {
+    var accountId: Int64?
+    var email = ""
     
-    var email: String
+    override class var databaseTableName: String { return "accounts" }
+    
+    required init(row: Row) {
+        accountId = row.value(named: "account_id")
+        email = row.value(named: "email")
+        super.init(row: row)
+    }
+
+    override var persistentDictionary: [String: DatabaseValueConvertible?] {
+        return ["account_id": accountId,
+                "email": email]
+    }
+    
+    override func didInsert(with rowID: Int64, for column: String?) {
+        accountId = rowID
+    }
+
+}
+
+extension Account: Equatable {
+    static func ==(lhs: Account, rhs: Account) -> Bool {
+        return lhs.accountId == rhs.accountId
+    }
 }
 
 extension Account: Hashable {
-    var hashValue: Int { return id }
-    
-    static func ==(lhs: Account, rhs: Account) -> Bool {
-        return lhs.id == rhs.id
-    }
+    var hashValue: Int { return accountId?.hashValue ?? 0 }
 }
