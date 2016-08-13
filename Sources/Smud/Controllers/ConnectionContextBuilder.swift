@@ -15,6 +15,13 @@ import Foundation
 class ConnectionContextBuilder {
     static var contextTypesByName: [String: ConnectionContext.Type] = [:]
     
+    static func registerContexts() {
+        register(contextType: ChooseAccountContext.self)
+        register(contextType: ConfirmationCodeContext.self)
+        register(contextType: MainMenuContext.self)
+        register(contextType: PlayerNameContext.self)
+    }
+    
     static func register(contextType: ConnectionContext.Type) {
         contextTypesByName[contextType.name] = contextType
     }

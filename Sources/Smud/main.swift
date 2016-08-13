@@ -29,6 +29,9 @@ func main() {
         exit(1)
     }
     
+    print("Registering connection contexts")
+    ConnectionContextBuilder.registerContexts()
+    
     guard let server = Server() else { exit(1) }
 
     let listener = ConnectionListener(server: server)
