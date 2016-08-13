@@ -71,9 +71,15 @@ class Server {
         connection.context = ChooseAccountContext()
     }
     
+    func closeConnection(_ connection: Connection) {
+        connection.close()
+        if connection.state == .closed {
+            connections.removeValue(forKey: connection.bufferEvent)
+        }
+    }
     
     func onRead(bev: OpaquePointer?) {
-        //print("onRead")
+        print("onRead")
         guard let bev = bev else { return }
         guard let connection = connections[bev] else { return }
         //let input = bufferevent_get_input(bev)
@@ -98,11 +104,17 @@ class Server {
     }
     
     func onWrite(bev: OpaquePointer?) {
-        //print("onWrite")
+        print("onWrite: bev=\(bev)")
+        guard let bev = bev else { return }
+        guard let connection = connections[bev] else { return }
+
+        if connection.state == .closing && connection.outputLength <= 0 {
+            closeConnection(connection)
+        }
     }
     
     func onEvent(bev: OpaquePointer?, events: Int16) {
-        //print("onEvent")
+        print("onEvent")
         if 0 != events & Int16(BEV_EVENT_ERROR) {
             perror("Error from bufferevent")
         }
@@ -110,8 +122,8 @@ class Server {
             print("Connection closed by remote")
         }
         if (0 != events & (Int16(BEV_EVENT_EOF) | Int16(BEV_EVENT_ERROR))) {
-            if let bev = bev {
-                connections.removeValue(forKey: bev)
+            if let bev = bev, let connection = connections[bev] {
+                closeConnection(connection)
             }
             bufferevent_free(bev);
         }
@@ -143,8 +155,7 @@ class Server {
         case .next(let context):
             connection.context = context
         case .disconnect:
-            connection.close()
-            connections.removeValue(forKey: connection.bufferEvent)
+            closeConnection(connection)
         }
         
         if connection.hasSentAnything {

@@ -14,6 +14,12 @@ import Foundation
 import CEvent
 
 class Connection {
+    enum State {
+        case active
+        case closing
+        case closed
+    }
+    
     static let doBinary: [UInt8] = [TelnetCommand.interpretAsCommand.rawValue,
                                     TelnetCommand.doOption.rawValue,
                                     TelnetOption.binary.rawValue]
@@ -21,6 +27,7 @@ class Connection {
                                             TelnetCommand.goAhead.rawValue]
 
     let bufferEvent: OpaquePointer
+    var state: State = .active
     var address = ""
     let telnetStreamParser = TelnetStreamParser()
     var hasSentAnything = false
@@ -32,6 +39,12 @@ class Connection {
         didSet {
             context?.greet(connection: self)
         }
+    }
+    
+    var outputLength: Int {
+        let output = bufferevent_get_output(bufferEvent)
+        let outputLength = evbuffer_get_length(output)
+        return outputLength
     }
     
     init(bufferEvent: OpaquePointer) {
@@ -105,7 +118,21 @@ class Connection {
     }
     
     func close() {
-        print("Closing connection: \(address)")
-        bufferevent_free(bufferEvent)
+        guard state != .closed else { return }
+        
+        if outputLength > 0 {
+            if state != .closing {
+                print("Waiting for all data to be sent to: \(address)")
+                state = .closing
+            }
+        } else {
+            // Callbacks may still fire with deleted bufferEvent
+            bufferevent_setcb(bufferEvent, nil, nil, nil, nil)
+            
+            bufferevent_free(bufferEvent)
+            state = .closed
+            
+            print("Closing connection: \(address)")
+        }
     }
 }
