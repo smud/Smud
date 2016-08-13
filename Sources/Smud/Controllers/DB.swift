@@ -18,7 +18,7 @@ class DB {
         var config = Configuration()
         config.busyMode = .timeout(10) // Wait 10 seconds before throwing SQLITE_BUSY error
         config.defaultTransactionKind = .deferred
-        config.trace = { print($0) }     // Prints all SQL statements
+        config.trace = { print("  \($0)") }     // Prints all SQL statements
         
         let dbFilename = "Data/db.sqlite"
         do {
