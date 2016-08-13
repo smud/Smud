@@ -19,10 +19,10 @@ protocol ConnectionContext {
     func processResponse(args: Arguments, connection: Connection) throws -> ContextAction
 }
 
-extension ConnectionContext {
-    subscript(name: String) -> ConnectionContext? {
-        get {
-            return ConnectionContextBuilder.createContext(named: name)
-        }
-    }
+func ==(lhs: ConnectionContext, rhs: ConnectionContext) -> Bool {
+    return type(of: lhs).name == type(of: rhs).name
+}
+
+func !=(lhs: ConnectionContext, rhs: ConnectionContext) -> Bool {
+    return type(of: lhs).name != type(of: rhs).name
 }
