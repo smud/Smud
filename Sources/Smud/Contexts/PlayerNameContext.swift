@@ -16,10 +16,19 @@ final class PlayerNameContext: ConnectionContext {
     static var name = "playerName"
     
     func greet(connection: Connection) {
-        connection.sendPrompt("Please choose a name for your character: ")
+        defer { connection.sendPrompt("Please choose a name for your character: ") }
+        
+        guard let accountId = connection.account?.accountId else { return }
+        let playerNames = Player.namesWith(accountId: accountId)
+        guard !playerNames.isEmpty else { return }
+        
+        connection.send("Your characters:  ")
+        for (index, name) in playerNames.sorted().enumerated() {
+            connection.send("  \(index + 1). \(name)")
+        }
     }
 
-    func processResponse(args: Arguments, connection: Connection) -> ContextAction {
+    func processResponse(args: Arguments, connection: Connection) throws -> ContextAction {
         guard let lowercasedName = args.scanWord()?.lowercased() else {
             return .retry(nil)
         }
@@ -38,14 +47,18 @@ final class PlayerNameContext: ConnectionContext {
             return .retry("Character name is too long")
         }
         
-        guard nil == Player.with(name: name) else {
-            return .retry("Character named '\(name)' already exists. Please choose a different name.")
+        if let player = Player.with(name: name) {
+            guard player.accountId == connection.account?.accountId else {
+                return .retry("Character named '\(name)' already exists. Please choose a different name.")
+            }
+            connection.player = player
+        } else {
+            let player = Player()
+            player.accountId = connection.account?.accountId
+            player.name = name
+            try player.save()
+            connection.player = player
         }
-        
-        let player = Player()
-        player.accountId = connection.account?.accountId
-        player.name = name
-        connection.player = player
         
         return .next(MainMenuContext())
     }
