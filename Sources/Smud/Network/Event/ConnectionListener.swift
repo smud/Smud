@@ -61,12 +61,15 @@ class ConnectionListener {
     }
  
     func onAccept(listener: OpaquePointer?, fd: Int32, address: UnsafeMutablePointer<sockaddr>?, socklen: Int32) {
+        
+        var addressString = ""
+        
         if let address = address {
             let addressOpaquePointer = OpaquePointer(address)
             if let sin = UnsafePointer<sockaddr_in>(addressOpaquePointer)?.pointee,
                 let addressCString = inet_ntoa(sin.sin_addr) {
-                    let addressString = String(cString: addressCString)
-                print("New connection: \(addressString)")
+                    addressString = String(cString: addressCString)
+                    print("New connection: \(addressString)")
             }
         }
         
@@ -78,6 +81,7 @@ class ConnectionListener {
         }
 
         let connection = Connection(bufferEvent: bev)
+        connection.address = addressString
         //connection.send("Hello")
         server.newConnection(connection)
     }

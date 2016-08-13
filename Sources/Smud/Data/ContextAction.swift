@@ -15,4 +15,5 @@ import Foundation
 enum ContextAction {
     case retry(String?)
     case next(ConnectionContext)
+    case disconnect
 }

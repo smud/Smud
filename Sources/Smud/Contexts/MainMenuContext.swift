@@ -25,6 +25,18 @@ final class MainMenuContext: ConnectionContext {
     }
     
     func processResponse(args: Arguments, connection: Connection) -> ContextAction {
+        guard let optionIndex = args.scanInt() else {
+            return .retry("Please enter a number.")
+        }
+        switch optionIndex {
+        case 1:
+            break
+        case 0:
+            connection.send("Goodbye!")
+            return .disconnect
+        default:
+            break
+        }
         return .retry("Unknown option.")
     }
 }

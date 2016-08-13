@@ -21,6 +21,7 @@ class Connection {
                                             TelnetCommand.goAhead.rawValue]
 
     let bufferEvent: OpaquePointer
+    var address = ""
     let telnetStreamParser = TelnetStreamParser()
     var hasSentAnything = false
 
@@ -101,5 +102,10 @@ class Connection {
     func sendPrompt(_ items: Any..., separator: String = "", rfc1123EOLs: Bool = true) {
         send("")
         send(items: items, separator: separator, terminator: "", rfc1123EOLs: rfc1123EOLs)
+    }
+    
+    func close() {
+        print("Closing connection: \(address)")
+        bufferevent_free(bufferEvent)
     }
 }
