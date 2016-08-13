@@ -26,7 +26,12 @@ class MigrationController {
                     "account_id INTEGER PRIMARY KEY, " +
                     "email TEXT NOT NULL COLLATE NOCASE" +
                 ");" +
-                "CREATE INDEX accounts_email ON accounts(email); "
+                "CREATE INDEX accounts_email ON accounts(email);" +
+                "CREATE TABLE players (" +
+                    "player_id INTEGER PRIMARY KEY, " +
+                    "account_id INTEGER, " +
+                    "name TEXT NOT NULL" +
+                ");"
             )
         }
 

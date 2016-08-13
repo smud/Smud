@@ -38,7 +38,12 @@ final class PlayerNameContext: ConnectionContext {
             return .retry("Character name is too long")
         }
         
+        guard nil == Player.with(name: name) else {
+            return .retry("Character named '\(name)' already exists. Please choose a different name.")
+        }
+        
         let player = Player()
+        player.accountId = connection.account?.accountId
         player.name = name
         connection.player = player
         

@@ -11,10 +11,11 @@
 //
 
 import Foundation
+import GRDB
 
-class Creature {
+class Creature: Record {
     var name = ""
-
+    
     var gender: Gender = .male
     var plural: Bool = false
     

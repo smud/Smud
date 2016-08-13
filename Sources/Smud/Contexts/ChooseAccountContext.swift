@@ -25,7 +25,7 @@ final class ChooseAccountContext: ConnectionContext {
         
         if let account = Account.with(email: email) {
             connection.account = account
-            return .retry("Account found")
+            return .next(PlayerNameContext())
         }
         
         let account = Account()

@@ -11,6 +11,37 @@
 //
 
 import Foundation
+import GRDB
 
 class Player: Creature {
+    var playerId: Int64?
+    var accountId: Int64?
+    
+    required init(row: Row) {
+        playerId = row.value(named: "player_id")
+        accountId = row.value(named: "account_id")
+        super.init(row: row)
+        name = row.value(named: "name")
+    }
+    
+    override init() {
+        super.init()
+    }
+    
+    static func with(name: String) -> Player? {
+        return DB.queue.inDatabase { db in
+            Player.fetchOne(db, "SELECT * FROM players WHERE name = ?",
+                            arguments: [name.lowercased()])
+        }
+    }
+    
+    override var persistentDictionary: [String: DatabaseValueConvertible?] {
+        return ["player_id": playerId,
+                "account_id": accountId,
+                "name": name.lowercased()]
+    }
+    
+    override func didInsert(with rowID: Int64, for column: String?) {
+        playerId = rowID
+    }
 }
