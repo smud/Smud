@@ -104,7 +104,7 @@ class Server {
     }
     
     func onWrite(bev: OpaquePointer?) {
-        print("onWrite: bev=\(bev)")
+        print("onWrite")
         guard let bev = bev else { return }
         guard let connection = connections[bev] else { return }
 
@@ -119,13 +119,20 @@ class Server {
             perror("Error from bufferevent")
         }
         if 0 != events & Int16(BEV_EVENT_EOF) {
-            print("Connection closed by remote")
+            if let bev = bev, let connection = connections[bev] {
+                print("Connection closed by remote: \(connection.address)")
+            } else {
+                print("Connection closed by remote")
+            }
         }
         if (0 != events & (Int16(BEV_EVENT_EOF) | Int16(BEV_EVENT_ERROR))) {
-            if let bev = bev, let connection = connections[bev] {
-                closeConnection(connection)
+            if let bev = bev {
+                if let connection = connections[bev] {
+                    closeConnection(connection) // will free bufferevent internally
+                } else {
+                    bufferevent_free(bev);
+                }
             }
-            bufferevent_free(bev);
         }
     }
     
