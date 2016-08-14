@@ -30,7 +30,7 @@ final class MainMenuContext: ConnectionContext {
         }
         switch optionIndex {
         case 1:
-            break
+            return .next(GameContext())
         case 0:
             connection.send("Goodbye!")
             return .disconnect
