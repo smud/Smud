@@ -16,6 +16,7 @@ class EditorCommands {
     static func register(with router: CommandRouter) {
         router["area list"] = areaList
         router["area new"] = areaNew
+        router["area"] = area
     }
     
     static func areaList(context: CommandContext) -> CommandAction {
@@ -25,6 +26,14 @@ class EditorCommands {
     
     static func areaNew(context: CommandContext) -> CommandAction {
         context.connection.send("Area new")
+        return .accept
+    }
+    
+    static func area(context: CommandContext) -> CommandAction {
+        if let subcommand = context.args.scanWord() {
+            context.connection.send("Unknown subcommand: \(subcommand)")
+        }
+        context.connection.send("Available subcommands: list, new")
         return .accept
     }
 }
