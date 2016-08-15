@@ -32,6 +32,9 @@ func main() {
     print("Registering connection contexts")
     ConnectionContextBuilder.registerContexts()
     
+    print("Registering commands")
+    Commands.register()
+    
     guard let server = Server() else { exit(1) }
 
     let listener = ConnectionListener(server: server)

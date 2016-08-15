@@ -79,7 +79,7 @@ class Server {
     }
     
     func onRead(bev: OpaquePointer?) {
-        print("onRead")
+        //print("onRead")
         guard let bev = bev else { return }
         guard let connection = connections[bev] else { return }
         //let input = bufferevent_get_input(bev)
@@ -104,7 +104,7 @@ class Server {
     }
     
     func onWrite(bev: OpaquePointer?) {
-        print("onWrite")
+        //print("onWrite")
         guard let bev = bev else { return }
         guard let connection = connections[bev] else { return }
 
@@ -114,7 +114,7 @@ class Server {
     }
     
     func onEvent(bev: OpaquePointer?, events: Int16) {
-        print("onEvent")
+        //print("onEvent")
         if 0 != events & Int16(BEV_EVENT_ERROR) {
             perror("Error from bufferevent")
         }

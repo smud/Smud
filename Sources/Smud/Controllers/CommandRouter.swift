@@ -13,40 +13,42 @@
 import Foundation
 
 class CommandRouter {
-    enum Action {
-        case next
-        case accept
-    }
-    
-    typealias Handler = () throws -> Action
+    typealias Handler = (_ context: CommandContext) throws -> CommandAction
     typealias Path = (lowercasedCommand: String, handler: Handler)
-
+    typealias UnknownCommandHandler = (_ context: CommandContext) -> ()
+    typealias PartialMatchHandler = (_ context: CommandContext) -> ()
+    
     var paths = [Path]()
 
     func add(_ command: String, _ handler: Handler) {
         paths.append(Path(command.lowercased(), handler))
     }
+    
+    subscript(_ command: String) -> Handler {
+        get {
+            fatalError("Not implemented")
+        }
+        set {
+            add(command, newValue)
+        }
+    }
 
-    func process(line: String, unknownCommand: () -> (), partialMatch: () -> ()) {
-        let scanner = Scanner(string: line)
-        scanner.caseSensitive = false
-        scanner.charactersToBeSkipped = CharacterSet.whitespacesAndNewlines
-
-        let args = Arguments(scanner: scanner)
-
+    func process(context: CommandContext, unknownCommand: UnknownCommandHandler, partialMatch: PartialMatchHandler) {
+        let args = context.args
         guard let lowercasedCommand = args.scanWord()?.lowercased() else {
-            unknownCommand()
+            unknownCommand(context)
             return
         }
-
+        
+        let scanner = context.args.scanner
         let originalScanLocation = scanner.scanLocation
         for path in paths {
             if path.lowercasedCommand.hasPrefix(lowercasedCommand) {
                 do {
-                    switch try path.handler() {
+                    switch try path.handler(context) {
                     case .accept:
                         if !args.isAtEnd {
-                            partialMatch()
+                            partialMatch(context)
                         }
                         return
                     case .next:
@@ -58,5 +60,6 @@ class CommandRouter {
             }
             scanner.scanLocation = originalScanLocation
         }
+        unknownCommand(context)
     }
 }
