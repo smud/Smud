@@ -25,10 +25,11 @@ final class GameContext: ConnectionContext {
             print("Connection doesn't have an associated player: \(connection.address)")
             return .retry(internalErrorMessage)
         }
-        let context = CommandContext(player: player, connection: connection, args: args)
-        Commands.router.process(context: context,
+        Commands.router.process(args: args,
+                                player: player,
+                                connection: connection,
                                 unknownCommand: { context in
-            connection.send("Unknown command: \(context.args.scanner.string)")
+            connection.send("Unknown command: \(context.args.scanWord().unwrapOptional)")
         },
                                 partialMatch: { context in
             connection.send("Warning! Part of your input was ignored: \(context.args.scanRestOfString())")

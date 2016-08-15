@@ -14,36 +14,43 @@ import Foundation
 
 class CommandRouter {
     typealias Handler = (_ context: CommandContext) throws -> CommandAction
-    typealias Path = (lowercasedCommand: String, handler: Handler)
+    typealias Path = (command: Command, handler: Handler)
     typealias UnknownCommandHandler = (_ context: CommandContext) -> ()
     typealias PartialMatchHandler = (_ context: CommandContext) -> ()
     
     var paths = [Path]()
 
-    func add(_ command: String, _ handler: Handler) {
-        paths.append(Path(command.lowercased(), handler))
+    func add(_ command: Command, _ handler: Handler) {
+        paths.append(Path(command, handler))
     }
     
-    subscript(_ command: String) -> Handler {
-        get {
-            fatalError("Not implemented")
-        }
-        set {
-            add(command, newValue)
-        }
+    func add(_ commandString: String, _ options: Command.Options = [], _ handler: Handler) {
+        add(Command(commandString, options: options), handler)
+    }
+    
+    subscript(_ command: Command) -> Handler {
+        get { fatalError("Not implemented") }
+        set { add(command, newValue) }
+    }
+    
+    public subscript(_ commandString: String, _ options: Command.Options) -> Handler {
+        get { fatalError("Not implemented") }
+        set { add(Command(commandString, options: options), newValue) }
+    }
+    
+    public subscript(_ commandString: String) -> Handler {
+        get { fatalError("Not implemented") }
+        set { add(Command(commandString), newValue) }
     }
 
-    func process(context: CommandContext, unknownCommand: UnknownCommandHandler, partialMatch: PartialMatchHandler) {
-        let args = context.args
-        guard let lowercasedCommand = args.scanWord()?.lowercased() else {
-            unknownCommand(context)
-            return
-        }
+
+    func process(args: Arguments, player: Player, connection: Connection, unknownCommand: UnknownCommandHandler, partialMatch: PartialMatchHandler) {
         
-        let scanner = context.args.scanner
+        let scanner = args.scanner
         let originalScanLocation = scanner.scanLocation
         for path in paths {
-            if path.lowercasedCommand.hasPrefix(lowercasedCommand) {
+            if let userCommand = path.command.fetchFrom(scanner) {
+                let context = CommandContext(args: args, player: player, connection: connection, userCommand: userCommand)
                 do {
                     switch try path.handler(context) {
                     case .accept:
@@ -55,11 +62,12 @@ class CommandRouter {
                         break
                     }
                 } catch {
-                    print("While processing '\(path.lowercasedCommand)': \(error)")
+                    print("While processing '\(path.command.name)': \(error)")
                 }
             }
             scanner.scanLocation = originalScanLocation
         }
+        let context = CommandContext(args: args, player: player, connection: connection, userCommand: "")
         unknownCommand(context)
     }
 }
