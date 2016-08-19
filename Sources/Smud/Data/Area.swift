@@ -12,8 +12,18 @@
 
 import Foundation
 
-struct Area {
-    var tags: [String]
+class Area {
+    typealias RoomsByTag = [String: Room]
+        
+    var id: String
+    var tags: Set<String> = []
+    var name = ""
     
-    var roomsByTag = [String: Room]()
+    //var roomTemplates
+    var roomPrototypes = RoomsByTag()
+    var instances = [Int: RoomsByTag]()
+    
+    init(id: String) {
+        self.id = id
+    }
 }
