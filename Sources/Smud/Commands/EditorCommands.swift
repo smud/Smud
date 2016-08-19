@@ -22,9 +22,9 @@ class EditorCommands {
     }
     
     static func areaList(context: CommandContext) -> CommandAction {
-        context.connection.send("List of areas:")
+        context.send("List of areas:")
         let areas = AreaManager.areas.map { k, v in "  \(v.name) #\(v.id)" }.joined(separator: "\n")
-        context.connection.send(areas.isEmpty ? "  none." : areas)
+        context.send(areas.isEmpty ? "  none." : areas)
         return .accept
     }
     
@@ -34,7 +34,7 @@ class EditorCommands {
         let tags = words.filter { $0.hasPrefix("#") }.map { $0.droppingPrefix() }
         
         guard !tags.isEmpty && !areaName.isEmpty else {
-            context.connection.send("Usage: area new #tag Short description ")
+            context.send("Usage: area new #tag Short description ")
             return .accept
         }
 
@@ -42,7 +42,7 @@ class EditorCommands {
         do {
             area = try AreaManager.createArea(withId: tags.first!)
         } catch let error as AreaManagerError {
-            context.connection.send(error)
+            context.send(error)
             return .accept
         }
         
@@ -50,21 +50,21 @@ class EditorCommands {
         area.name = areaName
         //area.save()
         
-        context.connection.send("Area #\(area.id) created.")
+        context.send("Area #\(area.id) created.")
         
         return .accept
     }
     
     static func areaDelete(context: CommandContext) throws -> CommandAction {
         guard let word = context.args.scanWord(), word.hasPrefix("#") else {
-            context.connection.send("Usage: area delete #tag")
+            context.send("Usage: area delete #tag")
             return .accept
         }
         let tag = word.droppingPrefix()
         do {
             try AreaManager.deleteArea(withId: tag)
         } catch let error as AreaManagerError {
-            context.connection.send(error)
+            context.send(error)
         }
 
         return .accept
@@ -86,39 +86,39 @@ class EditorCommands {
         if 1...2 ~= tags.count {
             let oldId = tags[0]
             guard let area = AreaManager.areas[oldId] else {
-                context.connection.send("Area tagged #\(oldId) does not exist.")
+                context.send("Area tagged #\(oldId) does not exist.")
                 return .accept
             }
             guard tags.count != 1 || !areaName.isEmpty else {
-                context.connection.send(areaRenameUsage)
+                context.send(areaRenameUsage)
                 return .accept
             }
             if tags.count == 2 {
                 let newId = tags[1]
                 do {
                     try AreaManager.renameArea(oldId: oldId, newId: newId)
-                    context.connection.send("Area #\(oldId) renamed to #\(newId).")
+                    context.send("Area #\(oldId) renamed to #\(newId).")
                 } catch let error as AreaManagerError {
-                    context.connection.send(error)
+                    context.send(error)
                 }
             }
             if !areaName.isEmpty {
                 area.name = areaName
                 //area.save()
-                context.connection.send("Area #\(area.id) description changed to: \(area.name)")
+                context.send("Area #\(area.id) description changed to: \(area.name)")
             }
             
         } else {
-            context.connection.send(areaRenameUsage)
+            context.send(areaRenameUsage)
         }
         return .accept
     }
     
     static func area(context: CommandContext) -> CommandAction {
         if let subcommand = context.args.scanWord() {
-            context.connection.send("Unknown subcommand: \(subcommand)")
+            context.send("Unknown subcommand: \(subcommand)")
         }
-        context.connection.send("Available subcommands: list, new")
+        context.send("Available subcommands: list, new")
         return .accept
     }
 }
