@@ -15,8 +15,17 @@ import Foundation
 extension String {
     public func hasPrefix(_ prefix: String, caseInsensitive: Bool) -> Bool {
         if caseInsensitive {
-            return nil != self.range(of: prefix, options: [.caseInsensitive, .anchored])
+            return nil != range(of: prefix,
+                                options: [.caseInsensitive, .anchored])
         }
         return hasPrefix(prefix)
+    }
+    
+    public func droppingPrefix(count: Int = 1) -> String {
+        return substring(from: index(startIndex, offsetBy: count))
+    }
+    
+    public func droppingSuffix(count: Int = 1) -> String {
+        return substring(to: index(endIndex, offsetBy: -count))
     }
 }
