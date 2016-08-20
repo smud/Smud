@@ -29,6 +29,14 @@ func main() {
         exit(1)
     }
     
+    print("Loading areas")
+    do {
+        try AreaManager.loadAreas()
+    } catch {
+        print("Error while loading areas: \(error)")
+        exit(1)
+    }
+    
     print("Registering connection contexts")
     ConnectionContextBuilder.registerContexts()
     

@@ -19,7 +19,7 @@ class EditorCommands {
         router["area delete"] = areaDelete
         router["area rename"] = areaRename
         router["area"] = area
-        router["save"] = save
+//        router["save"] = save
     }
     
     static func areaList(context: CommandContext) -> CommandAction {
@@ -41,18 +41,13 @@ class EditorCommands {
 
         let area: Area
         do {
-            area = try AreaManager.createArea(withPrimaryTag: tags.first!)
+            area = try AreaManager.createArea(withPrimaryTag: tags.first!, name: areaName)
         } catch let error as AreaManagerError {
             context.send(error)
             return .accept
         }
         
-        //area.extaTags = Set<String>(tags.dropFirst())
-        area.name = areaName
-        try area.scheduleForSaving()
-        
         context.send("Area #\(area.primaryTag) created.")
-        
         return .accept
     }
     
@@ -64,14 +59,13 @@ class EditorCommands {
         let tag = word.droppingPrefix()
         let area: Area
         do {
-            area = try AreaManager.deleteArea(withId: tag)
+            area = try AreaManager.deleteArea(withPrimaryTag: tag)
         } catch let error as AreaManagerError {
             context.send(error)
             return .accept
         }
 
         context.send("Area #\(area.primaryTag) deleted.")
-
         return .accept
     }
     
@@ -109,7 +103,7 @@ class EditorCommands {
             }
             if !areaName.isEmpty {
                 area.name = areaName
-                try area.scheduleForSaving()
+                try area.save()
                 context.send("Area #\(area.primaryTag) description changed to: \(area.name)")
             }
             
@@ -123,13 +117,12 @@ class EditorCommands {
         if let subcommand = context.args.scanWord() {
             context.send("Unknown subcommand: \(subcommand)")
         }
-        context.send("Available subcommands: list, new")
+        context.send("Available subcommands: delete, list, new, rename")
         return .accept
     }
     
-    static func save(context: CommandContext) throws -> CommandAction {
-        context.send("Saving all areas.")
-        try AreaManager.flush()
-        return .accept
-    }
+//    static func save(context: CommandContext) throws -> CommandAction {
+//        context.send("Saving all areas.")
+//        return .accept
+//    }
 }

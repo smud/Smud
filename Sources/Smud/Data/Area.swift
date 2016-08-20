@@ -34,9 +34,13 @@ class Area: Record {
         self.primaryTag = primaryTag
         super.init()
     }
+
+    func save() throws {
+        try DB.queue.inDatabase { db in try save(db) }
+    }
     
-    func scheduleForSaving() throws {
-        AreaManager.saveArea(area: self)
+    func delete() throws -> Bool {
+        return try DB.queue.inDatabase { db in try delete(db) }
     }
     
     override var persistentDictionary: [String: DatabaseValueConvertible?] {
