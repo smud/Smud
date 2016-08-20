@@ -13,67 +13,94 @@
 import Foundation
 
 class AreaManager {
+    typealias T = AreaManager
+    
     /// All areas except deleted ones
-    static var areas = [String: Area]()
+    static private var loadedAreas = [String: Area]()
     
     /// Temporarily store deleted areas until they are deleted from database
-    static private var deletedAreas = [String: Area]()
-    static private var areasToBeSaved = [String: Area]()
+    static private var areasToDelete = [String: Area]()
 
-    static func createArea(withPrimaryTag tag: String) throws -> Area {
-        if areas[tag] != nil {
-            throw AreaManagerError.arleadyExists(tag)
+    static private var areasToSave = [String: Area]()
+
+    static func area(withPrimaryTag tag: String) throws -> Area {
+        if let area = loadedAreas[tag] {
+            return area
         }
-        let area = Area(primaryTag: tag)
-        areas[tag] = area
-        areasToBeSaved[tag] = area
+        let area = DB.queue.inDatabase { db in
+            Area.fetchOne(db, "SELECT * FROM areas WHERE primary_tag = ?",
+                arguments: [tag])
+        }
+        if let area = area {
+            loadedAreas[area.primaryTag] = area
+            return area
+        }
+        throw AreaManagerError.doesNotExist(tag)
+    }
+    
+    static func areaExists(withPrimaryTag tag: String) throws -> Bool {
+        do {
+            let _ = try area(withPrimaryTag: tag)
+        } catch AreaManagerError.doesNotExist {
+            return false
+        }
+        return true
+    }
+    
+    static func createArea(withPrimaryTag tag: String) throws -> Area {
+        guard !(try areaExists(withPrimaryTag: tag)) else {
+            throw AreaManagerError.alreadyExists(tag)
+        }
         
-        if deletedAreas[tag] != nil {
-            deletedAreas.removeValue(forKey: tag)
+        let area = Area(primaryTag: tag)
+        loadedAreas[tag] = area
+        areasToSave[tag] = area
+        
+        if areasToDelete[tag] != nil {
+            areasToDelete.removeValue(forKey: tag)
         }
         
         return area
     }
     
     @discardableResult
-    static func deleteArea(withId id: String) throws -> Area {
-        guard let area = areas[id] else {
-            throw AreaManagerError.doesNotExist(id)
-        }
-        areas.removeValue(forKey: id)
-        deletedAreas[id] = area
+    static func deleteArea(withPrimaryTag tag: String) throws -> Area {
+        let area = try self.area(withPrimaryTag: tag)
+        loadedAreas.removeValue(forKey: tag)
+        areasToDelete[tag] = area
         return area
     }
     
     static func renameArea(oldTag: String, newTag: String) throws {
         
-        guard let area = areas[oldTag] else {
-            throw AreaManagerError.doesNotExist(oldTag)
+        let area = try self.area(withPrimaryTag: oldTag)
+        
+        guard !(try areaExists(withPrimaryTag: newTag)) else {
+            throw AreaManagerError.alreadyExists(newTag)
         }
-        guard nil == areas[newTag] else {
-            throw AreaManagerError.arleadyExists(newTag)
-        }
+
         area.primaryTag = newTag
-        areas.removeValue(forKey: oldTag)
-        areas[newTag] = area
-        areasToBeSaved[newTag] = area
+        loadedAreas.removeValue(forKey: oldTag)
+        areasToSave.removeValue(forKey: oldTag)
+        loadedAreas[newTag] = area
+        areasToSave[newTag] = area
     }
     
     static func saveArea(area: Area) {
-        areasToBeSaved[area.primaryTag] = area
+        areasToSave[area.primaryTag] = area
     }
     
     static func flush() throws {
         try DB.queue.inTransaction { db in
-            for area in deletedAreas {
+            for area in areasToDelete {
                 try db.execute("DELETE FROM areas WHERE primary_tag = ?", arguments: [area.value.primaryTag])
             }
-            for area in areasToBeSaved {
+            for area in areasToSave {
                 try area.value.save(db)
             }
             return .commit
         }
-        deletedAreas.removeAll(keepingCapacity: true)
-        areasToBeSaved.removeAll(keepingCapacity: true)
+        areasToDelete.removeAll(keepingCapacity: true)
+        areasToSave.removeAll(keepingCapacity: true)
     }
 }
