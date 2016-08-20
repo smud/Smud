@@ -31,7 +31,9 @@ class MigrationController {
                     "player_id INTEGER PRIMARY KEY, " +
                     "account_id INTEGER, " +
                     "name TEXT NOT NULL" +
-                ");"
+                ");" +
+                "CREATE INDEX players_account_id ON players(account_id);" +
+                "CREATE INDEX players_name ON players(name);"
             )
         }
 
