@@ -29,6 +29,12 @@ class Account: Record {
         super.init()
     }
     
+    func save() throws {
+        try DB.queue.inDatabase { db in
+            try self.save(db)
+        }
+    }
+    
     static func with(email: String) -> Account? {
         return DB.queue.inDatabase { db in
             Account.fetchOne(db, "SELECT * FROM accounts WHERE email = ?",

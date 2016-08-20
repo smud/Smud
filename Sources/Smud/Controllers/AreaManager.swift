@@ -16,39 +16,64 @@ class AreaManager {
     /// All areas except deleted ones
     static var areas = [String: Area]()
     
-    /// Temporarily store deleted areas until they aren't deleted from database
-    static var deletedAreas = [String: Area]()
-    
-    //static private var areasToBeSaved = [String: Area]()
+    /// Temporarily store deleted areas until they are deleted from database
+    static private var deletedAreas = [String: Area]()
+    static private var areasToBeSaved = [String: Area]()
 
-    static func createArea(withId id: String) throws -> Area {
-        if areas[id] != nil {
-            throw AreaManagerError.arleadyExists(id)
+    static func createArea(withPrimaryTag tag: String) throws -> Area {
+        if areas[tag] != nil {
+            throw AreaManagerError.arleadyExists(tag)
         }
-        let area = Area(id: id)
-        areas[id] = area
-        //areasToBeSaved[id] = area
+        let area = Area(primaryTag: tag)
+        areas[tag] = area
+        areasToBeSaved[tag] = area
+        
+        if deletedAreas[tag] != nil {
+            deletedAreas.removeValue(forKey: tag)
+        }
+        
         return area
     }
     
-    static func deleteArea(withId id: String) throws {
+    @discardableResult
+    static func deleteArea(withId id: String) throws -> Area {
         guard let area = areas[id] else {
             throw AreaManagerError.doesNotExist(id)
         }
         areas.removeValue(forKey: id)
         deletedAreas[id] = area
+        return area
     }
     
-    static func renameArea(oldId: String, newId: String) throws {
+    static func renameArea(oldTag: String, newTag: String) throws {
         
-        guard let area = areas[oldId] else {
-            throw AreaManagerError.doesNotExist(oldId)
+        guard let area = areas[oldTag] else {
+            throw AreaManagerError.doesNotExist(oldTag)
         }
-        guard nil == areas[newId] else {
-            throw AreaManagerError.arleadyExists(newId)
+        guard nil == areas[newTag] else {
+            throw AreaManagerError.arleadyExists(newTag)
         }
-        area.id = newId
-        areas.removeValue(forKey: oldId)
-        areas[newId] = area
+        area.primaryTag = newTag
+        areas.removeValue(forKey: oldTag)
+        areas[newTag] = area
+        areasToBeSaved[newTag] = area
+    }
+    
+    static func saveArea(area: Area) {
+        areasToBeSaved[area.primaryTag] = area
+    }
+    
+    static func flush() throws {
+        try DB.queue.inTransaction { db in
+            for area in deletedAreas {
+                try db.execute("DELETE FROM areas WHERE primary_tag = ?", arguments: [area.value.primaryTag])
+            }
+            for area in areasToBeSaved {
+                try area.value.save(db)
+            }
+            return .commit
+        }
+        deletedAreas.removeAll(keepingCapacity: true)
+        areasToBeSaved.removeAll(keepingCapacity: true)
     }
 }

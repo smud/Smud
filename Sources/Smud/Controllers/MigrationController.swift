@@ -33,7 +33,12 @@ class MigrationController {
                     "name TEXT NOT NULL" +
                 ");" +
                 "CREATE INDEX players_account_id ON players(account_id);" +
-                "CREATE INDEX players_name ON players(name);"
+                "CREATE INDEX players_name ON players(name);" +
+                "CREATE TABLE areas (" +
+                    "area_id INTEGER PRIMARY KEY, " +
+                    "primary_tag TEXT NOT NULL, " +
+                    "name TEXT NOT NULL" +
+                ");"
             )
         }
 

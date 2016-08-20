@@ -19,11 +19,12 @@ class EditorCommands {
         router["area delete"] = areaDelete
         router["area rename"] = areaRename
         router["area"] = area
+        router["save"] = save
     }
     
     static func areaList(context: CommandContext) -> CommandAction {
         context.send("List of areas:")
-        let areas = AreaManager.areas.map { k, v in "  \(v.name) #\(v.id)" }.joined(separator: "\n")
+        let areas = AreaManager.areas.map { k, v in "  \(v.name) #\(v.primaryTag)" }.joined(separator: "\n")
         context.send(areas.isEmpty ? "  none." : areas)
         return .accept
     }
@@ -33,24 +34,24 @@ class EditorCommands {
         let areaName = words.filter { !$0.hasPrefix("#") }.joined(separator: " ")
         let tags = words.filter { $0.hasPrefix("#") }.map { $0.droppingPrefix() }
         
-        guard !tags.isEmpty && !areaName.isEmpty else {
+        guard tags.count == 1 && !areaName.isEmpty else {
             context.send("Usage: area new #tag Short description ")
             return .accept
         }
 
         let area: Area
         do {
-            area = try AreaManager.createArea(withId: tags.first!)
+            area = try AreaManager.createArea(withPrimaryTag: tags.first!)
         } catch let error as AreaManagerError {
             context.send(error)
             return .accept
         }
         
-        area.tags = Set<String>(tags.dropFirst())
+        //area.extaTags = Set<String>(tags.dropFirst())
         area.name = areaName
-        //area.save()
+        try area.scheduleForSaving()
         
-        context.send("Area #\(area.id) created.")
+        context.send("Area #\(area.primaryTag) created.")
         
         return .accept
     }
@@ -61,11 +62,15 @@ class EditorCommands {
             return .accept
         }
         let tag = word.droppingPrefix()
+        let area: Area
         do {
-            try AreaManager.deleteArea(withId: tag)
+            area = try AreaManager.deleteArea(withId: tag)
         } catch let error as AreaManagerError {
             context.send(error)
+            return .accept
         }
+
+        context.send("Area #\(area.primaryTag) deleted.")
 
         return .accept
     }
@@ -84,9 +89,9 @@ class EditorCommands {
         let tags = words.filter { $0.hasPrefix("#") }.map { $0.droppingPrefix() }
 
         if 1...2 ~= tags.count {
-            let oldId = tags[0]
-            guard let area = AreaManager.areas[oldId] else {
-                context.send("Area tagged #\(oldId) does not exist.")
+            let oldTag = tags[0]
+            guard let area = AreaManager.areas[oldTag] else {
+                context.send("Area tagged #\(oldTag) does not exist.")
                 return .accept
             }
             guard tags.count != 1 || !areaName.isEmpty else {
@@ -94,18 +99,18 @@ class EditorCommands {
                 return .accept
             }
             if tags.count == 2 {
-                let newId = tags[1]
+                let newTag = tags[1]
                 do {
-                    try AreaManager.renameArea(oldId: oldId, newId: newId)
-                    context.send("Area #\(oldId) renamed to #\(newId).")
+                    try AreaManager.renameArea(oldTag: oldTag, newTag: newTag)
+                    context.send("Area #\(oldTag) renamed to #\(newTag).")
                 } catch let error as AreaManagerError {
                     context.send(error)
                 }
             }
             if !areaName.isEmpty {
                 area.name = areaName
-                //area.save()
-                context.send("Area #\(area.id) description changed to: \(area.name)")
+                try area.scheduleForSaving()
+                context.send("Area #\(area.primaryTag) description changed to: \(area.name)")
             }
             
         } else {
@@ -119,6 +124,12 @@ class EditorCommands {
             context.send("Unknown subcommand: \(subcommand)")
         }
         context.send("Available subcommands: list, new")
+        return .accept
+    }
+    
+    static func save(context: CommandContext) throws -> CommandAction {
+        context.send("Saving all areas.")
+        try AreaManager.flush()
         return .accept
     }
 }

@@ -29,7 +29,13 @@ class Player: Creature {
     override init() {
         super.init()
     }
-    
+
+    func save() throws {
+        try DB.queue.inDatabase { db in
+            try self.save(db)
+        }
+    }
+
     static func with(name: String) -> Player? {
         return DB.queue.inDatabase { db in
             Player.fetchOne(db, "SELECT * FROM players WHERE name = ?",

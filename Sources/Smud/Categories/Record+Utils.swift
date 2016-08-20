@@ -14,9 +14,9 @@ import Foundation
 import GRDB
 
 extension Record {
-    func save() throws {
-        try DB.queue.inDatabase { db in
-            try self.save(db)
-        }
-    }
+//    func save() throws {
+//        try DB.queue.inDatabase { db in
+//            try self.save(db)
+//        }
+//    }
 }

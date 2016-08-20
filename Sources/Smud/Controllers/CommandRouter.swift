@@ -62,7 +62,9 @@ class CommandRouter {
                         break
                     }
                 } catch {
+                    context.send("An error has occured while processing the command.")
                     print("While processing '\(path.command.name)': \(error)")
+                    return
                 }
             }
             scanner.scanLocation = originalScanLocation
