@@ -1,5 +1,5 @@
 //
-// Commands.swift
+// RoomManager.swift
 //
 // This source file is part of the SMUD open source project
 //
@@ -12,11 +12,6 @@
 
 import Foundation
 
-class Commands {
-    static let router = CommandRouter()
+class RoomManager {
     
-    static func register() {
-        RoomEditorCommands.register(with: Commands.router)
-        AreaEditorCommands.register(with: Commands.router)
-    }
 }

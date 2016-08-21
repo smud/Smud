@@ -1,5 +1,5 @@
 //
-// EditorCommands.swift
+// AreaEditorCommands.swift
 //
 // This source file is part of the SMUD open source project
 //
@@ -12,7 +12,7 @@
 
 import Foundation
 
-class EditorCommands {
+class AreaEditorCommands {
     static func register(with router: CommandRouter) {
         router["area list"] = areaList
         router["area new"] = areaNew
@@ -30,18 +30,14 @@ class EditorCommands {
     }
     
     static func areaNew(context: CommandContext) throws -> CommandAction {
-        let words = context.args.scanWords()
-        let areaName = words.filter { !$0.hasPrefix("#") }.joined(separator: " ")
-        let tags = words.filter { $0.hasPrefix("#") }.map { $0.droppingPrefix() }
-        
-        guard tags.count == 1 && !areaName.isEmpty else {
-            context.send("Usage: area new #tag Short description ")
-            return .accept
+        guard let tag = context.args.scanTag(), !tag.isQualified,
+            let areaName = context.args.scanRestOfString(), !areaName.isEmpty else {
+                return .showUsage("Usage: area new #tag Short description")
         }
 
         let area: Area
         do {
-            area = try AreaManager.createArea(withPrimaryTag: tags.first!, name: areaName)
+            area = try AreaManager.createArea(withPrimaryTag: tag.object, name: areaName)
         } catch let error as AreaManagerError {
             context.send(error)
             return .accept
@@ -52,14 +48,12 @@ class EditorCommands {
     }
     
     static func areaDelete(context: CommandContext) throws -> CommandAction {
-        guard let word = context.args.scanWord(), word.hasPrefix("#") else {
-            context.send("Usage: area delete #tag")
-            return .accept
+        guard let tag = context.args.scanTag(), !tag.isQualified else {
+            return .showUsage("Usage: area delete #tag")
         }
-        let tag = word.droppingPrefix()
         let area: Area
         do {
-            area = try AreaManager.deleteArea(withPrimaryTag: tag)
+            area = try AreaManager.deleteArea(withPrimaryTag: tag.object)
         } catch let error as AreaManagerError {
             context.send(error)
             return .accept
@@ -78,51 +72,52 @@ class EditorCommands {
             " - Set a new description:\n" +
             "     area rename #tag New description"
         
-        let words = context.args.scanWords()
-        let areaName = words.filter { !$0.hasPrefix("#") }.joined(separator: " ")
-        let tags = words.filter { $0.hasPrefix("#") }.map { $0.droppingPrefix() }
+        guard let oldTag = context.args.scanTag(), !oldTag.isQualified else {
+            return .showUsage(areaRenameUsage)
+        }
 
-        if 1...2 ~= tags.count {
-            let oldTag = tags[0]
-            guard let area = AreaManager.areas[oldTag] else {
-                context.send("Area tagged #\(oldTag) does not exist.")
-                return .accept
-            }
-            guard tags.count != 1 || !areaName.isEmpty else {
+        var newTag: Tag?
+        if let tag = context.args.scanTag() {
+            if (!tag.isQualified) {
                 context.send(areaRenameUsage)
                 return .accept
             }
-            if tags.count == 2 {
-                let newTag = tags[1]
-                do {
-                    try AreaManager.renameArea(oldTag: oldTag, newTag: newTag)
-                    context.send("Area #\(oldTag) renamed to #\(newTag).")
-                } catch let error as AreaManagerError {
-                    context.send(error)
-                }
-            }
-            if !areaName.isEmpty {
-                area.name = areaName
-                try area.save()
-                context.send("Area #\(area.primaryTag) description changed to: \(area.name)")
-            }
-            
-        } else {
-            context.send(areaRenameUsage)
+            newTag = tag
         }
+        
+        let areaName = context.args.scanRestOfString()
+        
+        guard let area = AreaManager.areas[oldTag.object] else {
+            context.send("Area tagged \(oldTag) does not exist.")
+            return .accept
+        }
+        guard newTag != nil || areaName != nil else {
+            context.send(areaRenameUsage)
+            return .accept
+        }
+        if let newTag = newTag {
+            do {
+                try AreaManager.renameArea(oldTag: oldTag.object, newTag: newTag.object)
+                context.send("Area \(oldTag) renamed to \(newTag).")
+            } catch let error as AreaManagerError {
+                context.send(error)
+            }
+        }
+        if let areaName = areaName {
+            area.name = areaName
+            try area.save()
+            context.send("Area #\(area.primaryTag) description changed to: \(area.name)")
+        }
+            
         return .accept
     }
     
     static func area(context: CommandContext) -> CommandAction {
+        var result = ""
         if let subcommand = context.args.scanWord() {
-            context.send("Unknown subcommand: \(subcommand)")
+            result += "Unknown subcommand: \(subcommand)\n"
         }
-        context.send("Available subcommands: delete, list, new, rename")
-        return .accept
+        result += "Available subcommands: delete, list, new, rename"
+        return .showUsage(result)
     }
-    
-//    static func save(context: CommandContext) throws -> CommandAction {
-//        context.send("Saving all areas.")
-//        return .accept
-//    }
 }

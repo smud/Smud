@@ -76,14 +76,20 @@ public class Arguments {
 		return value
 	}
 	
-	public func scanRestOfString() -> String {
-		guard let restOfString = scanner.scanUpToString("") else {
-			return ""
-		}
-		return restOfString
+	public func scanRestOfString() -> String? {
+		return scanner.scanUpToString("")
 	}
 	
 	public func skipRestOfString() {
 		scanner.skipUpToString("")
 	}
+    
+    public func scanTag() -> Tag? {
+        let scanLocation = scanner.scanLocation
+        guard let word = scanWord(), word.hasPrefix("#"), let tag = Tag(word) else {
+            scanner.scanLocation = scanLocation
+            return nil
+        }
+        return tag
+    }
 }

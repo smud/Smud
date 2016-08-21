@@ -58,6 +58,9 @@ class CommandRouter {
                             partialMatch(context)
                         }
                         return
+                    case .showUsage(let text):
+                        context.send(text)
+                        return
                     case .next:
                         break
                     }

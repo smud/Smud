@@ -32,7 +32,7 @@ final class GameContext: ConnectionContext {
             connection.send("Unknown command: \(context.args.scanWord().unwrapOptional)")
         },
                                 partialMatch: { context in
-            connection.send("Warning! Part of your input was ignored: \(context.args.scanRestOfString())")
+            connection.send("Warning! Part of your input was ignored: \(context.args.scanRestOfString().unwrapOptional)")
                                     
         })
         
