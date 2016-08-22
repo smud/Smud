@@ -42,7 +42,14 @@ class MigrationController {
                     "primary_tag TEXT NOT NULL, " +
                     "name TEXT NOT NULL" +
                 ");" +
-                "CREATE INDEX areas_primary_tag ON areas(primary_tag);"
+                "CREATE INDEX areas_primary_tag ON areas(primary_tag);" +
+                
+                "CREATE TABLE room_templates (" +
+                    "room_template_id INTEGER PRIMARY KEY, " +
+                    "primary_tag TEXT NOT NULL, " +
+                    "area_id INTEGER NOT NULL, " +
+                    "properties BLOB" +
+                ");"
             )
         }
 

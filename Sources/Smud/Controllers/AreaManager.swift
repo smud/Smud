@@ -19,6 +19,8 @@ class AreaManager {
         let array = DB.queue.inDatabase { db in Area.fetchAll(db) }
         for area in array {
             areas[area.primaryTag] = area
+            print("Loading room templates for area #\(area.primaryTag)")
+            try RoomManager.loadRoomTemplates(area: area)
         }
     }
     

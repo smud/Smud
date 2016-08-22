@@ -15,6 +15,7 @@ import Foundation
 class RoomEditorCommands {
     static func register(with router: CommandRouter) {
         router["room new"] = roomNew
+        router["room"] = room
     }
 
     static func roomNew(context: CommandContext) throws -> CommandAction {
@@ -23,34 +24,24 @@ class RoomEditorCommands {
         }
         let roomName = context.args.scanRestOfString() ?? "Unnamed room"
         
-//        guard tags.count == 1 else {
-//            context.send()
-//            return .accept
-//        }
-//        let tag = tags.first!
-//        
-//        var path = tag.components(separatedBy: ".")
-//        guard let roomTag = path.popLast() else {
-//            context.send("Please specify a room tag.")
-//            return .accept
-//        }
-//        
-//        var area: Area?
-//        
-//        if let areaTag = path.popLast() {
-//            area = AreaManager.areas[areaTag]
-//            guard area != nil else {
-//                context.send("Area #\(areaTag) does not exist.")
-//                return .accept
-//            }
-//        } else {
-//            context.send("Please specify area name: #area_tag.room_tag")
-//            return .accept
-//        }
-//        
-//        
-//        let roomTemplate = RoomTemplate(
-//        
+        do {
+            let roomTemplate = try RoomManager.createRoomTemplate(tag: tag, player: context.player)
+        } catch let error as RoomManagerError {
+            context.send(error)
+            return .accept
+        }
+        
+        
+
         return .accept
+    }
+    
+    static func room(context: CommandContext) -> CommandAction {
+        var result = ""
+        if let subcommand = context.args.scanWord() {
+            result += "Unknown subcommand: \(subcommand)\n"
+        }
+        result += "Available subcommands: new"
+        return .showUsage(result)
     }
 }

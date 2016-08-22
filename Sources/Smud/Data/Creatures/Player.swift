@@ -17,6 +17,8 @@ class Player: Creature {
     var playerId: Int64?
     var accountId: Int64?
     
+    var area: Area? { return nil }
+    
     override class var databaseTableName: String { return "players" }
 
     required init(row: Row) {

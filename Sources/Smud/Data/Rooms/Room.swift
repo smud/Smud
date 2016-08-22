@@ -18,7 +18,8 @@ class Room {
         var description: String
     }
     
-    var tags: [String] = []
+    var primaryTag = ""
+    var extraTags: [String] = []
     
     var name = ""
     
@@ -26,4 +27,22 @@ class Room {
     var keywordsText: [String: String] = [:]
     
     var exits: [Direction: Exit] = [:]
+    
+    func get(property: String) -> String? {
+        switch property {
+        case "primaryTag": return primaryTag
+        case "name": return name
+        case "description": return description
+        default: return nil
+        }
+    }
+    
+    func set(_ property: String, _ value: String) throws {
+        switch property {
+        case "primaryTag": primaryTag = value
+        case "name": name = value
+        case "description": description = value
+        default: throw PropertyError.notFound(property: property)
+        }
+    }
 }
