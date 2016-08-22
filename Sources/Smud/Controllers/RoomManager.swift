@@ -15,7 +15,7 @@ import Foundation
 class RoomManager {
     typealias T = RoomManager
     typealias Templates = [String: RoomTemplate]
-    static var areas = [String: Templates]()
+    static var areaTemplates = [String: Templates]()
     
     static func loadRoomTemplates(area: Area) throws {
         let array = DB.queue.inDatabase { db in
@@ -24,12 +24,12 @@ class RoomManager {
         for roomTemplate in array {
              templates[roomTemplate.primaryTag] = roomTemplate
         }
-        areas[area.primaryTag] = templates
+        areaTemplates[area.primaryTag] = templates
     }
     
     static func roomTemplate(tag: Tag, player: Player) -> RoomTemplate? {
         guard let areaTag = tag.area ?? player.area?.primaryTag else { return nil }
-        let templates = areas[areaTag]
+        let templates = areaTemplates[areaTag]
         return templates?[tag.object]
     }
     
@@ -48,10 +48,10 @@ class RoomManager {
         let roomTemplate = RoomTemplate(primaryTag: tag.object, areaId: areaId)
         try roomTemplate.save()
 
-        if nil == areas[areaTag] {
-            areas[areaTag] = Templates()
+        if nil == areaTemplates[areaTag] {
+            areaTemplates[areaTag] = Templates()
         }
-        areas[areaTag]?[tag.object] = roomTemplate
+        areaTemplates[areaTag]?[tag.object] = roomTemplate
         
         return roomTemplate
     }

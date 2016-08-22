@@ -78,7 +78,7 @@ class AreaEditorCommands {
 
         var newTag: Tag?
         if let tag = context.args.scanTag() {
-            if (!tag.isQualified) {
+            if !tag.isQualified {
                 context.send(areaRenameUsage)
                 return .accept
             }
