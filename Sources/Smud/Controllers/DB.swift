@@ -31,10 +31,10 @@ class DB {
     }()
     
     static func loadWorldSync() {
-        let accountCount = AccountRecord.loadAllRecordsSync().count
+        let accountCount = AccountRecord.loadAllEntitiesSync().count
         print("  Loaded \(accountCount) account(s)")
         
-        let playerCount = PlayerRecord.loadAllRecordsSync().count
+        let playerCount = PlayerRecord.loadAllEntitiesSync().count
         print("  Loaded \(playerCount) player(s)")
     }
     
@@ -71,12 +71,12 @@ class DB {
     }
     
     static func savePendingEntities() {
-        AccountRecord.saveModifiedRecordsAsync() { count in
+        AccountRecord.saveModifiedEntitiesAsync() { count in
             if count > 0 { print("\(count) account(s) saved") }
 
             // Accounts need to be saved before players are saved.
             // Players depend on accountIds being assigned.
-            PlayerRecord.saveModifiedRecordsAsync() { count in
+            PlayerRecord.saveModifiedEntitiesAsync() { count in
                 if count > 0 { print("\(count) player(s) saved") }
             }
         }

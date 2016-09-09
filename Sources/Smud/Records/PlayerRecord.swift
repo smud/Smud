@@ -46,7 +46,7 @@ class PlayerRecord: Record {
         return player
     }
     
-    static func loadAllRecordsSync() -> [Player] {
+    static func loadAllEntitiesSync() -> [Player] {
         let records = DB.queue.inDatabase { db in
             PlayerRecord.fetchAll(db)
         }
@@ -59,7 +59,7 @@ class PlayerRecord: Record {
         return result
     }
     
-    static func saveModifiedRecordsAsync(completion: @escaping (_ count: Int)->() = {_ in}) {
+    static func saveModifiedEntitiesAsync(completion: @escaping (_ count: Int)->() = {_ in}) {
         guard !Player.modifiedPlayers.isEmpty else {
             completion(0)
             return

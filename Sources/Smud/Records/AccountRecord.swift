@@ -37,7 +37,7 @@ class AccountRecord: Record {
         return account
     }
     
-    static func loadAllRecordsSync() -> [Account] {
+    static func loadAllEntitiesSync() -> [Account] {
         let records = DB.queue.inDatabase { db in
             AccountRecord.fetchAll(db)
         }
@@ -50,7 +50,7 @@ class AccountRecord: Record {
         return result
     }
     
-    static func saveModifiedRecordsAsync(completion: @escaping (_ count: Int)->() = {_ in}) {
+    static func saveModifiedEntitiesAsync(completion: @escaping (_ count: Int)->() = {_ in}) {
         guard !Account.modifiedAccounts.isEmpty else {
             completion(0)
             return
