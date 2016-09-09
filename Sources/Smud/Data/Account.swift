@@ -11,46 +11,46 @@
 //
 
 import Foundation
-import GRDB
 
-class Account: Record {
+class Account {
+    typealias PlayerLowercasedNames = LazyMapCollection<[String: Player], String>
+    typealias PlayerNames = LazyMapCollection<PlayerLowercasedNames, String>
+    
+    static var byLowercasedEmail = [String: Account]()
+    static var byAccountId = [Int64: Account]()
+    static var modifiedAccounts = Set<Account>()
+
+    //var isDeleted = false
     var accountId: Int64?
-    var email = ""
+    var email: String
+
+    var playersByLowercasedName = [String: Player]()
     
-    override class var databaseTableName: String { return "accounts" }
-    
-    required init(row: Row) {
-        accountId = row.value(named: "account_id")
-        email = row.value(named: "email")
-        super.init(row: row)
+    var playerNames: PlayerNames {
+        return playersByLowercasedName.keys.map { $0.capitalized }
     }
     
-    override init() {
-        super.init()
-    }
-    
-    func save() throws {
-        try DB.queue.inDatabase { db in
-            try self.save(db)
+    var modified = false {
+        didSet {
+            switch modified {
+            case true: Account.modifiedAccounts.insert(self)
+            case false: Account.modifiedAccounts.remove(self)
+            }
         }
+    }
+    
+    static func with(accountId: Int64) -> Account? {
+        return byAccountId[accountId]
     }
     
     static func with(email: String) -> Account? {
-        return DB.queue.inDatabase { db in
-            Account.fetchOne(db, "SELECT * FROM accounts WHERE email = ?",
-                             arguments: [email])
-        }
-    }
-
-    override var persistentDictionary: [String: DatabaseValueConvertible?] {
-        return ["account_id": accountId,
-                "email": email]
+        return byLowercasedEmail[email.lowercased()]
     }
     
-    override func didInsert(with rowID: Int64, for column: String?) {
-        accountId = rowID
+    init(email: String) {
+        self.email = email
+        Account.byLowercasedEmail[email.lowercased()] = self
     }
-
 }
 
 extension Account: Equatable {

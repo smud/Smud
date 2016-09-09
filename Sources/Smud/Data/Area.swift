@@ -11,47 +11,6 @@
 //
 
 import Foundation
-import GRDB
 
-class Area: Record {
-    typealias RoomsByTag = [String: Room]
-    
-    var areaId: Int64?
-    var primaryTag = ""
-    //var extraTags: Set<String> = []
-    var name = ""
-    
-    override class var databaseTableName: String { return "areas" }
-
-    required init(row: Row) {
-        areaId = row.value(named: "area_id")
-        primaryTag = row.value(named: "primary_tag")
-        name = row.value(named: "name")
-        super.init(row: row)
-    }
-
-    init(primaryTag: String) {
-        self.primaryTag = primaryTag
-        super.init()
-    }
-
-    func save() throws {
-        try DB.queue.inDatabase { db in try save(db) }
-    }
-    
-    func delete() throws -> Bool {
-        return try DB.queue.inDatabase { db in try delete(db) }
-    }
-    
-    override var persistentDictionary: [String: DatabaseValueConvertible?] {
-        return ["area_id": areaId,
-                "primary_tag": primaryTag,
-                "name": name]
-    }
-    
-    override func didInsert(with rowID: Int64, for column: String?) {
-        areaId = rowID
-    }
-
-    
+class Area {
 }

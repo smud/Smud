@@ -49,7 +49,7 @@ class Server {
     func newConnection(_ connection: Connection) {
         connections[connection.bufferEvent] = connection
         
-        let context = unsafeBitCast(self, to: UnsafeMutablePointer<Void>.self)
+        let context = unsafeBitCast(self, to: UnsafeMutableRawPointer.self)
         let bev = connection.bufferEvent
         bufferevent_setcb(bev,
             /* read */ { bev, ctx in

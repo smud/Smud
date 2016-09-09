@@ -13,7 +13,7 @@
 import Foundation
 import GRDB
 
-class Creature: Record {
+class Creature {
     var name = ""
     
     var gender: Gender = .male

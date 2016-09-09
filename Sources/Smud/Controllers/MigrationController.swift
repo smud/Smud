@@ -26,7 +26,6 @@ class MigrationController {
                     "account_id INTEGER PRIMARY KEY, " +
                     "email TEXT NOT NULL COLLATE NOCASE" +
                 ");" +
-                "CREATE INDEX accounts_email ON accounts(email);" +
                     
                 "CREATE TABLE players (" +
                     "player_id INTEGER PRIMARY KEY, " +
@@ -34,18 +33,14 @@ class MigrationController {
                     "name TEXT NOT NULL" +
                 ");" +
                     
-                "CREATE INDEX players_account_id ON players(account_id);" +
-                "CREATE INDEX players_name ON players(name);" +
-                    
                 "CREATE TABLE areas (" +
                     "area_id INTEGER PRIMARY KEY, " +
                     "primary_tag TEXT NOT NULL, " +
                     "name TEXT NOT NULL" +
                 ");" +
-                "CREATE INDEX areas_primary_tag ON areas(primary_tag);" +
                 
-                "CREATE TABLE room_templates (" +
-                    "room_template_id INTEGER PRIMARY KEY, " +
+                "CREATE TABLE rooms (" +
+                    "room_id INTEGER PRIMARY KEY, " +
                     "primary_tag TEXT NOT NULL, " +
                     "area_id INTEGER NOT NULL, " +
                     "properties BLOB" +

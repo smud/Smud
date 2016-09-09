@@ -12,7 +12,12 @@
 
 import Foundation
 
+// Database
+let databaseUpdateInterval = 15.0
+let databaseUpdateLeeway: DispatchTimeInterval? = nil
+
 // Networking
+let port: UInt16 = 4000
 let maximumLineLengthBytes = 1024
 
 // Character naming

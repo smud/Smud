@@ -40,7 +40,7 @@ class ConnectionListener {
         var bind_addr = sockaddr()
         memcpy(&bind_addr, &sin, Int(MemoryLayout<sockaddr_in>.size))
         
-        let context = unsafeBitCast(self, to: UnsafeMutablePointer<Void>.self)
+        let context = unsafeBitCast(self, to: UnsafeMutableRawPointer.self)
         listener = evconnlistener_new_bind(eventBase,
             { listener, fd, address, socklen, ctx in
                 let target = unsafeBitCast(ctx, to: ConnectionListener.self)
@@ -58,6 +58,7 @@ class ConnectionListener {
             let target = unsafeBitCast(ctx, to: ConnectionListener.self)
             target.onAcceptError(listener: listener)
         }
+        print("Ready to accept connections on port \(port)")
     }
  
     func onAccept(listener: OpaquePointer?, fd: Int32, address: UnsafeMutablePointer<sockaddr>?, socklen: Int32) {

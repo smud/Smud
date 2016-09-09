@@ -20,11 +20,11 @@ class CommandRouter {
     
     var paths = [Path]()
 
-    func add(_ command: Command, _ handler: Handler) {
+    func add(_ command: Command, _ handler: @escaping Handler) {
         paths.append(Path(command, handler))
     }
     
-    func add(_ commandString: String, _ options: Command.Options = [], _ handler: Handler) {
+    func add(_ commandString: String, _ options: Command.Options = [], _ handler: @escaping Handler) {
         add(Command(commandString, options: options), handler)
     }
     

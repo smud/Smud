@@ -4,7 +4,7 @@ Smud.xcodeproj
 *.swp
 tags
 Packages/
-Data/
+Game/
 
 # Xcode
 #

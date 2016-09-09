@@ -29,13 +29,19 @@ func main() {
         exit(1)
     }
     
-    print("Loading areas")
-    do {
-        try AreaManager.loadAreas()
-    } catch {
-        print("Error while loading areas: \(error)")
-        exit(1)
-    }
+//    print("Loading areas")
+//    do {
+//        try AreaManager.loadAreas()
+//    } catch {
+//        print("Error while loading areas: \(error)")
+//        exit(1)
+//    }
+    
+    print("Loading world")
+    DB.loadWorldSync()
+    
+    print("Starting database updates")
+    DB.startUpdating()
     
     print("Registering connection contexts")
     ConnectionContextBuilder.registerContexts()
@@ -47,7 +53,7 @@ func main() {
 
     let listener = ConnectionListener(server: server)
     do {
-        try listener.listen(port: 4000)
+        try listener.listen(port: port)
     } catch {
         print(error)
         exit(1)
@@ -55,7 +61,6 @@ func main() {
 
     let maxLatencySeconds = 0.01
 
-    print("Ready to accept connections")
     #if os(OSX)
     while !terminated {
         switch server.loop() {

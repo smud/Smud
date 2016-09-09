@@ -18,8 +18,8 @@ final class PlayerNameContext: ConnectionContext {
     func greet(connection: Connection) {
         defer { connection.sendPrompt("Please choose a name for your character: ") }
         
-        guard let accountId = connection.account?.accountId else { return }
-        let playerNames = Player.namesWith(accountId: accountId)
+        guard let account = connection.account else { return }
+        let playerNames = account.playerNames
         guard !playerNames.isEmpty else { return }
         
         connection.send("Your characters:  ")
@@ -48,15 +48,17 @@ final class PlayerNameContext: ConnectionContext {
         }
         
         if let player = Player.with(name: name) {
-            guard player.accountId == connection.account?.accountId else {
-                return .retry("Character named '\(name)' already exists. Please choose a different name.")
+            guard player.account == connection.account else {
+                    return .retry("Character named '\(name)' already exists. Please choose a different name.")
             }
             connection.player = player
         } else {
-            let player = Player()
-            player.accountId = connection.account?.accountId
-            player.name = name
-            try player.save()
+            guard let account = connection.account else {
+                return .next(ChooseAccountContext())
+            }
+            
+            let player = Player(name: name, account: account)
+            player.modified = true
             connection.player = player
         }
         

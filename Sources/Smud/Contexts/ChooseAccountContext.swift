@@ -28,10 +28,8 @@ final class ChooseAccountContext: ConnectionContext {
             return .next(PlayerNameContext())
         }
         
-        let account = Account()
-        account.email = email
-        try account.save()
-
+        let account = Account(email: email)
+        account.modified = true
         connection.account = account
         
         connection.send("Confirmation email has been sent to your email address.")
