@@ -94,6 +94,10 @@ class PlayerRecord: Record {
     }
     
     override func didInsert(with rowID: Int64, for column: String?) {
+        guard let player = Player.with(name: name) else {
+            fatalError("Error while updating players index")
+        }
         playerId = rowID
+        player.playerId = rowID
     }
 }
