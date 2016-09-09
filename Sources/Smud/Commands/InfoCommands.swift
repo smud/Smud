@@ -15,7 +15,12 @@ import Foundation
 
 class InfoCommands {
     static func register(with router: CommandRouter) {
+        router[""] = refreshPrompt
         router["look"] = look
+    }
+    
+    static func refreshPrompt(context: CommandContext) -> CommandAction {
+        return .accept
     }
     
     static func look(context: CommandContext) -> CommandAction {

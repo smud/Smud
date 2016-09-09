@@ -47,6 +47,10 @@ public class Command {
         // Each word in nameWords should match a word (possibly abbreviated) from scanner
         for nameWord in nameWords {
             guard let word = scanner.scanUpToCharactersFromSet(T.whitespaceAndNewline) else {
+                if nameWord.isEmpty {
+                    // No user input should match empty command name in router
+                    return userCommand
+                }
                 return nil
             }
             
