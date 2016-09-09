@@ -28,7 +28,7 @@ final class ChooseAccountContext: ConnectionContext {
             return .next(PlayerNameContext())
         }
         
-        let account = Account(email: email)
+        var account = Account(email: email)
         account.modified = true
         connection.account = account
         

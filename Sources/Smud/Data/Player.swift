@@ -12,22 +12,13 @@
 
 import Foundation
 
-class Player: Creature {
+final class Player: Creature, Modifiable {
     private static var byLowercasedName = [String: Player]()
-    static var modifiedPlayers = Set<Player>()
+    static var modifiedEntities = Set<Player>()
 
     var playerId: Int64?
     //var accountId: Int64?
     var account: Account
-
-    var modified = false {
-        didSet {
-            switch modified {
-            case true: Player.modifiedPlayers.insert(self)
-            case false: Player.modifiedPlayers.remove(self)
-            }
-        }
-    }
 
     init(name: String, account: Account) {
         self.account = account

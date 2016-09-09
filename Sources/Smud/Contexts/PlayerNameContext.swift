@@ -57,7 +57,7 @@ final class PlayerNameContext: ConnectionContext {
                 return .next(ChooseAccountContext())
             }
             
-            let player = Player(name: name, account: account)
+            var player = Player(name: name, account: account)
             player.modified = true
             connection.player = player
         }

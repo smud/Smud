@@ -13,7 +13,9 @@
 import Foundation
 import GRDB
 
-class PlayerRecord: Record {
+class PlayerRecord: Record, ModifiablePersistable {
+    typealias Entity = Player
+
     var playerId: Int64?
     var accountId: Int64
     var name: String
@@ -27,7 +29,7 @@ class PlayerRecord: Record {
         super.init(row: row)
     }
     
-    init(entity: Player) {
+    required init(entity: Player) {
         playerId = entity.playerId
         guard let entityAccountId = entity.account.accountId else {
             fatalError("Player has no account while being saved")
@@ -44,47 +46,6 @@ class PlayerRecord: Record {
         let player = Player(name: name, account: account)
         player.name = name
         return player
-    }
-    
-    static func loadAllEntitiesSync() -> [Player] {
-        let records = DB.queue.inDatabase { db in
-            PlayerRecord.fetchAll(db)
-        }
-        var result = [Player]()
-        result.reserveCapacity(records.count)
-        for record in records {
-            let entity = record.createEntity()
-            result.append(entity)
-        }
-        return result
-    }
-    
-    static func saveModifiedEntitiesAsync(completion: @escaping (_ count: Int)->() = {_ in}) {
-        guard !Player.modifiedPlayers.isEmpty else {
-            completion(0)
-            return
-        }
-        
-        let records = Player.modifiedPlayers.map {
-            return PlayerRecord(entity: $0)
-        }
-        Player.modifiedPlayers.removeAll(keepingCapacity: true)
-        
-        DB.serialSaveQueue.async {
-            do {
-                try DB.queue.inTransaction { db in
-                    for record in records {
-                        try record.save(db)
-                    }
-                    return .commit
-                }
-            } catch {
-                fatalError("While saving records to database: \(error)")
-            }
-            DispatchQueue.main.async {
-                completion(records.count)
-            }
-        }
     }
     
     override var persistentDictionary: [String: DatabaseValueConvertible?] {

@@ -12,13 +12,13 @@
 
 import Foundation
 
-class Account {
+final class Account: Modifiable {
     typealias PlayerLowercasedNames = LazyMapCollection<[String: Player], String>
     typealias PlayerNames = LazyMapCollection<PlayerLowercasedNames, String>
     
     static var byLowercasedEmail = [String: Account]()
     static var byAccountId = [Int64: Account]()
-    static var modifiedAccounts = Set<Account>()
+    static var modifiedEntities = Set<Account>()
 
     //var isDeleted = false
     var accountId: Int64? {
@@ -35,16 +35,7 @@ class Account {
     var playerNames: PlayerNames {
         return playersByLowercasedName.keys.map { $0.capitalized }
     }
-    
-    var modified = false {
-        didSet {
-            switch modified {
-            case true: Account.modifiedAccounts.insert(self)
-            case false: Account.modifiedAccounts.remove(self)
-            }
-        }
-    }
-    
+
     static func with(accountId: Int64) -> Account? {
         return byAccountId[accountId]
     }

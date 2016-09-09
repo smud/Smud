@@ -13,7 +13,7 @@
 import Foundation
 import GRDB
 
-class AccountRecord: Record {
+class AccountRecord: Record, ModifiablePersistable {
     var accountId: Int64?
     var email: String
 
@@ -25,7 +25,7 @@ class AccountRecord: Record {
         super.init(row: row)
     }
     
-    init(entity: Account) {
+    required init(entity: Account) {
         accountId = entity.accountId
         email = entity.email
         super.init()
@@ -37,47 +37,6 @@ class AccountRecord: Record {
         return account
     }
     
-    static func loadAllEntitiesSync() -> [Account] {
-        let records = DB.queue.inDatabase { db in
-            AccountRecord.fetchAll(db)
-        }
-        var result = [Account]()
-        result.reserveCapacity(records.count)
-        for record in records {
-            let entity = record.createEntity()
-            result.append(entity)
-        }
-        return result
-    }
-    
-    static func saveModifiedEntitiesAsync(completion: @escaping (_ count: Int)->() = {_ in}) {
-        guard !Account.modifiedAccounts.isEmpty else {
-            completion(0)
-            return
-        }
-        
-        let records = Account.modifiedAccounts.map {
-            return AccountRecord(entity: $0)
-        }
-        Account.modifiedAccounts.removeAll(keepingCapacity: true)
-
-        DB.serialSaveQueue.async {
-            do {
-                try DB.queue.inTransaction { db in
-                    for record in records {
-                        try record.save(db)
-                    }
-                    return .commit
-                }
-            } catch {
-                fatalError("While saving records to database: \(error)")
-            }
-            DispatchQueue.main.async {
-                completion(records.count)
-            }
-        }
-    }
-
     override var persistentDictionary: [String: DatabaseValueConvertible?] {
         return ["account_id": accountId,
                 "email": email]
