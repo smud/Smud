@@ -89,6 +89,5 @@ class AccountRecord: Record {
         }
         accountId = rowID
         account.accountId = rowID
-        Account.byAccountId[rowID] = account
     }
 }

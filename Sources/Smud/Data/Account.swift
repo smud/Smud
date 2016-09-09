@@ -21,7 +21,13 @@ class Account {
     static var modifiedAccounts = Set<Account>()
 
     //var isDeleted = false
-    var accountId: Int64?
+    var accountId: Int64? {
+        didSet {
+            guard oldValue == nil else { fatalError() }
+            guard let accountId = accountId else { return }
+            Account.byAccountId[accountId] = self
+        }
+    }
     var email: String
 
     var playersByLowercasedName = [String: Player]()
