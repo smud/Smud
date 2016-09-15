@@ -19,6 +19,7 @@ final class Account: Modifiable {
     static var byLowercasedEmail = [String: Account]()
     static var byAccountId = [Int64: Account]()
     static var modifiedEntities = Set<Account>()
+    var deleted = false
 
     //var isDeleted = false
     var accountId: Int64? {

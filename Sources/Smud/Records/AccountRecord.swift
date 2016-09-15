@@ -44,7 +44,7 @@ class AccountRecord: Record, ModifiablePersistable {
     
     override func didInsert(with rowID: Int64, for column: String?) {
         guard let account = Account.with(email: email) else {
-            fatalError("Error while updating accounts index")
+            fatalError("Error while updating account id")
         }
         accountId = rowID
         account.accountId = rowID

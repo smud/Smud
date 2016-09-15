@@ -12,7 +12,7 @@
 
 import Foundation
 
-enum Direction: String, EnumerableField {
+enum Direction: String, AreaFormatConvertible {
     case north
     case eash
     case south
@@ -20,17 +20,17 @@ enum Direction: String, EnumerableField {
     case up
     case down
     
-    init(_ string: String) throws {
-        let scanner = Scanner(string: string)
+    init(areaFormat: String) throws {
+        let scanner = Scanner(string: areaFormat)
         guard let word = scanner.scanUpToCharacters(from: CharacterSet.whitespacesAndNewlines) else {
-            throw AreaParseError.invalidFormat(details: "Expected a single word")
+            throw AreaFormatError.parseError("Expected a single word")
         }
         guard let direction = Direction(rawValue: word) else {
-            throw AreaParseError.invalidFormat(details: "Invalid value: \(word)")
+            throw AreaFormatError.parseError("Invalid value: \(word)")
         }
         
         self = direction
     }
     
-    var stringValue: String { return rawValue }
+    var areaFormat: String { return rawValue }
 }

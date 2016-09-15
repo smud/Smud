@@ -1,5 +1,5 @@
 //
-// AreaParseError.swift
+// Template.swift
 //
 // This source file is part of the SMUD open source project
 //
@@ -12,12 +12,9 @@
 
 import Foundation
 
-enum AreaParseError: Error, CustomStringConvertible {
-    case invalidFormat(details: String)
+class Template {
+    typealias Setter = (name: String, value: AreaFormatConvertible)
     
-    var description: String {
-        switch self {
-        case .invalidFormat(let details): return details
-        }
-    }
+    var parents = [String]()
+    var setters = [Setter]()
 }

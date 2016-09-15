@@ -1,5 +1,5 @@
 //
-// EnumerableField.swift
+// AreaParseError.swift
 //
 // This source file is part of the SMUD open source project
 //
@@ -12,7 +12,12 @@
 
 import Foundation
 
-protocol EnumerableField {
-    init(_ string: String) throws
-    var stringValue: String { get }
+enum AreaFormatError: Error, CustomStringConvertible {
+    case parseError(String)
+    
+    var description: String {
+        switch self {
+        case .parseError(let details): return details
+        }
+    }
 }

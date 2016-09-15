@@ -43,6 +43,7 @@ class PlayerRecord: Record, ModifiablePersistable {
         guard let account = Account.with(accountId: accountId) else {
             fatalError("Player has no account while being created")
         }
+        let name = self.name.lowercased().capitalized
         let player = Player(name: name, account: account)
         player.name = name
         return player

@@ -22,27 +22,30 @@ class AreaEditorCommands {
     }
     
     static func areaList(context: CommandContext) -> CommandAction {
-//        context.send("List of areas:")
-//        let areas = AreaManager.areas.map { k, v in "  \(v.name) #\(v.primaryTag)" }.joined(separator: "\n")
-//        context.send(areas.isEmpty ? "  none." : areas)
+        context.send("List of areas:")
+        let areas = Area.byPrimaryTag.values.sorted { lhs, rhs in
+            lhs.name.caseInsensitiveCompare(rhs.name) == .orderedAscending }
+        let areaList = areas.map { v in "  \(v.name) #\(v.primaryTag)" }.joined(separator: "\n")
+        context.send(areaList.isEmpty ? "  none." : areaList)
         return .accept
     }
     
     static func areaNew(context: CommandContext) throws -> CommandAction {
-//        guard let tag = context.args.scanTag(), !tag.isQualified,
-//            let areaName = context.args.scanRestOfString(), !areaName.isEmpty else {
-//                return .showUsage("Usage: area new #tag Short description")
-//        }
-//
-//        let area: Area
-//        do {
-//            area = try AreaManager.createArea(withPrimaryTag: tag.object, name: areaName)
-//        } catch let error as AreaManagerError {
-//            context.send(error)
-//            return .accept
-//        }
-//        
-//        context.send("Area #\(area.primaryTag) created.")
+        guard let tag = context.args.scanTag(), !tag.isQualified,
+            let areaName = context.args.scanRestOfString(), !areaName.isEmpty else {
+                return .showUsage("Usage: area new #tag Short description")
+        }
+
+        guard nil == Area.with(primaryTag: tag.object) else {
+            context.send("Area tagged \(tag) already exists.")
+            return .accept
+        }
+        
+        var area = Area(primaryTag: tag.object)
+        area.name = areaName
+        area.modified = true
+
+        context.send("Area #\(area.primaryTag) created.")
         return .accept
     }
     
@@ -50,7 +53,9 @@ class AreaEditorCommands {
 //        guard let tag = context.args.scanTag(), !tag.isQualified else {
 //            return .showUsage("Usage: area delete #tag")
 //        }
-//        let area: Area
+//        let area = Area(primaryTag: tag.object)
+//        area.deleted = true
+
 //        do {
 //            area = try AreaManager.deleteArea(withPrimaryTag: tag.object)
 //        } catch let error as AreaManagerError {

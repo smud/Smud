@@ -13,7 +13,7 @@
 import Foundation
 import GRDB
 
-class AreaRecord: Record {
+class AreaRecord: Record, ModifiablePersistable {
 //    typealias RoomsByTag = [String: Room]
     
     var areaId: Int64?
@@ -30,18 +30,19 @@ class AreaRecord: Record {
         super.init(row: row)
     }
 
-    init(primaryTag: String) {
-        self.primaryTag = primaryTag
+    required init(entity: Area) {
+        areaId = entity.areaId
+        primaryTag = entity.primaryTag
+        name = entity.name
         super.init()
     }
 
-//    func save() throws {
-//        try DB.queue.inDatabase { db in try save(db) }
-//    }
-    
-//    func delete() throws -> Bool {
-//        return try DB.queue.inDatabase { db in try delete(db) }
-//    }
+    func createEntity() -> Area {
+        let area = Area(primaryTag: primaryTag)
+        area.areaId = areaId
+        area.name = name
+        return area
+    }
     
     override var persistentDictionary: [String: DatabaseValueConvertible?] {
         return ["area_id": areaId,
@@ -50,6 +51,10 @@ class AreaRecord: Record {
     }
     
     override func didInsert(with rowID: Int64, for column: String?) {
+        guard let area = Area.with(primaryTag: primaryTag) else {
+            fatalError("Error while updating area id")
+        }
         areaId = rowID
+        area.areaId = rowID
     }
 }

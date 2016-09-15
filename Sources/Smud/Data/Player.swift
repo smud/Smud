@@ -15,7 +15,8 @@ import Foundation
 final class Player: Creature, Modifiable {
     private static var byLowercasedName = [String: Player]()
     static var modifiedEntities = Set<Player>()
-
+    var deleted = false
+    
     var playerId: Int64?
     //var accountId: Int64?
     var account: Account

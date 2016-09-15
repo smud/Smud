@@ -10,14 +10,14 @@
 // See CONTRIBUTORS.txt for the list of SMUD project authors
 //
 
-import Foundation
-
-enum PropertyError: Error, CustomStringConvertible {
-    case notFound(property: String)
-    
-    var description: String {
-        switch self {
-        case let .notFound(property): return "Property '\(property)' not found."
-        }
-    }
-}
+//import Foundation
+//
+//enum PropertyError: Error, CustomStringConvertible {
+//    case notFound(property: String)
+//    
+//    var description: String {
+//        switch self {
+//        case let .notFound(property): return "Property '\(property)' not found."
+//        }
+//    }
+//}
