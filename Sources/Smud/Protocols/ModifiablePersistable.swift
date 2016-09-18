@@ -39,7 +39,11 @@ extension ModifiablePersistable {
             do {
                 try DB.queue.inTransaction { db in
                     for record in records {
-                        try record.save(db)
+                        if record.entity.deleted {
+                            try record.delete(db)
+                        } else {
+                            try record.save(db)
+                        }
                     }
                     return .commit
                 }
