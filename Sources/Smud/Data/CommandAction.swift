@@ -17,6 +17,7 @@ enum CommandAction {
     case accept
 
     /// Send `usageText` to user, stop command matching.
+    /// Will not report unprocessed arguments.
     case showUsage(String)
 
     /// Skip this command, continue command matching.

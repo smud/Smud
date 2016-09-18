@@ -13,5 +13,5 @@
 import Foundation
 
 class AreaInstance {
-    
+    var roomsByTag = [String: Room]()
 }

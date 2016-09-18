@@ -19,6 +19,7 @@ class Room {
 //    }
 //    
     var primaryTag = ""
+    var instanceIndex = -1
     var area: Area?
 //    var extraTags: [String] = []
 //    

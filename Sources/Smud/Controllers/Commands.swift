@@ -17,6 +17,7 @@ class Commands {
     
     static func register() {
         InfoCommands.register(with: router)
+        MovementCommands.register(with: router)
         AdminCommands.register(with: router)
         InstanceCommands.register(with: router)
         RoomEditorCommands.register(with: router)

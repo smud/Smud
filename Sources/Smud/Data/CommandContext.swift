@@ -41,7 +41,46 @@ struct CommandContext {
             send("No area tag specified and you aren't standing in any room.")
             return nil
         }
+    }
     
+    func findRoom(tag: Tag?) -> Room? {
+        guard let tag = tag else { return room }
+        
+        var targetArea: Area
+        if let areaTag = tag.area {
+            guard let v = Area.with(primaryTag: areaTag) else {
+                send("Area tagged #\(areaTag) does not exist.")
+                return nil
+            }
+            targetArea = v
+        } else if let v = area {
+            targetArea = v
+        } else {
+            send("No area tag specified and you aren't standing in any room.")
+            return nil
+        }
+        
+        var targetInstance: Int
+        if let instanceIndex = tag.instance {
+            targetInstance = instanceIndex
+        } else if let v = room?.instanceIndex {
+            targetInstance = v
+        } else {
+            send("Please specify an instance index.")
+            return nil
+        }
+        
+        guard let instance = targetArea.instances[targetInstance] else {
+            send("Instance \(targetInstance) does not exist.")
+            return nil
+        }
+        
+        guard let room = instance.roomsByTag[tag.object] else {
+            send("Room \(tag) does not exist.")
+            return nil
+        }
+        
+        return room
     }
     
     func send(_ items: Any..., separator: String = "", terminator: String = "\n", rfc1123EOLs: Bool = true) {
