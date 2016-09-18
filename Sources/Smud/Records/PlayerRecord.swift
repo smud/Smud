@@ -27,7 +27,8 @@ class PlayerRecord: Record, ModifiablePersistable {
         let accountId: Int64 = row.value(named: "account_id")
         entity.account = Account.with(id: accountId)
         
-        entity.name = row.value(named: "name")
+        let lowercasedName: String = row.value(named: "name")
+        entity.name = lowercasedName.capitalized
     }
     
     required init(entity: Player) {
