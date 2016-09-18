@@ -16,9 +16,10 @@ class Commands {
     static let router = CommandRouter()
     
     static func register() {
-        InfoCommands.register(with: Commands.router)
-        AdminCommands.register(with: Commands.router)
-        RoomEditorCommands.register(with: Commands.router)
-        AreaEditorCommands.register(with: Commands.router)
+        InfoCommands.register(with: router)
+        AdminCommands.register(with: router)
+        InstanceCommands.register(with: router)
+        RoomEditorCommands.register(with: router)
+        AreaEditorCommands.register(with: router)
     }
 }

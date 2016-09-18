@@ -20,27 +20,9 @@ class RoomEditorCommands {
     }
 
     static func roomList(context: CommandContext) throws -> CommandAction {
-        let area: Area
+        let tag = context.args.scanTag()
         
-        if let tag = context.args.scanTag() {
-            if tag.isQualified {
-                context.send("Expected area name only: #areaname")
-                return .accept
-            }
-
-            guard let v = Area.with(primaryTag: tag.object) else {
-                context.send("Area tagged \(tag) does not exist.")
-                return .accept
-            }
-            area = v
-
-        } else if let room = context.player.room, let v = room.area {
-            area = v
-            
-        } else {
-            context.send("No area tag specified and you aren't standing in any room.")
-            return .accept
-        }
+        guard let area = context.findArea(tag: tag) else { return .accept }
         
         context.send("List of #\(area.primaryTag) room templates:")
         let templates = area.roomTemplates.byTag.map { k, v in

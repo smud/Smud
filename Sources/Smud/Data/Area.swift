@@ -24,6 +24,8 @@ final class Area: Modifiable {
     var primaryTag = ""
     var name = ""
     var roomTemplates = TemplateCollection()
+    var instances = [Int: AreaInstance]()
+    var nextInstanceIndex = 1
 }
 
 extension Area: Equatable {
