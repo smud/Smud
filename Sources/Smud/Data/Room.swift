@@ -18,7 +18,8 @@ class Room {
 //        var description: String
 //    }
 //    
-//    var primaryTag = ""
+    var primaryTag = ""
+    var area: Area?
 //    var extraTags: [String] = []
 //    
     var name = ""

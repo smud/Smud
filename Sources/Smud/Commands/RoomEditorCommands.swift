@@ -14,32 +14,43 @@ import Foundation
 
 class RoomEditorCommands {
     static func register(with router: CommandRouter) {
-//        router["room list"] = roomList
+        router["room list"] = roomList
 //        router["room new"] = roomNew
 //        router["room"] = room
     }
 
-//    static func roomList(context: CommandContext) throws -> CommandAction {
-//        let areaTag: String
-//        
-//        if let tag = context.args.scanTag() {
-//            if tag.isQualified {
-//                context.send("Expected area name only.")
-//                return .accept
-//            }
-//            areaTag = tag.object
-//        } else {
-//            context.send("No area specified.")
-//            return .accept
-//        }
-//        
-//        context.send("List of #\(areaTag) room templates:")
-//        let rooms = RoomManager.areaTemplates[areaTag]?.map { k, v in
-//            "  #\(v.primaryTag)" }.joined(separator: "\n") ?? ""
-//        context.send(rooms.isEmpty ? "  none." : rooms)
-//        return .accept
-//    }
-//    
+    static func roomList(context: CommandContext) throws -> CommandAction {
+        let area: Area
+        
+        if let tag = context.args.scanTag() {
+            if tag.isQualified {
+                context.send("Expected area name only: #areaname")
+                return .accept
+            }
+
+            guard let v = Area.with(primaryTag: tag.object) else {
+                context.send("Area tagged \(tag) does not exist.")
+                return .accept
+            }
+            area = v
+
+        } else if let room = context.player.room, let v = room.area {
+            area = v
+            
+        } else {
+            context.send("No area tag specified and you aren't standing in any room.")
+            return .accept
+        }
+        
+        
+        context.send("List of #\(area.primaryTag) room templates:")
+        let templates = area.roomTemplatesByTag.map { k, v in
+                "  #\(k)"
+            }.joined(separator: "\n")
+        context.send(templates.isEmpty ? "  none." : templates)
+        return .accept
+    }
+    
 //    static func roomNew(context: CommandContext) throws -> CommandAction {
 //        guard let tag = context.args.scanTag() else {
 //            return .showUsage("Usage: room new #tag Short description")
@@ -57,7 +68,7 @@ class RoomEditorCommands {
 //
 //        return .accept
 //    }
-//    
+    
 //    static func room(context: CommandContext) -> CommandAction {
 //        var result = ""
 //        if let subcommand = context.args.scanWord() {

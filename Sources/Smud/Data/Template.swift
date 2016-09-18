@@ -15,6 +15,6 @@ import Foundation
 class Template {
     typealias Setter = (name: String, value: AreaFormatConvertible)
     
-    var parents = [String]()
+    var parentTemplateTags = [String]()
     var setters = [Setter]()
 }
