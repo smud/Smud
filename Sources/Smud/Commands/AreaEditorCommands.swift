@@ -23,7 +23,7 @@ class AreaEditorCommands {
     
     static func areaList(context: CommandContext) -> CommandAction {
         context.send("List of areas:")
-        let areas = Area.byPrimaryTag.values.sorted { lhs, rhs in
+        let areas = Area.all.sorted { lhs, rhs in
             lhs.name.caseInsensitiveCompare(rhs.name) == .orderedAscending }
         let areaList = areas.map { v in "  \(v.name) #\(v.primaryTag)" }.joined(separator: "\n")
         context.send(areaList.isEmpty ? "  none." : areaList)
@@ -41,9 +41,11 @@ class AreaEditorCommands {
             return .accept
         }
         
-        var area = Area(primaryTag: tag.object)
+        let area = Area()
+        area.primaryTag = tag.object
         area.name = areaName
         area.modified = true
+        Area.addToIndexes(area: area)
 
         context.send("Area #\(area.primaryTag) created.")
         return .accept

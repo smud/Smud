@@ -14,47 +14,30 @@ import Foundation
 import GRDB
 
 class AreaRecord: Record, ModifiablePersistable {
-//    typealias RoomsByTag = [String: Room]
-    
-    var areaId: Int64?
-    var primaryTag: String
-    //var extraTags: Set<String> = []
-    var name = ""
+    var entity: Area
     
     override class var databaseTableName: String { return "areas" }
 
     required init(row: Row) {
-        areaId = row.value(named: "area_id")
-        primaryTag = row.value(named: "primary_tag")
-        name = row.value(named: "name")
+        entity = Area()
         super.init(row: row)
+        entity.areaId = row.value(named: "area_id")
+        entity.primaryTag = row.value(named: "primary_tag")
+        entity.name = row.value(named: "name")
     }
 
     required init(entity: Area) {
-        areaId = entity.areaId
-        primaryTag = entity.primaryTag
-        name = entity.name
+        self.entity = entity
         super.init()
-    }
-
-    func createEntity() -> Area {
-        let area = Area(primaryTag: primaryTag)
-        area.areaId = areaId
-        area.name = name
-        return area
     }
     
     override var persistentDictionary: [String: DatabaseValueConvertible?] {
-        return ["area_id": areaId,
-                "primary_tag": primaryTag,
-                "name": name]
+        return ["area_id": entity.areaId,
+                "primary_tag": entity.primaryTag,
+                "name": entity.name]
     }
     
     override func didInsert(with rowID: Int64, for column: String?) {
-        guard let area = Area.with(primaryTag: primaryTag) else {
-            fatalError("Error while updating area id")
-        }
-        areaId = rowID
-        area.areaId = rowID
+        entity.areaId = rowID
     }
 }

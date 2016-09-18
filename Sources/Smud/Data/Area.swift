@@ -13,29 +13,16 @@
 import Foundation
 
 final class Area: Modifiable {
-    static var byPrimaryTag = [String: Area]()
+    // Indexes
+    fileprivate static var areasByPrimaryTag = [String: Area]()
+
+    // Modifiable
     static var modifiedEntities = Set<Area>()
-    
     var deleted = false
 
-    var areaId: Int64? {
-        didSet {
-            //guard oldValue == nil else { fatalError() }
-            //guard let areaId = areaId else { return }
-            //Area.byAreaId[areaId] = self
-        }
-    }
-    var primaryTag: String
+    var areaId: Int64?
+    var primaryTag = ""
     var name = ""
-
-    static func with(primaryTag: String) -> Area? {
-        return byPrimaryTag[primaryTag]
-    }
-    
-    init(primaryTag: String) {
-        self.primaryTag = primaryTag
-        Area.byPrimaryTag[primaryTag] = self
-    }
 }
 
 extension Area: Equatable {
@@ -47,3 +34,22 @@ extension Area: Equatable {
 extension Area: Hashable {
     var hashValue: Int { return areaId?.hashValue ?? 0 }
 }
+
+extension Area {
+    static var all: LazyMapCollection<[String: Area], Area> {
+        return Area.areasByPrimaryTag.values
+    }
+    
+    static func addToIndexes(area: Area) {
+        areasByPrimaryTag[area.primaryTag] = area
+    }
+
+    static func removeFromIndexes(area: Area) {
+        areasByPrimaryTag.removeValue(forKey: area.primaryTag)
+    }
+
+    static func with(primaryTag: String) -> Area? {
+        return areasByPrimaryTag[primaryTag]
+    }
+}
+

@@ -17,7 +17,7 @@ protocol ModifiablePersistable: GRDB.Persistable, GRDB.RowConvertible {
     associatedtype Entity: Modifiable
     
     init(entity: Entity)
-    func createEntity() -> Entity
+    var entity: Entity { get }
 
     static func saveModifiedEntitiesAsync(completion: @escaping (_ count: Int)->())
     static func loadAllEntitiesSync() -> [Entity]
@@ -59,8 +59,7 @@ extension ModifiablePersistable {
         var result = [Entity]()
         result.reserveCapacity(records.count)
         for record in records {
-            let entity = record.createEntity()
-            result.append(entity)
+            result.append(record.entity)
         }
         return result
     }

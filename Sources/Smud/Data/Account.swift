@@ -13,42 +13,16 @@
 import Foundation
 
 final class Account: Modifiable {
-    typealias PlayerLowercasedNames = LazyMapCollection<[String: Player], String>
-    typealias PlayerNames = LazyMapCollection<PlayerLowercasedNames, String>
-    
-    static var byLowercasedEmail = [String: Account]()
-    static var byAccountId = [Int64: Account]()
+    // Indexes
+    fileprivate static var accountsByLowercasedEmail = [String: Account]()
+    fileprivate static var accountsById = [Int64: Account]()
+
+    // Modifiable
     static var modifiedEntities = Set<Account>()
     var deleted = false
 
-    //var isDeleted = false
-    var accountId: Int64? {
-        didSet {
-            guard oldValue == nil else { fatalError() }
-            guard let accountId = accountId else { return }
-            Account.byAccountId[accountId] = self
-        }
-    }
-    var email: String
-
-    var playersByLowercasedName = [String: Player]()
-    
-    var playerNames: PlayerNames {
-        return playersByLowercasedName.keys.map { $0.capitalized }
-    }
-
-    static func with(accountId: Int64) -> Account? {
-        return byAccountId[accountId]
-    }
-    
-    static func with(email: String) -> Account? {
-        return byLowercasedEmail[email.lowercased()]
-    }
-    
-    init(email: String) {
-        self.email = email
-        Account.byLowercasedEmail[email.lowercased()] = self
-    }
+    var accountId: Int64?
+    var email = ""
 }
 
 extension Account: Equatable {
@@ -59,4 +33,28 @@ extension Account: Equatable {
 
 extension Account: Hashable {
     var hashValue: Int { return accountId?.hashValue ?? 0 }
+}
+
+extension Account {
+    static func addToIndexes(account: Account) {
+        guard let accountId = account.accountId else { fatalError() }
+        
+        accountsById[accountId] = account
+        accountsByLowercasedEmail[account.email.lowercased()] = account
+    }
+    
+    static func removeFromIndexes(account: Account) {
+        guard let accountId = account.accountId else { fatalError() }
+        
+        accountsById.removeValue(forKey: accountId)
+        accountsByLowercasedEmail.removeValue(forKey: account.email.lowercased())
+    }
+    
+    static func with(id: Int64) -> Account? {
+        return accountsById[id]
+    }
+    
+    static func with(email: String) -> Account? {
+        return accountsByLowercasedEmail[email.lowercased()]
+    }
 }

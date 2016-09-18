@@ -13,26 +13,17 @@
 import Foundation
 
 final class Player: Creature, Modifiable {
-    private static var byLowercasedName = [String: Player]()
+    typealias Players = Set<Player>
+
+    // Indexes
+    static var playersByLowercasedName = [String: Player]()
+    static var playersByAccountId = [Int64: Players]()
+
     static var modifiedEntities = Set<Player>()
     var deleted = false
     
     var playerId: Int64?
-    //var accountId: Int64?
-    var account: Account
-
-    init(name: String, account: Account) {
-        self.account = account
-        super.init()
-        self.name = name
-        let lowercasedName = name.lowercased()
-        Player.byLowercasedName[lowercasedName] = self
-        account.playersByLowercasedName[lowercasedName] = self
-    }
-
-    static func with(name: String) -> Player? {
-        return byLowercasedName[name.lowercased()]
-    }
+    var account: Account?
 }
 
 extension Player: Equatable {
@@ -43,4 +34,28 @@ extension Player: Equatable {
 
 extension Player: Hashable {
     var hashValue: Int { return playerId?.hashValue ?? 0 }
+}
+
+extension Player {
+    static func addToIndexes(player: Player) {
+        guard let accountId = player.account?.accountId else { fatalError() }
+        
+        playersByLowercasedName[player.name.lowercased()] = player
+        playersByAccountId[accountId]?.insert(player)
+    }
+    
+    static func removeFromIndexes(player: Player) {
+        guard let accountId = player.account?.accountId else { fatalError() }
+        
+        playersByLowercasedName.removeValue(forKey: player.name.lowercased())
+        let _ = playersByAccountId[accountId]?.remove(player)
+    }
+    
+    static func with(name: String) -> Player? {
+        return playersByLowercasedName[name.lowercased()]
+    }
+    
+    static func with(accountId: Int64) -> Set<Player> {
+        return playersByAccountId[accountId] ?? []
+    }
 }

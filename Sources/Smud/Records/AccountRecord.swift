@@ -14,39 +14,28 @@ import Foundation
 import GRDB
 
 class AccountRecord: Record, ModifiablePersistable {
-    var accountId: Int64?
-    var email: String
+    var entity: Account
 
     override class var databaseTableName: String { return "accounts" }
     
     required init(row: Row) {
-        accountId = row.value(named: "account_id")
-        email = row.value(named: "email")
+        entity = Account()
         super.init(row: row)
+        entity.accountId = row.value(named: "account_id")
+        entity.email = row.value(named: "email")
     }
     
     required init(entity: Account) {
-        accountId = entity.accountId
-        email = entity.email
+        self.entity = entity
         super.init()
     }
     
-    func createEntity() -> Account {
-        let account = Account(email: email)
-        account.accountId = accountId
-        return account
-    }
-    
     override var persistentDictionary: [String: DatabaseValueConvertible?] {
-        return ["account_id": accountId,
-                "email": email]
+        return ["account_id": entity.accountId,
+                "email": entity.email]
     }
     
     override func didInsert(with rowID: Int64, for column: String?) {
-        guard let account = Account.with(email: email) else {
-            fatalError("Error while updating account id")
-        }
-        accountId = rowID
-        account.accountId = rowID
+        entity.accountId = rowID
     }
 }

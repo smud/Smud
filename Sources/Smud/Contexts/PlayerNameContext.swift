@@ -18,8 +18,9 @@ final class PlayerNameContext: ConnectionContext {
     func greet(connection: Connection) {
         defer { connection.sendPrompt("Please choose a name for your character: ") }
         
-        guard let account = connection.account else { return }
-        let playerNames = account.playerNames
+        guard let accountId = connection.account?.accountId else { return }
+        let players = Player.with(accountId: accountId)
+        let playerNames = players.map { v in v.name }.sorted()
         guard !playerNames.isEmpty else { return }
         
         connection.send("Your characters:  ")
@@ -57,8 +58,11 @@ final class PlayerNameContext: ConnectionContext {
                 return .next(ChooseAccountContext())
             }
             
-            var player = Player(name: name, account: account)
+            let player = Player()
+            player.account = account
+            player.name = name
             player.modified = true
+            Player.addToIndexes(player: player)
             connection.player = player
         }
         

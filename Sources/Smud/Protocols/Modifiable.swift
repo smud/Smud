@@ -12,7 +12,7 @@
 
 import Foundation
 
-protocol Modifiable: Hashable {
+protocol Modifiable: class, Hashable {
     static var modifiedEntities: Set<Self> { get set }
     var deleted: Bool { get set }
     var modified: Bool { get set }
