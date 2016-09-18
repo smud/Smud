@@ -38,17 +38,26 @@ extension Player: Hashable {
 
 extension Player {
     static func addToIndexes(player: Player) {
-        guard let accountId = player.account?.accountId else { fatalError() }
-        
+        if let accountId = player.account?.accountId {
+            var v = playersByAccountId[accountId] ?? []
+            v.insert(player)
+            playersByAccountId[accountId] = v
+        }
         playersByLowercasedName[player.name.lowercased()] = player
-        playersByAccountId[accountId]?.insert(player)
     }
     
     static func removeFromIndexes(player: Player) {
-        guard let accountId = player.account?.accountId else { fatalError() }
-        
+        if let accountId = player.account?.accountId {
+            if var v = playersByAccountId[accountId] {
+                v.remove(player)
+                if v.isEmpty {
+                    playersByAccountId.removeValue(forKey: accountId)
+                } else {
+                    playersByAccountId[accountId] = v
+                }
+            }
+        }
         playersByLowercasedName.removeValue(forKey: player.name.lowercased())
-        let _ = playersByAccountId[accountId]?.remove(player)
     }
     
     static func with(name: String) -> Player? {

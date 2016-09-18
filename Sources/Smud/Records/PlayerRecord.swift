@@ -42,6 +42,8 @@ class PlayerRecord: Record, ModifiablePersistable {
     }
     
     override func didInsert(with rowID: Int64, for column: String?) {
+        Player.removeFromIndexes(player: entity)
         entity.playerId = rowID
+        Player.addToIndexes(player: entity)
     }
 }

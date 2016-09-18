@@ -36,6 +36,8 @@ class AccountRecord: Record, ModifiablePersistable {
     }
     
     override func didInsert(with rowID: Int64, for column: String?) {
+        Account.removeFromIndexes(account: entity)
         entity.accountId = rowID
+        Account.addToIndexes(account: entity)
     }
 }

@@ -37,16 +37,17 @@ extension Account: Hashable {
 
 extension Account {
     static func addToIndexes(account: Account) {
-        guard let accountId = account.accountId else { fatalError() }
-        
-        accountsById[accountId] = account
+        if let accountId = account.accountId {
+            accountsById[accountId] = account
+        }
         accountsByLowercasedEmail[account.email.lowercased()] = account
     }
     
     static func removeFromIndexes(account: Account) {
-        guard let accountId = account.accountId else { fatalError() }
+        if let accountId = account.accountId {
+            accountsById.removeValue(forKey: accountId)
+        }
         
-        accountsById.removeValue(forKey: accountId)
         accountsByLowercasedEmail.removeValue(forKey: account.email.lowercased())
     }
     

@@ -38,6 +38,8 @@ class AreaRecord: Record, ModifiablePersistable {
     }
     
     override func didInsert(with rowID: Int64, for column: String?) {
+        Area.removeFromIndexes(area: entity)
         entity.areaId = rowID
+        Area.addToIndexes(area: entity)
     }
 }
