@@ -31,11 +31,13 @@ class DB {
     }()
     
     static func loadWorldSync() {
-        let accountCount = AccountRecord.loadAllEntitiesSync().count
-        print("  Loaded \(accountCount) account(s)")
+        let accounts = AccountRecord.loadAllEntitiesSync()
+        accounts.forEach { Account.addToIndexes(account: $0) }
+        print("  Loaded \(accounts.count) account(s)")
         
-        let playerCount = PlayerRecord.loadAllEntitiesSync().count
-        print("  Loaded \(playerCount) player(s)")
+        let players = PlayerRecord.loadAllEntitiesSync()
+        players.forEach { Player.addToIndexes(player: $0) }
+        print("  Loaded \(players.count) player(s)")
     }
     
     static func startUpdating() {
