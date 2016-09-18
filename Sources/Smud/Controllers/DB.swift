@@ -14,6 +14,8 @@ import Foundation
 import GRDB
 
 class DB {
+    private static var updating = false
+    
     static let serialSaveQueue = DispatchQueue(label: "Smud.SerialSaveQueue")
     
     static let queue: DatabaseQueue = {
@@ -38,48 +40,43 @@ class DB {
         let players = PlayerRecord.loadAllEntitiesSync()
         players.forEach { Player.addToIndexes(player: $0) }
         print("  Loaded \(players.count) player(s)")
+        
+        let areas = AreaRecord.loadAllEntitiesSync()
+        areas.forEach { Area.addToIndexes(area: $0) }
+        print("  Loaded \(areas.count) area(s)")
     }
     
+    // Call once
     static func startUpdating() {
+        assert(!updating)
+        updating = true
+        nextUpdate()
+    }
+    
+    private static func nextUpdate() {
         DispatchQueue.main.asyncAfter(deadline: .now() + databaseUpdateInterval) {
-            defer { startUpdating() }
             
             //print("Saving")
-            savePendingEntities()
+            savePendingEntitiesAsync {
+                nextUpdate()
+            }
         }
-//        if #available(OSX 10.12, *) {
-//            Timer.scheduledTimer(withTimeInterval: databaseUpdateInterval, repeats: true) { timer in
-//                print("Saving")
-//            }
-//        } else {
-//            // Fallback on earlier versions
-//        }
-        
-//        
-//        let queue = DispatchQueue.main
-//        let timer = DispatchSource.makeTimerSource(flags: [], queue: queue)
-//        let interval = databaseSaveInterval
-//        let block: () -> () = {
-//            print("Saving")
-//        }
-//        let fireTime = DispatchTime.now() + interval
-//        if let leeway = databaseSaveLeeway {
-//            timer.scheduleRepeating(deadline: fireTime, interval: interval, leeway: leeway)
-//        } else {
-//            timer.scheduleRepeating(deadline: fireTime, interval: interval)
-//        }
-//        timer.setEventHandler(handler: block)
-//        timer.resume()
     }
     
-    static func savePendingEntities() {
-        AccountRecord.saveModifiedEntitiesAsync() { count in
+    static func savePendingEntitiesAsync(completion: @escaping ()->() = {}) {
+        AccountRecord.saveModifiedEntitiesAsync { count in
             if count > 0 { print("\(count) account(s) saved") }
 
             // Accounts need to be saved before players are saved.
             // Players depend on accountIds being assigned.
-            PlayerRecord.saveModifiedEntitiesAsync() { count in
+            PlayerRecord.saveModifiedEntitiesAsync { count in
                 if count > 0 { print("\(count) player(s) saved") }
+                
+                AreaRecord.saveModifiedEntitiesAsync { count in
+                    if count > 0 { print("\(count) area(s) saved") }
+                    
+                    completion()
+                }
             }
         }
     }

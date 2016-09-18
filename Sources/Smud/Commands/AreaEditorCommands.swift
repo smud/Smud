@@ -52,23 +52,22 @@ class AreaEditorCommands {
     }
     
     static func areaDelete(context: CommandContext) throws -> CommandAction {
-//        guard let tag = context.args.scanTag(), !tag.isQualified else {
-//            return .showUsage("Usage: area delete #tag")
-//        }
-//        let area = Area(primaryTag: tag.object)
-//        area.deleted = true
+        guard let tag = context.args.scanTag(), !tag.isQualified else {
+            return .showUsage("Usage: area delete #tag")
+        }
+        
+        guard let area = Area.with(primaryTag: tag.object) else {
+            context.send("Area tagged \(tag) does not exist.")
+            return .accept
+        }
+        area.deleted = true
+        area.modified = true
+        Area.removeFromIndexes(area: area)
 
-//        do {
-//            area = try AreaManager.deleteArea(withPrimaryTag: tag.object)
-//        } catch let error as AreaManagerError {
-//            context.send(error)
-//            return .accept
-//        }
-//
-//        context.send("Area #\(area.primaryTag) deleted.")
+        context.send("Area #\(area.primaryTag) deleted.")
         return .accept
     }
-    
+
     static func areaRename(context: CommandContext) throws -> CommandAction {
 //        let areaRenameUsage = "Usage:\n" +
 //            " - Rename a tag and set a new description:\n" +
