@@ -15,8 +15,8 @@ import Foundation
 class RoomEditorCommands {
     static func register(with router: CommandRouter) {
         router["room list"] = roomList
-//        router["room new"] = roomNew
-//        router["room"] = room
+        router["room new"] = roomNew
+        router["room"] = room
     }
 
     static func roomList(context: CommandContext) throws -> CommandAction {
@@ -42,39 +42,50 @@ class RoomEditorCommands {
             return .accept
         }
         
-        
         context.send("List of #\(area.primaryTag) room templates:")
-        let templates = area.roomTemplatesByTag.map { k, v in
+        let templates = area.roomTemplates.byTag.map { k, v in
                 "  #\(k)"
             }.joined(separator: "\n")
         context.send(templates.isEmpty ? "  none." : templates)
         return .accept
     }
     
-//    static func roomNew(context: CommandContext) throws -> CommandAction {
-//        guard let tag = context.args.scanTag() else {
-//            return .showUsage("Usage: room new #tag Short description")
-//        }
-//        let roomName = context.args.scanRestOfString() ?? "Unnamed room"
-//        
-//        do {
-//            let roomTemplate = try RoomManager.createRoomTemplate(tag: tag, player: context.player)
-//        } catch let error as RoomManagerError {
-//            context.send(error)
-//            return .accept
-//        }
-//        
-//        
-//
-//        return .accept
-//    }
+    static func roomNew(context: CommandContext) throws -> CommandAction {
+        guard let tag = context.args.scanTag() else {
+            return .showUsage("Usage: room new #tag Short description")
+        }
+        let roomName = context.args.scanRestOfString() ?? "Unnamed room"
+        
+        guard let areaTag = tag.area ?? context.area?.primaryTag else {
+            context.send("No area tag specified and you aren't standing in any room.")
+            return .accept
+        }
+        
+        guard let area = Area.with(primaryTag: areaTag) else {
+            context.send("Area tagged #\(areaTag) does not exist.")
+            return .accept
+        }
+        
+        guard nil == area.roomTemplates.byTag[tag.object] else {
+            context.send("Room template tagged \(tag) aleady exists.")
+            return .accept
+        }
+        
+        let template = Template()
+        template.setters.append(Template.Setter("name", roomName))
+        area.roomTemplates.byTag[tag.object] = template
+        area.modified = true
+
+        context.send("Room template created: \(tag)")
+        return .accept
+    }
     
-//    static func room(context: CommandContext) -> CommandAction {
-//        var result = ""
-//        if let subcommand = context.args.scanWord() {
-//            result += "Unknown subcommand: \(subcommand)\n"
-//        }
-//        result += "Available subcommands: new"
-//        return .showUsage(result)
-//    }
+    static func room(context: CommandContext) -> CommandAction {
+        var result = ""
+        if let subcommand = context.args.scanWord() {
+            result += "Unknown subcommand: \(subcommand)\n"
+        }
+        result += "Available subcommands: list new"
+        return .showUsage(result)
+    }
 }

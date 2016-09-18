@@ -23,7 +23,7 @@ final class Area: Modifiable {
     var areaId: Int64?
     var primaryTag = ""
     var name = ""
-    var roomTemplatesByTag = [String: Template]()
+    var roomTemplates = TemplateCollection()
 }
 
 extension Area: Equatable {

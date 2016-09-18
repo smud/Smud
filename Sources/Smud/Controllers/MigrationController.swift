@@ -36,14 +36,8 @@ class MigrationController {
                 "CREATE TABLE areas (" +
                     "area_id INTEGER PRIMARY KEY, " +
                     "primary_tag TEXT NOT NULL, " +
-                    "name TEXT NOT NULL" +
-                ");" +
-                
-                "CREATE TABLE rooms (" +
-                    "room_id INTEGER PRIMARY KEY, " +
-                    "primary_tag TEXT NOT NULL, " +
-                    "area_id INTEGER NOT NULL, " +
-                    "properties BLOB" +
+                    "name TEXT NOT NULL, " +
+                    "rooms BLOB" +
                 ");"
             )
         }

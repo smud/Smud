@@ -17,6 +17,9 @@ struct CommandContext {
     let player: Player
     let connection: Connection
     let userCommand: String
+
+    var room: Room? { return player.room }
+    var area: Area? { return room?.area }
     
     func send(_ items: Any..., separator: String = "", terminator: String = "\n", rfc1123EOLs: Bool = true) {
         connection.send(items: items, separator: separator, terminator: terminator, rfc1123EOLs: rfc1123EOLs)
