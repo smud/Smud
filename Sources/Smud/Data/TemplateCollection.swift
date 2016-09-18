@@ -14,8 +14,4 @@ import Foundation
 
 class TemplateCollection {
     var byTag = [String: Template]()
-
-    func templateWith(primaryTag: Tag, area: Area?) {
-        
-    }
 }

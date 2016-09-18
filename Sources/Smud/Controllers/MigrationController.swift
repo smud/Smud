@@ -37,7 +37,7 @@ class MigrationController {
                     "area_id INTEGER PRIMARY KEY, " +
                     "primary_tag TEXT NOT NULL, " +
                     "name TEXT NOT NULL, " +
-                    "rooms BLOB" +
+                    "rooms BLOB NOT NULL" +
                 ");"
             )
         }
