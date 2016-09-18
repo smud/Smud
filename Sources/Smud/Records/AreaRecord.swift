@@ -42,6 +42,7 @@ class AreaRecord: Record, ModifiablePersistable {
         return ["area_id": entity.areaId,
                 "primary_tag": entity.primaryTag,
                 "name": entity.name,
+                "rooms": Data(count: 1)
                 //"rooms": NSKeyedArchiver.archivedData(withRootObject: entity.roomTemplates)
         ]
     }

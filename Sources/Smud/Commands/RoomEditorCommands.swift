@@ -44,8 +44,12 @@ class RoomEditorCommands {
         
         context.send("List of #\(area.primaryTag) room templates:")
         let templates = area.roomTemplates.byTag.map { k, v in
-                "  #\(k)"
-            }.joined(separator: "\n")
+            if let name = v.getSetter(named: "name")?.value.areaFormat {
+                return "  #\(k) \(name)"
+            } else {
+                return "  #\(k)"
+            }
+        }.joined(separator: "\n")
         context.send(templates.isEmpty ? "  none." : templates)
         return .accept
     }
@@ -54,7 +58,7 @@ class RoomEditorCommands {
         guard let tag = context.args.scanTag() else {
             return .showUsage("Usage: room new #tag Short description")
         }
-        let roomName = context.args.scanRestOfString() ?? "Unnamed room"
+        let roomName = context.args.scanRestOfString()
         
         guard let areaTag = tag.area ?? context.area?.primaryTag else {
             context.send("No area tag specified and you aren't standing in any room.")
@@ -72,7 +76,9 @@ class RoomEditorCommands {
         }
         
         let template = Template()
-        template.setters.append(Template.Setter("name", roomName))
+        if let roomName = roomName {
+            template.append(setter: Template.Setter("name", roomName))
+        }
         area.roomTemplates.byTag[tag.object] = template
         area.modified = true
 

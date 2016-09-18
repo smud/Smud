@@ -16,5 +16,17 @@ class Template {
     typealias Setter = (name: String, value: AreaFormatConvertible)
     
     var parentTemplateTags = [String]()
-    var setters = [Setter]()
+    
+    private var settersOrdered = [Setter]()
+    private var settersByName = [String: Setter]()
+    
+    func append(setter: Setter) {
+        // TODO: detect duplicates
+        settersOrdered.append(setter)
+        settersByName[setter.name] = setter
+    }
+    
+    func getSetter(named name: String) -> Setter? {
+        return settersByName[name]
+    }
 }
