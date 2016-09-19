@@ -14,4 +14,23 @@ import Foundation
 
 class AreaInstance {
     var roomsByTag = [String: Room]()
+    
+    init(area: Area) {
+        createRooms(templates: area.roomTemplates)
+    }
+    
+    func createRooms(templates: TemplateCollection) {
+        let sortedTemplates = templates.byTag.sorted(by: { $0.key < $1.key })
+        for pair in sortedTemplates {
+            let template = pair.value
+
+            createRoom(template: template)
+        }
+    }
+    
+    func createRoom(template: Template) {
+        let room = Room()
+        room.name = "Unnamed room"
+        roomsByTag[template.primaryTag] = room
+    }
 }

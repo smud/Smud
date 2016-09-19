@@ -66,7 +66,7 @@ class InstanceCommands {
             area.nextInstanceIndex = chosenIndex + 1
         }
         
-        let instance = AreaInstance()
+        let instance = AreaInstance(area: area)
         
         area.instances[chosenIndex] = instance
         context.send("Instance #\(tag.object):\(chosenIndex) created.")

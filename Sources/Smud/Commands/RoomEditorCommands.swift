@@ -25,13 +25,15 @@ class RoomEditorCommands {
         guard let area = context.findArea(tag: tag) else { return .accept }
         
         context.send("List of #\(area.primaryTag) room templates:")
-        let templates = area.roomTemplates.byTag.map { k, v in
-            if let name = v.getSetter(named: "name")?.value.areaFormat {
-                return "  #\(k) \(name)"
-            } else {
-                return "  #\(k)"
-            }
-        }.joined(separator: "\n")
+        let templates = area.roomTemplates.byTag
+            .sorted { $0.key < $1.key }
+            .map { k, v in
+                if let name = v.getSetter(named: "name")?.value.areaFormat {
+                    return "  #\(k) \(name)"
+                } else {
+                    return "  #\(k)"
+                }
+            }.joined(separator: "\n")
         context.send(templates.isEmpty ? "  none." : templates)
         return .accept
     }
@@ -58,6 +60,7 @@ class RoomEditorCommands {
         }
         
         let template = Template()
+        template.primaryTag = tag.object
         if let roomName = roomName {
             template.append(setter: Template.Setter("name", roomName))
         }

@@ -14,4 +14,5 @@ import Foundation
 
 class TemplateCollection {
     var byTag = [String: Template]()
+
 }
