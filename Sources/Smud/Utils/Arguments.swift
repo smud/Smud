@@ -77,11 +77,11 @@ public class Arguments {
 	}
 	
 	public func scanRestOfString() -> String? {
-		return scanner.scanUpToString("")
+		return scanner.scanUpTo("")
 	}
 	
 	public func skipRestOfString() {
-		scanner.skipUpToString("")
+		let _ = scanner.skipUpTo("")
 	}
     
     public func scanTag() -> Tag? {

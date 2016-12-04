@@ -24,4 +24,7 @@ fetch-master:
 tags:
 	ctags -R ./ ../swift-corelibs-foundation/ ../swift-corelibs-libdispatch/
 
-.PHONY: all build rebuild clean distclean pull-master tags
+xcodeproj:
+	swift package generate-xcodeproj
+
+.PHONY: all build rebuild clean distclean pull-master tags xcodeproj

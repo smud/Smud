@@ -38,7 +38,7 @@ public class Command {
     public func fetchFrom(_ scanner: Scanner, caseSensitive: Bool = false) -> String? {
         if nameWords.isEmpty {
             // This is "match all" rule
-            return scanner.scanUpToCharactersFromSet(T.whitespaceAndNewline)
+            return scanner.scanUpToCharacters(from: T.whitespaceAndNewline)
         }
 
         let caseSensitive = caseSensitive || options.contains(.caseSensitive)
@@ -46,7 +46,7 @@ public class Command {
         
         // Each word in nameWords should match a word (possibly abbreviated) from scanner
         for nameWord in nameWords {
-            guard let word = scanner.scanUpToCharactersFromSet(T.whitespaceAndNewline) else {
+            guard let word = scanner.scanUpToCharacters(from: T.whitespaceAndNewline) else {
                 if nameWord.isEmpty {
                     // No user input should match empty command name in router
                     return userCommand
