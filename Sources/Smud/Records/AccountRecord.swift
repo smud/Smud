@@ -11,33 +11,33 @@
 //
 
 import Foundation
-import GRDB
-
-class AccountRecord: Record, ModifiablePersistable {
-    var entity: Account
-
-    override class var databaseTableName: String { return "accounts" }
-    
-    required init(row: Row) {
-        entity = Account()
-        super.init(row: row)
-        entity.accountId = row.value(named: "account_id")
-        entity.email = row.value(named: "email")
-    }
-    
-    required init(entity: Account) {
-        self.entity = entity
-        super.init()
-    }
-    
-    override var persistentDictionary: [String: DatabaseValueConvertible?] {
-        return ["account_id": entity.accountId,
-                "email": entity.email]
-    }
-    
-    override func didInsert(with rowID: Int64, for column: String?) {
-        Account.removeFromIndexes(account: entity)
-        entity.accountId = rowID
-        Account.addToIndexes(account: entity)
-    }
-}
+//import GRDB
+//
+//class AccountRecord: Record, ModifiablePersistable {
+//    var entity: Account
+//
+//    override class var databaseTableName: String { return "accounts" }
+//    
+//    required init(row: Row) {
+//        entity = Account()
+//        super.init(row: row)
+//        entity.accountId = row.value(named: "account_id")
+//        entity.email = row.value(named: "email")
+//    }
+//    
+//    required init(entity: Account) {
+//        self.entity = entity
+//        super.init()
+//    }
+//    
+//    override var persistentDictionary: [String: DatabaseValueConvertible?] {
+//        return ["account_id": entity.accountId,
+//                "email": entity.email]
+//    }
+//    
+//    override func didInsert(with rowID: Int64, for column: String?) {
+//        Account.removeFromIndexes(account: entity)
+//        entity.accountId = rowID
+//        Account.addToIndexes(account: entity)
+//    }
+//}
