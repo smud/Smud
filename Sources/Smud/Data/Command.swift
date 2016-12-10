@@ -11,6 +11,7 @@
 //
 
 import Foundation
+import StringUtils
 
 public class Command {
     typealias T = Command

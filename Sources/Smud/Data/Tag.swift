@@ -11,6 +11,7 @@
 //
 
 import Foundation
+import StringUtils
 
 public class Tag: CustomStringConvertible {
     var area: String?
