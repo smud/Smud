@@ -11,11 +11,21 @@
 //
 
 import Foundation
+import Dispatch
 
 public class Smud {
     // Configuration
+    public var plugins: [SmudPlugin] = []
     public var areasDirectory = "Data/Areas"
     public var areaFileExtensions = ["rooms", "mobiles", "items"]
+    
+    public var isTerminated = false {
+        didSet {
+            guard isTerminated else { fatalError("Cannot cancel termination process") }
+            guard oldValue == false else { return }
+            flushQueueusAndTerminate()
+        }
+    }
     
     private let areas = Areas()
     private let definitions = Definitions()
@@ -30,6 +40,10 @@ public class Smud {
         
         print("Loading area files")
         try loadAreas()
+        
+        print("Entering game loop")
+        plugins.forEach { $0.willEnterGameLoop() }
+        dispatchMain()
     }
     
     func registerDefinitions() throws {
@@ -45,6 +59,12 @@ public class Smud {
             
             let fullName = URL(fileURLWithPath: areasDirectory, isDirectory: true).appendingPathComponent(filename, isDirectory: false).relativePath
             try parser.load(filename: fullName)
+        }
+    }
+    
+    private func flushQueueusAndTerminate() {
+        DispatchQueue.main.async {
+            exit(0)
         }
     }
 }
