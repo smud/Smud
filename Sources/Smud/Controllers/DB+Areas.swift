@@ -1,5 +1,5 @@
 //
-// Persistable.swift
+// DB+Areas.swift
 //
 // This source file is part of the SMUD open source project
 //
@@ -10,10 +10,14 @@
 // See CONTRIBUTORS.txt for the list of SMUD project authors
 //
 
-//
-//import ConfigFile
-//
-//public protocol Persistable {
-//    init(from: ConfigFile, smud: Smud)
-//    func save(to: ConfigFile)
-//}
+import Foundation
+
+public extension DB {
+    func loadAreas() throws {
+        
+    }
+    
+    func saveAreas(completion: (_ count: Int) throws->()) throws {
+        
+    }
+}

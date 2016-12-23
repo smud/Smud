@@ -32,4 +32,5 @@ open class Config {
     public var areasDirectory = "Data/Areas"
     public var areaFileExtensions = ["rooms", "mobiles", "items"]
     public var accountsDirectory = "Live/Accounts"
+    public var playersDirectory = "Live/Players"
 }

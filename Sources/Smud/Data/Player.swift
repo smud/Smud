@@ -11,14 +11,47 @@
 //
 
 import Foundation
+import ConfigFile
 
 public final class Player: Creature {
     public let smud: Smud
-    public var playerId: Int64?
-    public var account: Account?
+    public var playerId: Int64
+    public var account: Account
     
-    public init(smud: Smud) {
+    public var filename: String {
+        return name.lowercased()
+    }
+    
+    public init(name: String, account: Account, smud: Smud) {
         self.smud = smud
+        playerId = smud.db.createPlayerId()
+        self.account = account
+        super.init(name: name)
+    }
+    
+    public init(from: ConfigFile, smud: Smud) throws {
+        self.smud = smud
+        guard let playerId: Int64 = from["playerId"] else {
+            throw PlayerError(kind: .noPlayerId)
+        }
+        self.playerId = playerId
+        
+        guard let accountId: Int64 = from["accountId"] else {
+            throw PlayerError(kind: .noAccountId)
+        }
+        // Accounts are loaded before players, so this is safe to do
+        guard let account = smud.db.account(id: accountId) else {
+            throw PlayerError(kind: .accountNotFound(accountId: accountId))
+        }
+        self.account = account
+        
+        try super.init(from: from)
+    }
+    
+    override func save(to: ConfigFile) {
+        to["playerId"] = playerId
+        to["accountId"] = account.accountId
+        super.save(to: to)
     }
     
     public func scheduleForSaving() {
@@ -33,5 +66,34 @@ extension Player: Equatable {
 }
 
 extension Player: Hashable {
-    public var hashValue: Int { return playerId?.hashValue ?? 0 }
+    public var hashValue: Int { return playerId.hashValue }
+}
+
+struct PlayerError: Error, CustomStringConvertible {
+    enum Kind: CustomStringConvertible {
+        case noPlayerId
+        case noAccountId
+        case accountNotFound(accountId: Int64)
+        
+        var description: String {
+            switch self {
+            case .noPlayerId:
+                return "Attempt to initialize Plauer from ConfigFile with no playerId"
+            case .noAccountId:
+                return "Attempt to initialize Plauer from ConfigFile with no accountId"
+            case .accountNotFound(let accountId):
+                return "Account not found, id: \(accountId)"
+            }
+        }
+    }
+    
+    let kind: Kind
+    
+    var description: String {
+        return kind.description
+    }
+    
+    var localizedDescription: String {
+        return description
+    }
 }

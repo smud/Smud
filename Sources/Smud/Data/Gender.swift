@@ -12,7 +12,7 @@
 
 import Foundation
 
-public enum Gender {
+public enum Gender: String {
     case male
     case female
     case neutral

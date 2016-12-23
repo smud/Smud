@@ -11,16 +11,61 @@
 //
 
 import Foundation
+import ConfigFile
 
 public class Creature {
-    public var name = ""
+    public var name: String
     
     public var gender: Gender = .male
     public var plural = false
     
     public var room: Room?
     
-    public init() {
+    public init(name: String) {
+        self.name = name
+    }
+    
+    public init(from: ConfigFile) throws {
+        guard let name: String = from["name"] else {
+            throw CreatureError(kind: .noName)
+        }
+        self.name = name
         
+        if let genderString: String = from["gender"], let gender = Gender(rawValue: genderString) {
+            self.gender = gender
+        }
+        
+        if let plural: Bool = from["plural"] {
+            self.plural = plural
+        }
+    }
+    
+    func save(to: ConfigFile) {
+        to["name"] = name
+        to["gender"] = gender.rawValue
+        to["plural"] = plural
+    }
+}
+
+struct CreatureError: Error, CustomStringConvertible {
+    enum Kind: CustomStringConvertible {
+        case noName
+        
+        var description: String {
+            switch self {
+            case .noName:
+                return "Name not set in ConfigFile"
+            }
+        }
+    }
+    
+    let kind: Kind
+    
+    var description: String {
+        return kind.description
+    }
+    
+    var localizedDescription: String {
+        return description
     }
 }

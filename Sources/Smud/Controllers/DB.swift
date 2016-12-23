@@ -11,7 +11,6 @@
 //
 
 import Foundation
-import ConfigFile
 
 public class DB {
     typealias Players = Set<Player>
@@ -27,6 +26,7 @@ public class DB {
     var accountsById = [Int64: Account]()
     
     var modifiedPlayers = Set<Player>()
+    var nextPlayerId: Int64 = 0
     var playersByLowercasedName = [String: Player]()
     var playersByAccountId = [Int64: Players]()
 
@@ -69,137 +69,19 @@ public class DB {
             }
         }
     }
-
-    // MARK: - Accounts
-    
-    func loadAccounts() throws {
-        var accountCount = 0
-        try enumerateFiles(atPath: smud.accountsDirectory) { filename, stop in
-            
-            print("  \(filename)")
-            
-            let directory = URL(fileURLWithPath: smud.accountsDirectory, isDirectory: true)
-            let fullName = directory.appendingPathComponent(filename, isDirectory: false).relativePath
-            let configFile = try ConfigFile(fromFile: fullName)
-            let account = try Account(from: configFile, smud: smud)
-            
-            guard account.filename == filename else {
-                throw DBError(kind: .inconsistentAccountFilename(actual: filename, generated: account.filename))
-            }
-        
-            addToIndexes(account: account)
-            
-            nextAccountId = max(account.accountId + 1, nextAccountId)
-
-            accountCount += 1
-        }
-
-        print("  \(accountCount) account(s), next id: \(nextAccountId)")
-    }
-    
-    func saveAccounts(completion: (_ count: Int) throws->()) throws {
-        var count = 0
-        if !modifiedAccounts.isEmpty {
-            let directory = URL(fileURLWithPath: smud.accountsDirectory, isDirectory: true)
-            try FileManager.default.createDirectory(atPath: directory.relativePath, withIntermediateDirectories: true, attributes: nil)
-        
-            for account in modifiedAccounts {
-                let configFile = ConfigFile()
-                account.save(to: configFile)
-                let fullName = directory.appendingPathComponent(account.filename, isDirectory: false).relativePath
-                
-                try configFile.save(toFile: fullName, atomically: true)
-                
-                count += 1
-            }
-            modifiedAccounts.removeAll(keepingCapacity: true)
-        }
-        try completion(count)
-    }
-    
-    public func createAccountId() -> Int64 {
-        defer { nextAccountId += 1 }
-        return nextAccountId
-    }
-    
-    public func account(id: Int64) -> Account? {
-        return accountsById[id]
-    }
-    
-    public func account(email: String) -> Account? {
-        return accountsByLowercasedEmail[email.lowercased()]
-    }
-    
-    public func addToIndexes(account: Account) {
-        accountsById[account.accountId] = account
-        accountsByLowercasedEmail[account.email.lowercased()] = account
-    }
-    
-    private func removeFromIndexes(account: Account) {
-        accountsById.removeValue(forKey: account.accountId)
-        accountsByLowercasedEmail.removeValue(forKey: account.email.lowercased())
-    }
-
-    // MARK: - Players
-    
-    func loadPlayers() throws {
-        
-    }
-    
-    func savePlayers(completion: (_ count: Int) throws->()) throws {
-        
-    }
-    
-    public func addToIndexes(player: Player) {
-        if let accountId = player.account?.accountId {
-            var v = playersByAccountId[accountId] ?? []
-            v.insert(player)
-            playersByAccountId[accountId] = v
-        }
-        playersByLowercasedName[player.name.lowercased()] = player
-    }
-    
-    public func removeFromIndexes(player: Player) {
-        if let accountId = player.account?.accountId {
-            if var v = playersByAccountId[accountId] {
-                v.remove(player)
-                if v.isEmpty {
-                    playersByAccountId.removeValue(forKey: accountId)
-                } else {
-                    playersByAccountId[accountId] = v
-                }
-            }
-        }
-        playersByLowercasedName.removeValue(forKey: player.name.lowercased())
-    }
-    
-    public func player(name: String) -> Player? {
-        return playersByLowercasedName[name.lowercased()]
-    }
-    
-    public func players(accountId: Int64) -> Set<Player> {
-        return playersByAccountId[accountId] ?? []
-    }
-
-    // MARK: - Areas
-    
-    func loadAreas() throws {
-        
-    }
-    
-    func saveAreas(completion: (_ count: Int) throws->()) throws {
-        
-    }
 }
 
 struct DBError: Error, CustomStringConvertible {
     enum Kind: CustomStringConvertible {
         case inconsistentAccountFilename(actual: String, generated: String)
+        case inconsistentPlayerFilename(actual: String, generated: String)
         
         var description: String {
             switch self {
             case let .inconsistentAccountFilename(actual, generated):
                 return "Inconsistent account filename. Actual filename: '\(actual)', generated filename: '\(generated)'"
+            case let .inconsistentPlayerFilename(actual, generated):
+                return "Inconsistent player filename. Actual filename: '\(actual)', generated filename: '\(generated)'"
             }
         }
     }
