@@ -2,12 +2,17 @@ import Foundation
 
 typealias FileEnumerationHandler = (_ filename: String, _ stop: inout Bool) throws -> ()
 
-func enumerateFiles(atPath path: String, handler: FileEnumerationHandler) rethrows {
+func enumerateFiles(atPath path: String, ignoreTemporaryFiles: Bool = true, handler: FileEnumerationHandler) rethrows {
     let fileManager = FileManager.default
     let enumerator = fileManager.enumerator(atPath: path)
     
     var stop = false
     while let element = enumerator?.nextObject() as? String {
+        if ignoreTemporaryFiles {
+            guard !element.hasPrefix(".") else { continue }
+            guard !element.hasSuffix("~") else { continue }
+            guard !element.hasSuffix(".swp") else { continue }
+        }
         try handler(element, &stop)
         if stop { break }
     }

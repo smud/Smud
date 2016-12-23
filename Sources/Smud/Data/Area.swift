@@ -12,7 +12,7 @@
 
 import Foundation
 
-final class Area: Modifiable {
+final class Area {
     // Indexes
     fileprivate static var areasByPrimaryTag = [String: Area]()
 

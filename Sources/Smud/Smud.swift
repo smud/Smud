@@ -13,12 +13,10 @@
 import Foundation
 import Dispatch
 
-public class Smud {
+public class Smud: Config {
     // Configuration
     public var plugins: [SmudPlugin] = []
-    public var areasDirectory = "Data/Areas"
-    public var areaFileExtensions = ["rooms", "mobiles", "items"]
-    
+
     public var isTerminated = false {
         didSet {
             guard isTerminated else { fatalError("Cannot cancel termination process") }
@@ -27,11 +25,13 @@ public class Smud {
         }
     }
     
+    public var db: DB!
     private let areas = Areas()
     private let definitions = Definitions()
     
-    public init() {
-        
+    override public init() {
+        super.init()
+        db = DB(smud: self)
     }
     
     public func run() throws {
@@ -40,7 +40,13 @@ public class Smud {
         
         print("Loading area files")
         try loadAreas()
+
+        print("Loading player accounts")
+        try db.loadAccounts()
         
+        print("Starting database updates")
+        db.startUpdating()
+
         print("Entering game loop")
         plugins.forEach { $0.willEnterGameLoop() }
         dispatchMain()

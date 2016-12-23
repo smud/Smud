@@ -11,21 +11,40 @@
 //
 
 import Foundation
+import ConfigFile
 
-public final class Account: Modifiable {
-    public init() {
+public final class Account {
+    public let smud: Smud
+    public var accountId: Int64
+    public var email = ""
+    
+    public var filename: String {
+        return "\(accountId)"
     }
     
-    // Indexes
-    fileprivate static var accountsByLowercasedEmail = [String: Account]()
-    fileprivate static var accountsById = [Int64: Account]()
+    public init(smud: Smud) {
+        self.smud = smud
+        accountId = smud.db.createAccountId()
+    }
 
-    // Modifiable
-    public static var modifiedEntities = Set<Account>()
-    public var deleted = false
+    public init(from: ConfigFile, smud: Smud) throws {
+        self.smud = smud
+        guard let accountId: Int64 = from["accountId"] else {
+            throw AccountError(kind: .noAccountId)
+        }
+        self.accountId = accountId
+        
+        email = from["email"] ?? ""
+    }
 
-    public var accountId: Int64?
-    public var email = ""
+    func save(to: ConfigFile) {
+        to["accountId"] = accountId
+        to["email"] = email
+    }
+
+    public func scheduleForSaving() {
+        smud.db.modifiedAccounts.insert(self)
+    }
 }
 
 extension Account: Equatable {
@@ -35,30 +54,28 @@ extension Account: Equatable {
 }
 
 extension Account: Hashable {
-    public var hashValue: Int { return accountId?.hashValue ?? 0 }
+    public var hashValue: Int { return accountId.hashValue }
 }
 
-public extension Account {
-    static func addToIndexes(account: Account) {
-        if let accountId = account.accountId {
-            accountsById[accountId] = account
-        }
-        accountsByLowercasedEmail[account.email.lowercased()] = account
-    }
-    
-    static func removeFromIndexes(account: Account) {
-        if let accountId = account.accountId {
-            accountsById.removeValue(forKey: accountId)
-        }
+struct AccountError: Error, CustomStringConvertible {
+    enum Kind: CustomStringConvertible {
+        case noAccountId
         
-        accountsByLowercasedEmail.removeValue(forKey: account.email.lowercased())
+        var description: String {
+            switch self {
+            case .noAccountId:
+                return "Attempt to initialize Account from ConfigFile with no accountId"
+            }
+        }
     }
     
-    static func with(id: Int64) -> Account? {
-        return accountsById[id]
+    let kind: Kind
+    
+    var description: String {
+        return kind.description
     }
     
-    static func with(email: String) -> Account? {
-        return accountsByLowercasedEmail[email.lowercased()]
+    var localizedDescription: String {
+        return description
     }
 }

@@ -12,19 +12,24 @@
 
 import Foundation
 
-public class Config {
+open class Config {
     // Database
-    public static let databaseUpdateInterval = 15.0
-    public static let databaseUpdateLeeway: DispatchTimeInterval? = nil
+    public var databaseUpdateInterval = 15.0
+    public var databaseUpdateLeeway: DispatchTimeInterval? = nil
 
     // Networking
-    public static let port: UInt16 = 4000
-    public static let maximumLineLengthBytes = 1024
+    public var port: UInt16 = 4000
+    public var maximumLineLengthBytes = 1024
 
     // Character naming
-    public static let playerNameLength = 2...16
-    public static let playerNameAllowedCharacters = CharacterSet(charactersIn: "abcdefghijklmnopqrstuvwxyz")
-    public static let playerNameInvalidCharactersMessage = "Name contains invalid characters. Allowed characters: a-z"
+    public var playerNameLength = 2...16
+    public var playerNameAllowedCharacters = CharacterSet(charactersIn: "abcdefghijklmnopqrstuvwxyz")
+    public var playerNameInvalidCharactersMessage = "Name contains invalid characters. Allowed characters: a-z"
 
-    public static let internalErrorMessage =  "An internal error has occured, the developers have been notified. If the error persists, please contact the support."
+    public var internalErrorMessage =  "An internal error has occured, the developers have been notified. If the error persists, please contact the support."
+    
+    // Directories
+    public var areasDirectory = "Data/Areas"
+    public var areaFileExtensions = ["rooms", "mobiles", "items"]
+    public var accountsDirectory = "Live/Accounts"
 }
