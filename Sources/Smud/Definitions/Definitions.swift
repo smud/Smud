@@ -13,10 +13,17 @@
 import Foundation
 
 class Definitions {
-    var itemFields = FieldDefinitions()
-    var mobileFields = FieldDefinitions()
+    var areaFields = FieldDefinitions()
     var roomFields = FieldDefinitions()
+    var mobileFields = FieldDefinitions()
+    var itemFields = FieldDefinitions()
     var enumerations = Enumerations()
+    
+    func registerAreaFields() throws {
+        let d = areaFields
+        try d.insert(name: "area", type: .tag, flags: .required)
+        try d.insert(name: "title", type: .line)
+    }
     
     func registerRoomFields() throws {
         let d = roomFields

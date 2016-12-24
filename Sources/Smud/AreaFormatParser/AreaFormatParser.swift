@@ -26,7 +26,7 @@ class AreaFormatParser {
     
     private var scanner: Scanner!
     private var lineUtf16Offsets = [Int]()
-    private let areas: Areas
+    private let world: World
     private let definitions: Definitions
     
     private var fieldDefinitions: FieldDefinitions!
@@ -39,9 +39,10 @@ class AreaFormatParser {
     private var currentStructureName = "" // struct
     private var firstFieldInStructure = false
     
+    private static let areaTagFieldName = "area"
     private static let roomTagFieldName = "room"
-    private static let itemTagFieldName = "item"
     private static let mobileTagFieldName = "mobile"
+    private static let itemTagFieldName = "item"
     
     #if os(Linux) || os(Windows)
     // CharacterSet.union does not work in SwiftFoundation
@@ -65,8 +66,8 @@ class AreaFormatParser {
     private static let tagCharacters = CharacterSet.alphanumerics.union(CharacterSet(charactersIn: "_"))
     #endif
     
-    init(areas: Areas, definitions: Definitions) {
-        self.areas = areas
+    init(world: World, definitions: Definitions) {
+        self.world = world
         self.definitions = definitions
     }
     
@@ -92,7 +93,7 @@ class AreaFormatParser {
         
         try skipComments()
         while !scanner.isAtEnd {
-            try scanNextEntity()
+            try scanNextField()
 
             try skipComments()
         }
@@ -118,7 +119,7 @@ class AreaFormatParser {
         return offsets
     }
     
-    private func scanNextEntity() throws {
+    private func scanNextField() throws {
         try skipComments()
         
         guard let word = scanWord() else {
@@ -135,19 +136,28 @@ class AreaFormatParser {
             }
         }
 
+        var isNewEntity = false
+        
         currentFieldName = field.lowercased()
         if currentStructureType == .none {
             switch currentFieldName {
-            case T.itemTagFieldName:
+            case T.areaTagFieldName:
                 try finalizeCurrentEntity()
-                fieldDefinitions = definitions.itemFields
-            case T.mobileTagFieldName:
-                try finalizeCurrentEntity()
-                fieldDefinitions = definitions.mobileFields
-                animateByDefault = true
+                isNewEntity = true
+                fieldDefinitions = definitions.areaFields
             case T.roomTagFieldName:
                 try finalizeCurrentEntity()
+                isNewEntity = true
                 fieldDefinitions = definitions.roomFields
+            case T.mobileTagFieldName:
+                try finalizeCurrentEntity()
+                isNewEntity = true
+                fieldDefinitions = definitions.mobileFields
+                animateByDefault = true
+            case T.itemTagFieldName:
+                try finalizeCurrentEntity()
+                isNewEntity = true
+                fieldDefinitions = definitions.itemFields
             default:
                 break
             }
@@ -166,6 +176,21 @@ class AreaFormatParser {
         } else {
             try scanValue()
             requireFieldSeparator = true
+            
+            if isNewEntity {
+                // Prevent overwriting old entity with same id:
+                
+                // At this point both type and id of new entity are available.
+                // Check if entity already exists and use the old one instead.
+                let replaced = replaceCurrentEntityWithOldEntity()
+                if areasLog {
+                    if replaced {
+                        print("Appending to old entity")
+                    } else {
+                        print("Created a new entity")
+                    }
+                }
+            }
         }
 
         if currentStructureType == .base {
@@ -694,15 +719,18 @@ class AreaFormatParser {
 
     private func finalizeCurrentEntity() throws {
         if let entity = currentEntity {
-            if let item = entity.value(named: T.itemTagFieldName),
-                case .tag(let itemId) = item {
-                    areas.items[itemId] = entity
-            } else if let mobile = entity.value(named: T.mobileTagFieldName),
-                case .tag(let mobileId) = mobile {
-                    areas.mobiles[mobileId] = entity
+            if let area = entity.value(named: T.areaTagFieldName),
+                case .tag(let areaId) = area {
+                    world.areas[areaId] = entity
             } else if let room = entity.value(named: T.roomTagFieldName),
                 case .tag(let roomId) = room {
-                    areas.rooms[roomId] = entity
+                    world.rooms[roomId] = entity
+            } else if let mobile = entity.value(named: T.mobileTagFieldName),
+                case .tag(let mobileId) = mobile {
+                    world.mobiles[mobileId] = entity
+            } else if let item = entity.value(named: T.itemTagFieldName),
+                    case .tag(let itemId) = item {
+                    world.items[itemId] = entity
             } else {
                 try throwError(.unknownEntityType)
             }
@@ -711,12 +739,39 @@ class AreaFormatParser {
                 print("---")
             }
         }
+        
         currentEntity = Entity()
         animateByDefault = false
         currentEntity.startLine = lineAtUtf16Offset(scanner.scanLocation)
         //print("\(scanner.scanLocation): \(currentEntity.startLine)")
     }
     
+    private func replaceCurrentEntityWithOldEntity() -> Bool {
+        guard let entity = currentEntity else { return false }
+        
+        if let area = entity.value(named: T.areaTagFieldName),
+            case .tag(let areaId) = area, let oldEntity = world.areas[areaId] {
+                currentEntity = oldEntity
+
+        } else if let room = entity.value(named: T.roomTagFieldName),
+            case .tag(let roomId) = room, let oldEntity = world.rooms[roomId] {
+                currentEntity = oldEntity
+        
+        } else if let mobile = entity.value(named: T.mobileTagFieldName),
+            case .tag(let mobileId) = mobile, let oldEntity = world.mobiles[mobileId] {
+                currentEntity = oldEntity
+        
+        } else if let item = entity.value(named: T.itemTagFieldName),
+            case .tag(let itemId) = item, let oldEntity = world.items[itemId] {
+                currentEntity = oldEntity
+        
+        } else {
+            return false
+        }
+        
+        return true
+    }
+
     private func skipComments() throws {
         while true {
             if scanner.skipString(";") {

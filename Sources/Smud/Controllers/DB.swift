@@ -20,11 +20,17 @@ public class DB {
     
     let serialSaveQueue = DispatchQueue(label: "Smud.SerialSaveQueue")
 
+    // Areas
+    let world = World()
+    let definitions = Definitions()
+
+    // Accounts
     var modifiedAccounts = Set<Account>()
     var nextAccountId: Int64 = 0
     var accountsByLowercasedEmail = [String: Account]()
     var accountsById = [Int64: Account]()
     
+    // Players
     var modifiedPlayers = Set<Player>()
     var nextPlayerId: Int64 = 0
     var playersByLowercasedName = [String: Player]()

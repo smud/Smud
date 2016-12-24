@@ -26,8 +26,6 @@ public class Smud: Config {
     }
     
     public var db: DB!
-    private let areas = Areas()
-    private let definitions = Definitions()
     
     override public init() {
         super.init()
@@ -39,10 +37,13 @@ public class Smud: Config {
         try registerDefinitions()
         
         print("Loading area files")
-        try loadAreas()
+        try db.loadAreas()
 
         print("Loading player accounts")
         try db.loadAccounts()
+        
+        print("Loading player files")
+        try db.loadPlayers()
         
         print("Starting database updates")
         db.startUpdating()
@@ -53,19 +54,10 @@ public class Smud: Config {
     }
     
     func registerDefinitions() throws {
+        print("  areas")
+        try db.definitions.registerAreaFields()
         print("  rooms")
-        try definitions.registerRoomFields()
-    }
-    
-    func loadAreas() throws {
-        let parser = AreaFormatParser(areas: areas, definitions: definitions)
-        try enumerateFiles(atPath: areasDirectory, withExtensions: areaFileExtensions) { filename, stop in
-            
-            print("  \(filename)")
-            
-            let fullName = URL(fileURLWithPath: areasDirectory, isDirectory: true).appendingPathComponent(filename, isDirectory: false).relativePath
-            try parser.load(filename: fullName)
-        }
+        try db.definitions.registerRoomFields()
     }
     
     private func flushQueueusAndTerminate() {

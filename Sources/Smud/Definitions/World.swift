@@ -1,5 +1,5 @@
 //
-// Areas.swift
+// World.swift
 //
 // This source file is part of the SMUD open source project
 //
@@ -12,7 +12,8 @@
 
 import Foundation
 
-class Areas {
+class World {
+    var areas = [String: Entity]()
     var items = [String: Entity]()
     var mobiles = [String: Entity]()
     var rooms = [String: Entity]()
