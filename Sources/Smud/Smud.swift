@@ -26,18 +26,20 @@ public class Smud: Config {
     }
     
     public var db: DB!
+    var areaManager: AreaManager!
     
     override public init() {
         super.init()
         db = DB(smud: self)
+        areaManager = AreaManager(smud: self)
     }
     
     public func run() throws {
         print("Registering area format definitions")
         try registerDefinitions()
         
-        print("Loading area files")
-        try db.loadAreas()
+        print("Loading world")
+        try db.loadWorld()
 
         print("Loading player accounts")
         try db.loadAccounts()
@@ -48,6 +50,9 @@ public class Smud: Config {
         print("Starting database updates")
         db.startUpdating()
 
+        print("Resetting areas")
+        
+        
         print("Entering game loop")
         plugins.forEach { $0.willEnterGameLoop() }
         dispatchMain()

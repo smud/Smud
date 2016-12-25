@@ -13,7 +13,7 @@
 import Foundation
 import CollectionUtils
 
-let areasLog = false
+let areasLog = true
 
 class AreaFormatParser {
     private typealias T = AreaFormatParser
@@ -30,6 +30,7 @@ class AreaFormatParser {
     private let definitions: Definitions
     
     private var fieldDefinitions: FieldDefinitions!
+    private var currentAreaId: String?
     private var currentEntity: Entity!
     private var animateByDefault = false
     private var currentFieldInfo: FieldInfo?
@@ -80,6 +81,7 @@ class AreaFormatParser {
         }
 
         scanner = Scanner(string: contents)
+        currentAreaId = nil
         currentEntity = nil
         animateByDefault = false
         currentFieldInfo = nil
@@ -137,6 +139,7 @@ class AreaFormatParser {
         }
 
         var isNewEntity = false
+        var isArea = false
         
         currentFieldName = field.lowercased()
         if currentStructureType == .none {
@@ -144,6 +147,7 @@ class AreaFormatParser {
             case T.areaTagFieldName:
                 try finalizeCurrentEntity()
                 isNewEntity = true
+                isArea = true
                 fieldDefinitions = definitions.areaFields
             case T.roomTagFieldName:
                 try finalizeCurrentEntity()
@@ -189,6 +193,13 @@ class AreaFormatParser {
                     } else {
                         print("Created a new entity")
                     }
+                }
+                
+                if isArea {
+                    // Subsequent parsed entities will be assigned
+                    // to this area until another area definition
+                    // is encountered
+                    setCurrentAreaId()
                 }
             }
         }
@@ -716,21 +727,42 @@ class AreaFormatParser {
         }
         currentEntity.replace(name: currentFieldNameWithIndex, value:  value)
     }
+    
+    private func findOrCreateArea(id: String) -> Area {
+        if let area = world.areas[id] {
+            return area
+        } else {
+            let area = Area()
+            world.areas[id] = area
+            return area
+        }
+    }
 
     private func finalizeCurrentEntity() throws {
         if let entity = currentEntity {
             if let area = entity.value(named: T.areaTagFieldName),
                 case .tag(let areaId) = area {
-                    world.areas[areaId] = entity
+                    let area = findOrCreateArea(id: areaId)
+                    area.entity = entity
+                
             } else if let room = entity.value(named: T.roomTagFieldName),
+                let currentAreaId = currentAreaId,
                 case .tag(let roomId) = room {
-                    world.rooms[roomId] = entity
+                    let area = findOrCreateArea(id: currentAreaId)
+                    area.rooms[roomId] = entity
+                
             } else if let mobile = entity.value(named: T.mobileTagFieldName),
+                let currentAreaId = currentAreaId,
                 case .tag(let mobileId) = mobile {
-                    world.mobiles[mobileId] = entity
+                    let area = findOrCreateArea(id: currentAreaId)
+                    area.mobiles[mobileId] = entity
+                
             } else if let item = entity.value(named: T.itemTagFieldName),
-                    case .tag(let itemId) = item {
-                    world.items[itemId] = entity
+                let currentAreaId = currentAreaId,
+                case .tag(let itemId) = item {
+                    let area = findOrCreateArea(id: currentAreaId)
+                    area.items[itemId] = entity
+                
             } else {
                 try throwError(.unknownEntityType)
             }
@@ -746,23 +778,45 @@ class AreaFormatParser {
         //print("\(scanner.scanLocation): \(currentEntity.startLine)")
     }
     
+    private func setCurrentAreaId() {
+        guard let entity = currentEntity else {
+            assertionFailure()
+            return
+        }
+        
+        guard let area = entity.value(named: T.areaTagFieldName),
+            case .tag(let areaId) = area else {
+                assertionFailure()
+                return
+        }
+        
+        currentAreaId = areaId
+    }
+    
     private func replaceCurrentEntityWithOldEntity() -> Bool {
         guard let entity = currentEntity else { return false }
         
         if let area = entity.value(named: T.areaTagFieldName),
-            case .tag(let areaId) = area, let oldEntity = world.areas[areaId] {
-                currentEntity = oldEntity
+            case .tag(let areaId) = area,
+            let oldEntity = world.areas[areaId] {
+                currentEntity = oldEntity.entity
 
         } else if let room = entity.value(named: T.roomTagFieldName),
-            case .tag(let roomId) = room, let oldEntity = world.rooms[roomId] {
+            case .tag(let roomId) = room,
+            let currentAreaId = currentAreaId,
+            let oldEntity = world.areas[currentAreaId]?.rooms[roomId] {
                 currentEntity = oldEntity
         
         } else if let mobile = entity.value(named: T.mobileTagFieldName),
-            case .tag(let mobileId) = mobile, let oldEntity = world.mobiles[mobileId] {
+            case .tag(let mobileId) = mobile,
+            let currentAreaId = currentAreaId,
+            let oldEntity = world.areas[currentAreaId]?.mobiles[mobileId] {
                 currentEntity = oldEntity
         
         } else if let item = entity.value(named: T.itemTagFieldName),
-            case .tag(let itemId) = item, let oldEntity = world.items[itemId] {
+            case .tag(let itemId) = item,
+            let currentAreaId = currentAreaId,
+            let oldEntity = world.areas[currentAreaId]?.items[itemId] {
                 currentEntity = oldEntity
         
         } else {

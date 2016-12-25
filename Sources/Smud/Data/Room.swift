@@ -13,38 +13,11 @@
 import Foundation
 
 public class Room {
-//    struct Exit {
-//        var tag: String
-//        var description: String
-//    }
-//    
-    var primaryTag = ""
-    var instanceIndex = -1
-    var area: Area?
-//    var extraTags: [String] = []
-//    
-    var name = ""
-//    
-//    var description = ""
-//    var keywordsText: [String: String] = [:]
-//    
-//    var exits: [Direction: Exit] = [:]
-//    
-//    func get(property: String) -> String? {
-//        switch property {
-//        case "primaryTag": return primaryTag
-//        case "name": return name
-//        case "description": return description
-//        default: return nil
-//        }
-//    }
-//    
-//    func set(_ property: String, _ value: String) throws {
-//        switch property {
-//        case "primaryTag": primaryTag = value
-//        case "name": name = value
-//        case "description": description = value
-//        default: throw PropertyError.notFound(property: property)
-//        }
-//    }
+    public let prototype: Entity
+    public var areaInstance: AreaInstance
+    
+    init(prototype: Entity, instance: AreaInstance) {
+        self.prototype = prototype
+        self.areaInstance = instance
+    }
 }

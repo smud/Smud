@@ -12,7 +12,7 @@
 
 import Foundation
 
-class Entity {
+public class Entity {
     private var lastAddedIndex = 0
     
     // Key is "structure name"."field name"[index]:

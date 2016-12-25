@@ -1,5 +1,5 @@
 //
-// DB+Areas.swift
+// DB+World.swift
 //
 // This source file is part of the SMUD open source project
 //
@@ -13,7 +13,7 @@
 import Foundation
 
 public extension DB {
-    func loadAreas() throws {
+    func loadWorld() throws {
         let parser = AreaFormatParser(world: smud.db.world, definitions: smud.db.definitions)
         
         let dotExtensions = smud.areaFileExtensions.map { ".\($0)" }
@@ -42,7 +42,7 @@ public extension DB {
         }
     }
     
-    func saveAreas(completion: (_ count: Int) throws->()) throws {
+    func saveWorld(completion: (_ count: Int) throws->()) throws {
         try completion(0)
     }
 }

@@ -1,5 +1,5 @@
 //
-// World.swift
+// AreaManager.swift
 //
 // This source file is part of the SMUD open source project
 //
@@ -12,6 +12,14 @@
 
 import Foundation
 
-class World {
-    var areas = [String: Area]()
+class AreaManager {
+    let smud: Smud
+    
+    init(smud: Smud) {
+        self.smud = smud
+    }
+    
+    func resetAreas() {
+        
+    }
 }

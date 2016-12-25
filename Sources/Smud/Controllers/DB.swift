@@ -69,7 +69,7 @@ public class DB {
             try savePlayers { count in
                 if count > 0 { print("\(count) player(s) saved") }
                 
-                try saveAreas { count in
+                try saveWorld { count in
                     if count > 0 { print("\(count) area(s) saved") }
                 }
             }
