@@ -13,5 +13,5 @@
 import Foundation
 
 class World {
-    var areas = [String: Area]()
+    var areaPrototypesById = [String: AreaPrototype]()
 }

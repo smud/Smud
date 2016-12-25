@@ -635,7 +635,7 @@ class AreaFormatParser {
         //    result = morpher.convertToSimpleAreaFormat(text: result,
         //        animateByDefault: animateByDefault)
         //}
-        let value = Value.line([result])
+        let value = Value.line(result)
         if currentEntity.value(named: currentFieldNameWithIndex) != nil {
             try throwError(.duplicateField)
         }
@@ -728,12 +728,12 @@ class AreaFormatParser {
         currentEntity.replace(name: currentFieldNameWithIndex, value:  value)
     }
     
-    private func findOrCreateArea(id: String) -> Area {
-        if let area = world.areas[id] {
+    private func findOrCreateArea(id: String) -> AreaPrototype {
+        if let area = world.areaPrototypesById[id] {
             return area
         } else {
-            let area = Area()
-            world.areas[id] = area
+            let area = AreaPrototype()
+            world.areaPrototypesById[id] = area
             return area
         }
     }
@@ -798,25 +798,25 @@ class AreaFormatParser {
         
         if let area = entity.value(named: T.areaTagFieldName),
             case .tag(let areaId) = area,
-            let oldEntity = world.areas[areaId] {
+            let oldEntity = world.areaPrototypesById[areaId] {
                 currentEntity = oldEntity.entity
 
         } else if let room = entity.value(named: T.roomTagFieldName),
             case .tag(let roomId) = room,
             let currentAreaId = currentAreaId,
-            let oldEntity = world.areas[currentAreaId]?.rooms[roomId] {
+            let oldEntity = world.areaPrototypesById[currentAreaId]?.rooms[roomId] {
                 currentEntity = oldEntity
         
         } else if let mobile = entity.value(named: T.mobileTagFieldName),
             case .tag(let mobileId) = mobile,
             let currentAreaId = currentAreaId,
-            let oldEntity = world.areas[currentAreaId]?.mobiles[mobileId] {
+            let oldEntity = world.areaPrototypesById[currentAreaId]?.mobiles[mobileId] {
                 currentEntity = oldEntity
         
         } else if let item = entity.value(named: T.itemTagFieldName),
             case .tag(let itemId) = item,
             let currentAreaId = currentAreaId,
-            let oldEntity = world.areas[currentAreaId]?.items[itemId] {
+            let oldEntity = world.areaPrototypesById[currentAreaId]?.items[itemId] {
                 currentEntity = oldEntity
         
         } else {

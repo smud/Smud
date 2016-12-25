@@ -16,8 +16,12 @@ public class Room {
     public let prototype: Entity
     public var areaInstance: AreaInstance
     
+    public var title: String
+    
     init(prototype: Entity, instance: AreaInstance) {
         self.prototype = prototype
         self.areaInstance = instance
+        
+        title = prototype.value(named: "title")?.string ?? "No title"
     }
 }

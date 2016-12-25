@@ -1,5 +1,5 @@
 //
-// Area.swift
+// AreaPrototype.swift
 //
 // This source file is part of the SMUD open source project
 //
@@ -13,7 +13,7 @@
 
 import Foundation
 
-class Area {
+class AreaPrototype {
     var entity = Entity()
     
     var items = [String: Entity]()

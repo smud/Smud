@@ -20,7 +20,14 @@ enum Value {
     case flags(Int64)
     case list(Set<Int64>)
     case dictionary([Int64: Int64?])
-    case line([String])
+    case line(String)
     case longText([String])
     case dice(Int64, Int64, Int64)
+    
+    var string: String? {
+        switch self {
+        case .line(let value): return value
+        default: return nil
+        }
+    }
 }

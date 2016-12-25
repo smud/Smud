@@ -51,7 +51,7 @@ public class Smud: Config {
         db.startUpdating()
 
         print("Resetting areas")
-        
+        areaManager.resetAreas()
         
         print("Entering game loop")
         plugins.forEach { $0.willEnterGameLoop() }
