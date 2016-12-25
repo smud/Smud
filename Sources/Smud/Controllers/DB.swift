@@ -21,7 +21,7 @@ public class DB {
     let serialSaveQueue = DispatchQueue(label: "Smud.SerialSaveQueue")
 
     // Areas
-    let world = World()
+    let worldPrototypes = WorldPrototypes()
     let definitions = Definitions()
 
     // Accounts

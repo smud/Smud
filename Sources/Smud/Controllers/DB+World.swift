@@ -13,8 +13,9 @@
 import Foundation
 
 public extension DB {
-    func loadWorld() throws {
-        let parser = AreaFormatParser(world: smud.db.world, definitions: smud.db.definitions)
+    func loadWorldPrototypes() throws {
+        let parser = AreaFormatParser(worldPrototypes: smud.db.worldPrototypes,
+                                      definitions: smud.db.definitions)
         
         let dotExtensions = smud.areaFileExtensions.map { ".\($0)" }
         var areaFileCount = 0

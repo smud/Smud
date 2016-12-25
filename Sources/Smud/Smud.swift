@@ -39,7 +39,7 @@ public class Smud: Config {
         try registerDefinitions()
         
         print("Loading world")
-        try db.loadWorld()
+        try db.loadWorldPrototypes()
 
         print("Loading player accounts")
         try db.loadAccounts()

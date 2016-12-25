@@ -14,11 +14,11 @@ import Foundation
 
 class AreaManager {
     let smud: Smud
-    let world: World
+    //let world: World
     
     init(smud: Smud) {
         self.smud = smud
-        world = smud.db.world
+        //world = smud.db.world
     }
     
     func resetAreas() {

@@ -1,5 +1,5 @@
 //
-// World.swift
+// WorldPrototypes.swift
 //
 // This source file is part of the SMUD open source project
 //
@@ -12,6 +12,6 @@
 
 import Foundation
 
-class World {
+class WorldPrototypes {
     var areaPrototypesById = [String: AreaPrototype]()
 }

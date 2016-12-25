@@ -26,7 +26,7 @@ class AreaFormatParser {
     
     private var scanner: Scanner!
     private var lineUtf16Offsets = [Int]()
-    private let world: World
+    private let worldPrototypes: WorldPrototypes
     private let definitions: Definitions
     
     private var fieldDefinitions: FieldDefinitions!
@@ -67,8 +67,8 @@ class AreaFormatParser {
     private static let tagCharacters = CharacterSet.alphanumerics.union(CharacterSet(charactersIn: "_"))
     #endif
     
-    init(world: World, definitions: Definitions) {
-        self.world = world
+    init(worldPrototypes: WorldPrototypes, definitions: Definitions) {
+        self.worldPrototypes = worldPrototypes
         self.definitions = definitions
     }
     
@@ -729,11 +729,11 @@ class AreaFormatParser {
     }
     
     private func findOrCreateArea(id: String) -> AreaPrototype {
-        if let area = world.areaPrototypesById[id] {
+        if let area = worldPrototypes.areaPrototypesById[id] {
             return area
         } else {
             let area = AreaPrototype()
-            world.areaPrototypesById[id] = area
+            worldPrototypes.areaPrototypesById[id] = area
             return area
         }
     }
@@ -798,25 +798,25 @@ class AreaFormatParser {
         
         if let area = entity.value(named: T.areaTagFieldName),
             case .tag(let areaId) = area,
-            let oldEntity = world.areaPrototypesById[areaId] {
+            let oldEntity = worldPrototypes.areaPrototypesById[areaId] {
                 currentEntity = oldEntity.entity
 
         } else if let room = entity.value(named: T.roomTagFieldName),
             case .tag(let roomId) = room,
             let currentAreaId = currentAreaId,
-            let oldEntity = world.areaPrototypesById[currentAreaId]?.rooms[roomId] {
+            let oldEntity = worldPrototypes.areaPrototypesById[currentAreaId]?.rooms[roomId] {
                 currentEntity = oldEntity
         
         } else if let mobile = entity.value(named: T.mobileTagFieldName),
             case .tag(let mobileId) = mobile,
             let currentAreaId = currentAreaId,
-            let oldEntity = world.areaPrototypesById[currentAreaId]?.mobiles[mobileId] {
+            let oldEntity = worldPrototypes.areaPrototypesById[currentAreaId]?.mobiles[mobileId] {
                 currentEntity = oldEntity
         
         } else if let item = entity.value(named: T.itemTagFieldName),
             case .tag(let itemId) = item,
             let currentAreaId = currentAreaId,
-            let oldEntity = world.areaPrototypesById[currentAreaId]?.items[itemId] {
+            let oldEntity = worldPrototypes.areaPrototypesById[currentAreaId]?.items[itemId] {
                 currentEntity = oldEntity
         
         } else {
