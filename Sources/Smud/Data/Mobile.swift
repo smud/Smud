@@ -12,15 +12,15 @@
 
 import Foundation
 
-class Mobile: Creature {
-    var tags: [String] = []
+public class Mobile: Creature {
+    public var tags: [String] = []
     
-    var synonyms: [String] = []
+    public var synonyms: [String] = []
     
-    var description = ""
-    var descriptionInRoom = ""
-    var keywordsText: [String: String] = [:]
+    public var description = ""
+    public var descriptionInRoom = ""
+    public var keywordsText: [String: String] = [:]
     
-    var health = 0
+    public var health = 0
 
 }

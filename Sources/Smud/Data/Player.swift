@@ -14,7 +14,6 @@ import Foundation
 import ConfigFile
 
 public final class Player: Creature {
-    public let smud: Smud
     public var playerId: Int64
     public var account: Account
     
@@ -22,15 +21,15 @@ public final class Player: Creature {
         return name.lowercased()
     }
     
-    public init(name: String, account: Account, smud: Smud) {
-        self.smud = smud
+    public init(name: String, account: Account, world: World) {
+        let smud = world.smud
         playerId = smud.db.createPlayerId()
         self.account = account
-        super.init(name: name)
+        super.init(name: name, world: world)
     }
     
-    public init(from: ConfigFile, smud: Smud) throws {
-        self.smud = smud
+    public override init(from: ConfigFile, world: World) throws {
+        let smud = world.smud
         guard let playerId: Int64 = from["playerId"] else {
             throw PlayerError(kind: .noPlayerId)
         }
@@ -45,7 +44,7 @@ public final class Player: Creature {
         }
         self.account = account
         
-        try super.init(from: from)
+        try super.init(from: from, world: world)
     }
     
     override func save(to: ConfigFile) {
@@ -55,7 +54,7 @@ public final class Player: Creature {
     }
     
     public func scheduleForSaving() {
-        smud.db.modifiedPlayers.insert(self)
+        world.smud.db.modifiedPlayers.insert(self)
     }
 }
 

@@ -23,7 +23,7 @@ public extension DB {
             let directory = URL(fileURLWithPath: smud.playersDirectory, isDirectory: true)
             let fullName = directory.appendingPathComponent(filename, isDirectory: false).relativePath
             let configFile = try ConfigFile(fromFile: fullName)
-            let player = try Player(from: configFile, smud: smud)
+            let player = try Player(from: configFile, world: smud.db.world)
             
             guard player.filename == filename else {
                 throw DBError(kind: .inconsistentPlayerFilename(actual: filename, generated: player.filename))

@@ -1,5 +1,5 @@
 //
-// Area.swift
+// AreaInstance.swift
 //
 // This source file is part of the SMUD open source project
 //
@@ -13,7 +13,12 @@
 import Foundation
 
 public class AreaInstance {
-    let rooms = [String: Room]()
+    public let area: Area
+    public let rooms = [String: Room]()
+    
+    public init(area: Area) {
+        self.area = area
+    }
 }
 
 //final class AreaInstance {

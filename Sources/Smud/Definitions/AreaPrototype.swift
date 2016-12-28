@@ -13,11 +13,11 @@
 
 import Foundation
 
-class AreaPrototype {
-    var entity = Entity()
+public class AreaPrototype {
+    public var entity = Entity()
     
-    var items = [String: Entity]()
-    var mobiles = [String: Entity]()
-    var rooms = [String: Entity]()
+    public var items = [String: Entity]()
+    public var mobiles = [String: Entity]()
+    public var rooms = [String: Entity]()
 }
 

@@ -14,6 +14,7 @@ import Foundation
 import ConfigFile
 
 public class Creature {
+    public let world: World
     public var name: String
     
     public var gender: Gender = .male
@@ -21,15 +22,17 @@ public class Creature {
     
     public var room: Room?
     
-    public init(name: String) {
+    public init(name: String, world: World) {
         self.name = name
+        self.world = world
     }
     
-    public init(from: ConfigFile) throws {
+    public init(from: ConfigFile, world: World) throws {
         guard let name: String = from["name"] else {
             throw CreatureError(kind: .noName)
         }
         self.name = name
+        self.world = world
         
         if let genderString: String = from["gender"], let gender = Gender(rawValue: genderString) {
             self.gender = gender

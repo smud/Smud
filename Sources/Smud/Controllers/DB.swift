@@ -23,6 +23,7 @@ public class DB {
     // Areas
     let worldPrototypes = WorldPrototypes()
     let definitions = Definitions()
+    public let world: World
 
     // Accounts
     var modifiedAccounts = Set<Account>()
@@ -38,6 +39,7 @@ public class DB {
 
     init(smud: Smud) {
         self.smud = smud
+        world = World(smud: smud)
     }
     
     // Call once

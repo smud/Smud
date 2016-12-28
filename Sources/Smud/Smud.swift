@@ -50,6 +50,9 @@ public class Smud: Config {
         print("Starting database updates")
         db.startUpdating()
 
+        print("Initializing areas")
+        areaManager.initializeAreas()
+        
         print("Resetting areas")
         areaManager.resetAreas()
         
