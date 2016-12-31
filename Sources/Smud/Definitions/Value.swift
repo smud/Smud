@@ -14,7 +14,7 @@ import Foundation
 
 enum Value {
     case tag(String)
-    case link(String)
+    case link(Link)
     case number(Int64)
     case enumeration(Int64)
     case flags(Int64)
@@ -26,7 +26,15 @@ enum Value {
     
     var string: String? {
         switch self {
+        case .tag(let value): return value
         case .line(let value): return value
+        default: return nil
+        }
+    }
+    
+    var link: Link? {
+        switch self {
+        case .link(let value): return value
         default: return nil
         }
     }

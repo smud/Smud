@@ -47,6 +47,14 @@ public class Entity {
         return values[name]
     }
     
+    subscript(_ name: String) -> Value? {
+        return values[name]
+    }
+
+    subscript(_ name: String, _ index: Int) -> Value? {
+        return values["\(name)[\(index)]"]
+    }
+
     // name is struct.field WITHOUT [index] suffix
     func hasRequiredField(named name: String) -> Bool {
         if let structureName = structureName(fromFieldName: name) {

@@ -13,7 +13,7 @@
 import Foundation
 import CollectionUtils
 
-let areasLog = true
+let areasLog = false
 
 class AreaFormatParser {
     private typealias T = AreaFormatParser
@@ -60,12 +60,13 @@ class AreaFormatParser {
     #if os(Linux) || os(Windows)
     private static let tagCharacters: CharacterSet = {
         var c = CharacterSet.alphanumerics
-        c.insert(charactersIn: "_")
+        c.insert(charactersIn: "_.")
         return c
     }()
     #else
-    private static let tagCharacters = CharacterSet.alphanumerics.union(CharacterSet(charactersIn: "_"))
+    private static let tagCharacters = CharacterSet.alphanumerics.union(CharacterSet(charactersIn: "_."))
     #endif
+    private static let linkCharacters = tagCharacters
     
     init(worldPrototypes: WorldPrototypes, definitions: Definitions) {
         self.worldPrototypes = worldPrototypes
@@ -604,18 +605,18 @@ class AreaFormatParser {
         #endif
         
         guard scanner.skipString("#") else {
-            try throwError(.tagShouldStartWithHash)
+            try throwError(.linkShouldStartWithHash)
         }
         
-        var result = ""
+        var result: Link?
         try scanner.skipping(nil) {
-            guard let tag = scanner.scanCharacters(from: T.tagCharacters), !tag.isEmpty else {
-                try throwError(.invalidTagFormat)
+            guard let linkString = scanner.scanCharacters(from: T.linkCharacters), !linkString.isEmpty, let link = Link("#" + linkString) else {
+                try throwError(.invalidLinkFormat)
             }
-            result = tag
+            result = link
         }
         
-        let value = Value.link(result)
+        let value = Value.link(result!)
         if currentEntity.value(named: currentFieldNameWithIndex) != nil {
             try throwError(.duplicateField)
         }

@@ -14,10 +14,22 @@ import Foundation
 
 public class AreaInstance {
     public let area: Area
-    public let rooms = [String: Room]()
+    public let index: Int
+    public var roomsById = [String: Room]()
     
-    public init(area: Area) {
+    public init(area: Area, index: Int) {
         self.area = area
+        self.index = index
+        spawnRooms()
+    }
+    
+    func spawnRooms() {
+        for (roomId, room) in area.prototype.rooms {
+            let room = Room(prototype: room, instance: self)
+            roomsById[roomId] = room
+            
+            room.reset()
+        }
     }
 }
 

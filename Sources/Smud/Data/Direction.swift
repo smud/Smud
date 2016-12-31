@@ -1,5 +1,5 @@
 //
-// World.swift
+// Direction.swift
 //
 // This source file is part of the SMUD open source project
 //
@@ -10,14 +10,13 @@
 // See CONTRIBUTORS.txt for the list of SMUD project authors
 //
 
-
 import Foundation
 
-public class World {
-    public let smud: Smud
-    public var areasById = [String: Area]()
-    
-    public init(smud: Smud) {
-        self.smud = smud
-    }
+public enum Direction: String {
+    case north
+    case east
+    case south
+    case west
+    case up
+    case down
 }

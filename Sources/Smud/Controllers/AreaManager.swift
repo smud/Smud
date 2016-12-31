@@ -24,8 +24,8 @@ class AreaManager {
     func initializeAreas() {
         smud.db.worldPrototypes.areaPrototypesById.forEach {
                 id, areaPrototype in
-            let area = Area(id: id, prototype: areaPrototype, smud: smud)
-            smud.db.world[id] = area
+            let area = Area(id: id, prototype: areaPrototype, world: world)
+            smud.db.world.areasById[id] = area
         }
     }
     
@@ -36,12 +36,13 @@ class AreaManager {
     }
     
     func reset(id: String, area: Area) {
-//        let instance: AreaInstance
-//        if !area.instances.isEmpty {
-//            instance = area.instances.first
-//        } else {
-//            instance = AreaInstance()
-//            area.instances
-//        }
+        // If area doesn't have any instances yet, create first instance
+        let instance: AreaInstance
+        if area.instances.isEmpty {
+            instance = area.createInstance()
+            area.instances[instance.index] = instance
+        } else {
+            instance = area.instances.first!.value
+        }
     }
 }

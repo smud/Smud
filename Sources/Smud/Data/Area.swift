@@ -14,16 +14,35 @@ import Foundation
 
 public class Area {
     public let id: String
+    public let prototype: AreaPrototype
     public var title: String
-    public let smud: Smud
+    public let world: World
     public var instances = [Int: AreaInstance]()
     public var nextInstanceIndex = 1
 
-    public init(id: String, prototype: AreaPrototype, smud: Smud) {
+    public init(id: String, prototype: AreaPrototype, world: World) {
         self.id = id
-        self.smud = smud
+        self.prototype = prototype
+        self.world = world
         
         let entity = prototype.entity
         title = entity.value(named: "title")?.string ?? "No title"
     }
+    
+    public func createInstance() -> AreaInstance {
+        let index = findUnusedInstanceIndex()
+        let instance = AreaInstance(area: self, index: index)
+        instances[index] = instance
+        nextInstanceIndex = index + 1
+        return instance
+    }
+    
+    public func findUnusedInstanceIndex() -> Int {
+        var index = nextInstanceIndex
+        while nil != instances[index] {
+            index += 1
+        }
+        return index
+    }
 }
+

@@ -22,6 +22,8 @@ public class Creature {
     
     public var room: Room?
     
+    public var pluginsData = [ObjectIdentifier: AnyObject]()
+    
     public init(name: String, world: World) {
         self.name = name
         self.world = world

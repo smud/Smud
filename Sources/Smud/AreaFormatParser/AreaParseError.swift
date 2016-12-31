@@ -41,6 +41,8 @@ struct AreaParseError: Error, CustomStringConvertible {
         case unknownEntityType
         case tagShouldStartWithHash
         case invalidTagFormat
+        case linkShouldStartWithHash
+        case invalidLinkFormat
         
         var description: String {
             switch self {
@@ -75,6 +77,8 @@ struct AreaParseError: Error, CustomStringConvertible {
             case .unknownEntityType: return "unknown entity type"
             case .tagShouldStartWithHash: return "tag should start with hash"
             case .invalidTagFormat: return "invalid tag format: tag should contain at least one alphanumeric value or underscore"
+            case .linkShouldStartWithHash: return "link should start with hash"
+            case .invalidLinkFormat: return "invalid link format"
             }
         }
     }
