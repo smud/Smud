@@ -74,3 +74,13 @@ public class Room {
         }
     }
 }
+
+extension Room: Equatable {
+    public static func ==(lhs: Room, rhs: Room) -> Bool {
+        return lhs.id == rhs.id
+    }
+}
+
+extension Room: Hashable {
+    public var hashValue: Int { return id.hashValue }
+}
