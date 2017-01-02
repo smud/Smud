@@ -17,7 +17,6 @@ distclean:
 
 fetch-master:
 	swift package fetch
-	(cd Packages/CEvent-*; git checkout master; git pull)
 	(cd Packages/ConfigFile-*; git checkout master; git pull)
 	(cd Packages/Utils-*; git checkout master; git pull)
 
