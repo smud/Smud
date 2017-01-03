@@ -17,7 +17,7 @@ public class Area {
     public let prototype: AreaPrototype
     public var title: String
     public let world: World
-    public var instances = [Int: AreaInstance]()
+    public var instancesByIndex = [Int: AreaInstance]()
     public var nextInstanceIndex = 1
 
     public init(id: String, prototype: AreaPrototype, world: World) {
@@ -32,14 +32,14 @@ public class Area {
     public func createInstance() -> AreaInstance {
         let index = findUnusedInstanceIndex()
         let instance = AreaInstance(area: self, index: index)
-        instances[index] = instance
+        instancesByIndex[index] = instance
         nextInstanceIndex = index + 1
         return instance
     }
     
     public func findUnusedInstanceIndex() -> Int {
         var index = nextInstanceIndex
-        while nil != instances[index] {
+        while nil != instancesByIndex[index] {
             index += 1
         }
         return index

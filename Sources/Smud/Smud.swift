@@ -56,6 +56,9 @@ public class Smud: Config {
         print("Resetting areas")
         areaManager.resetAreas()
         
+        print("Building area instance maps")
+        areaManager.buildAreaMaps()
+        
         print("Entering game loop")
         plugins.forEach { $0.willEnterGameLoop() }
         dispatchMain()

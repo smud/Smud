@@ -13,25 +13,49 @@
 import Foundation
 
 class AreaMapper {
-    func buildAreaMap(fromRoom room: Room) -> AreaMap {
-        let areaMap = AreaMap()
+    struct RoomAndDirection: Hashable {
+        let room: Room
+        let direction: Direction
+        
+        static func ==(lhs: RoomAndDirection, rhs: RoomAndDirection) -> Bool {
+            return lhs.room == rhs.room &&
+                lhs.direction == rhs.direction
+        }
+        
+        public var hashValue: Int {
+            let prime = 92821
+            var result = prime &+ room.hashValue
+            result = prime &* result &+ direction.hashValue
+            return result
+        }
+    }
+    
+    func buildAreaMap(startingRoom: Room) -> AreaMap {
+        let areaMap = AreaMap(startingRoom: startingRoom)
+        
+        var queue: [Room] = [startingRoom]
+        
+        var visited = Set<RoomAndDirection>()
 
-//        var queue: [Room] = [room]
-//
-//        repeat {
-//            let currentRoom = queue.removeFirst()
-//            areaMap.put(room: currentRoom, atPosition: position)
-//            
-//            if let nextRoom = currentRoom.resolveExit(direction: .north) {
-//                let nextPosition = areaMap.position(of: currentRoom).adjustedBy(y: -1)
-//                if areaMap.isCellEmpty(position: nextPosition) {
-//                    areaMap.put(room: nextRoom, atPosition: nextPosition)
-//                } else {
-//                    
-//                }
-//
-//            }
-//        } while !queue.isEmpty
+        repeat {
+            let currentRoom = queue.removeFirst()
+
+            for exit in currentRoom.exits {
+                let direction = exit.key
+                
+                let roomAndDirection = RoomAndDirection(room: currentRoom, direction: direction)
+                
+                guard !visited.contains(roomAndDirection) else { continue }
+                
+                if let nextRoom = currentRoom.resolveExit(direction: direction) {
+                    let result = areaMap.dig(toRoom: nextRoom, fromRoom: currentRoom, direction: direction)
+                    if result == .didAddRoom {
+                        queue.append(nextRoom)
+                    }
+                    visited.insert(roomAndDirection)
+                }
+            }
+        } while !queue.isEmpty
         
         return areaMap
     }

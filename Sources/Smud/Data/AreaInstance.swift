@@ -16,6 +16,7 @@ public class AreaInstance {
     public let area: Area
     public let index: Int
     public var roomsById = [String: Room]()
+    public var areaMap = AreaMap()
     
     public init(area: Area, index: Int) {
         self.area = area
@@ -30,6 +31,17 @@ public class AreaInstance {
             
             room.reset()
         }
+    }
+    
+    func buildMap() {
+        if let room = roomsById.first?.value {
+            print("Area instance #\(area.id):\(index): building map, starting room: #\(room.id)")
+            let mapper = AreaMapper()
+            areaMap = mapper.buildAreaMap(startingRoom: room)
+            print("  \(areaMap.roomsCount) room(s), \(areaMap.elementsCount) map element(s)")
+        } else {
+            areaMap = AreaMap()
+        }    
     }
 }
 

@@ -35,14 +35,22 @@ class AreaManager {
         }
     }
     
+    func buildAreaMaps() {
+        world.areasById.forEach { _, area in
+            area.instancesByIndex.forEach { _, instance in
+                instance.buildMap()
+            }
+        }
+    }
+    
     func reset(id: String, area: Area) {
         // If area doesn't have any instances yet, create first instance
         let instance: AreaInstance
-        if area.instances.isEmpty {
+        if area.instancesByIndex.isEmpty {
             instance = area.createInstance()
-            area.instances[instance.index] = instance
+            area.instancesByIndex[instance.index] = instance
         } else {
-            instance = area.instances.first!.value
+            instance = area.instancesByIndex.first!.value
         }
     }
 }

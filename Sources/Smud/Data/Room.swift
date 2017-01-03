@@ -65,7 +65,7 @@ public class Room {
             guard let area = areaInstance.area.world.areasById[areaId] else {
                 return nil
             }
-            guard let instance = area.instances.first?.value else {
+            guard let instance = area.instancesByIndex.first?.value else {
                 return nil
             }
             return instance.roomsById[roomId]
