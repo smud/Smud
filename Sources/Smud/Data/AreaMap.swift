@@ -28,17 +28,19 @@ public class AreaMap {
     
     init(startingRoom: Room? = nil) {
         if let startingRoom = startingRoom {
-            positionsByRoom[startingRoom] = AreaMapPosition()
+            let toPosition = AreaMapPosition(0, 0, 0)
+            mapElementsByPosition[toPosition] = .room(startingRoom)
+            positionsByRoom[startingRoom] = toPosition
         }
     }
     
     func dig(toRoom: Room, fromRoom: Room, direction: Direction) -> DigResult {
+        guard positionsByRoom[toRoom] == nil else { return .toRoomAlreadyExists }
         guard let fromPosition = positionsByRoom[fromRoom] else { return .fromRoomDoesNotExist }
         switch direction {
         case .north:
             let toPosition = fromPosition.adjustedBy(y: -1)
-            if let element = mapElementsByPosition[toPosition] {
-                guard case .room(let room) = element, room == toRoom else { return .toRoomAlreadyExists }
+            if mapElementsByPosition[toPosition] != nil {
                 shift(northOf: fromPosition.y, distance: 1)
             }
             mapElementsByPosition[toPosition] = .room(toRoom)
@@ -46,8 +48,7 @@ public class AreaMap {
             return .didAddRoom
         case .south:
             let toPosition = fromPosition.adjustedBy(y: 1)
-            if let element = mapElementsByPosition[toPosition] {
-                guard case .room(let room) = element, room == toRoom else { return .toRoomAlreadyExists }
+            if mapElementsByPosition[toPosition] != nil {
                 shift(southOf: fromPosition.y, distance: 1)
             }
             mapElementsByPosition[toPosition] = .room(toRoom)
@@ -55,8 +56,7 @@ public class AreaMap {
             return .didAddRoom
         case .west:
             let toPosition = fromPosition.adjustedBy(x: -1)
-            if let element = mapElementsByPosition[toPosition] {
-                guard case .room(let room) = element, room == toRoom else { return .toRoomAlreadyExists }
+            if mapElementsByPosition[toPosition] != nil {
                 shift(westOf: fromPosition.x, distance: 1)
             }
             mapElementsByPosition[toPosition] = .room(toRoom)
@@ -64,8 +64,7 @@ public class AreaMap {
             return .didAddRoom
         case .east:
             let toPosition = fromPosition.adjustedBy(x: 1)
-            if let element = mapElementsByPosition[toPosition] {
-                guard case .room(let room) = element, room == toRoom else { return .toRoomAlreadyExists }
+            if mapElementsByPosition[toPosition] != nil {
                 shift(eastOf: fromPosition.x, distance: 1)
             }
             mapElementsByPosition[toPosition] = .room(toRoom)
@@ -138,7 +137,7 @@ public class AreaMap {
             guard oldPosition.x < x else { continue }
             mapElementsByPosition.removeValue(forKey: oldPosition)
             
-            let newPosition = oldPosition.adjustedBy(y: -distance)
+            let newPosition = oldPosition.adjustedBy(x: -distance)
             mapElementsByPosition[newPosition] = element
             if case .room(let room) = element {
                 positionsByRoom[room] = newPosition
@@ -163,7 +162,7 @@ public class AreaMap {
             guard oldPosition.x > x else { continue }
             mapElementsByPosition.removeValue(forKey: oldPosition)
             
-            let newPosition = oldPosition.adjustedBy(y: distance)
+            let newPosition = oldPosition.adjustedBy(x: distance)
             mapElementsByPosition[newPosition] = element
             if case .room(let room) = element {
                 positionsByRoom[room] = newPosition
@@ -178,6 +177,52 @@ public class AreaMap {
                     mapElementsByPosition[position] = element
                 }
             }
+        }
+    }
+    
+    func debugPrint() {
+        var minX = 0
+        var maxX = 0
+        var minY = 0
+        var maxY = 0
+        var minPlane = 0
+        var maxPlane = 0
+        for (position, _) in mapElementsByPosition {
+            minX = min(minX, position.x)
+            maxX = max(maxX, position.x)
+            minY = min(minY, position.y)
+            maxY = max(maxY, position.y)
+            minPlane = min(minPlane, position.plane)
+            maxPlane = max(maxPlane, position.plane)
+        }
+
+        let elementWidth = 14
+
+        let width = maxX - minX + 1
+        let height = maxY - minY + 1
+        let fillLine = [String](repeating: " ".padding(toLength: elementWidth, withPad: " ", startingAt: 0), count: width)
+        var grid = [[String]](repeating: fillLine, count: height)
+        
+        for (position, element) in mapElementsByPosition {
+            let atX = position.x - minX
+            let atY = position.y - minY
+            switch element {
+            case .room(let room):
+                grid[atY][atX] = room.id.padding(toLength: elementWidth, withPad: " ", startingAt: 0)
+            case .passage(let orientation):
+                switch orientation {
+                case .northSouth:
+                    grid[atY][atX] = "|".padding(toLength: elementWidth, withPad: " ", startingAt: 0)
+                case .westEast:
+                    grid[atY][atX] = "-".padding(toLength: elementWidth, withPad: " ", startingAt: 0)
+                case .upDown:
+                    grid[atY][atX] = "x".padding(toLength: elementWidth, withPad: " ", startingAt: 0)
+                }
+            }
+        }
+        
+        for row in grid {
+            print(row)
         }
     }
 }
