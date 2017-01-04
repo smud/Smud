@@ -48,6 +48,10 @@ class AreaMapper {
                 guard !visited.contains(roomAndDirection) else { continue }
                 
                 if let nextRoom = currentRoom.resolveExit(direction: direction) {
+                    
+                    // No cross area mapping
+                    guard nextRoom.areaInstance == startingRoom.areaInstance else { continue }
+                    
                     let result = areaMap.dig(toRoom: nextRoom, fromRoom: currentRoom, direction: direction)
                     if result == .didAddRoom {
                         queue.append(nextRoom)
