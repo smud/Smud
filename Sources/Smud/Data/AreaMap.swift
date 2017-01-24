@@ -25,12 +25,14 @@ public class AreaMap {
     
     var elementsCount: Int { return mapElementsByPosition.count }
     var roomsCount: Int { return positionsByRoom.count }
+    var xRange = 0 ..< 0
+    var yRange = 0 ..< 0
+    var planeRange = 0 ..< 0
     
     init(startingRoom: Room? = nil) {
         if let startingRoom = startingRoom {
             let toPosition = AreaMapPosition(0, 0, 0)
-            mapElementsByPosition[toPosition] = .room(startingRoom)
-            positionsByRoom[startingRoom] = toPosition
+            add(room: startingRoom, position: toPosition)
         }
     }
     
@@ -43,32 +45,28 @@ public class AreaMap {
             if mapElementsByPosition[toPosition] != nil {
                 shift(northOf: fromPosition.y, distance: 1)
             }
-            mapElementsByPosition[toPosition] = .room(toRoom)
-            positionsByRoom[toRoom] = toPosition
+            add(room: toRoom, position: toPosition)
             return .didAddRoom
         case .south:
             let toPosition = fromPosition.adjustedBy(y: 1)
             if mapElementsByPosition[toPosition] != nil {
                 shift(southOf: fromPosition.y, distance: 1)
             }
-            mapElementsByPosition[toPosition] = .room(toRoom)
-            positionsByRoom[toRoom] = toPosition
+            add(room: toRoom, position: toPosition)
             return .didAddRoom
         case .west:
             let toPosition = fromPosition.adjustedBy(x: -1)
             if mapElementsByPosition[toPosition] != nil {
                 shift(westOf: fromPosition.x, distance: 1)
             }
-            mapElementsByPosition[toPosition] = .room(toRoom)
-            positionsByRoom[toRoom] = toPosition
+            add(room: toRoom, position: toPosition)
             return .didAddRoom
         case .east:
             let toPosition = fromPosition.adjustedBy(x: 1)
             if mapElementsByPosition[toPosition] != nil {
                 shift(eastOf: fromPosition.x, distance: 1)
             }
-            mapElementsByPosition[toPosition] = .room(toRoom)
-            positionsByRoom[toRoom] = toPosition
+            add(room: toRoom, position: toPosition)
             return .didAddRoom
         case .up:
             // TODO
@@ -80,7 +78,18 @@ public class AreaMap {
         return .didNothing
     }
     
+    func add(room: Room, position: AreaMapPosition) {
+        mapElementsByPosition[position] = .room(room)
+        positionsByRoom[room] = position
+        
+        xRange = min(position.x, xRange.lowerBound) ..< max(position.x + 1, xRange.upperBound)
+        yRange = min(position.y, yRange.lowerBound) ..< max(position.y + 1, yRange.upperBound)
+        planeRange = min(position.plane, planeRange.lowerBound) ..< max(position.plane + 1, planeRange.upperBound)
+    }
+    
     func shift(northOf y: Int, distance: Int) {
+        yRange = yRange.lowerBound - distance ..< yRange.upperBound
+        
         let oldMapElementsByPosition = mapElementsByPosition
         
         for (oldPosition, element) in oldMapElementsByPosition {
@@ -106,6 +115,8 @@ public class AreaMap {
     }
 
     func shift(southOf y: Int, distance: Int) {
+        yRange = yRange.lowerBound ..< yRange.upperBound + distance
+
         let oldMapElementsByPosition = mapElementsByPosition
         
         for (oldPosition, element) in oldMapElementsByPosition {
@@ -131,6 +142,8 @@ public class AreaMap {
     }
 
     func shift(westOf x: Int, distance: Int) {
+        xRange = xRange.lowerBound - distance ..< xRange.upperBound
+
         let oldMapElementsByPosition = mapElementsByPosition
         
         for (oldPosition, element) in oldMapElementsByPosition {
@@ -156,6 +169,8 @@ public class AreaMap {
     }
 
     func shift(eastOf x: Int, distance: Int) {
+        xRange = xRange.lowerBound ..< xRange.upperBound + distance
+
         let oldMapElementsByPosition = mapElementsByPosition
         
         for (oldPosition, element) in oldMapElementsByPosition {
@@ -181,29 +196,17 @@ public class AreaMap {
     }
     
     func debugPrint() {
-        var minX = 0
-        var maxX = 0
-        var minY = 0
-        var maxY = 0
-        var minPlane = 0
-        var maxPlane = 0
-        for (position, _) in mapElementsByPosition {
-            minX = min(minX, position.x)
-            maxX = max(maxX, position.x)
-            minY = min(minY, position.y)
-            maxY = max(maxY, position.y)
-            minPlane = min(minPlane, position.plane)
-            maxPlane = max(maxPlane, position.plane)
-        }
+        let minX = xRange.lowerBound
+        let minY = yRange.lowerBound
+        //let minPlane = planeRange.lowerBound
 
         let elementWidth = 14
 
-        let width = maxX - minX + 1
-        let height = maxY - minY + 1
-        let fillLine = [String](repeating: " ".padding(toLength: elementWidth, withPad: " ", startingAt: 0), count: width)
-        var grid = [[String]](repeating: fillLine, count: height)
+        let fillLine = [String](repeating: " ".padding(toLength: elementWidth, withPad: " ", startingAt: 0), count: xRange.count)
+        var grid = [[String]](repeating: fillLine, count: yRange.count)
         
         for (position, element) in mapElementsByPosition {
+            guard position.plane == 0 else { continue }
             let atX = position.x - minX
             let atY = position.y - minY
             switch element {
