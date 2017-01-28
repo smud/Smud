@@ -66,15 +66,15 @@ struct AreaMapPosition: Hashable, Equatable {
                 return .west
             }
         case .y:
-            if (self.y > 0) {
+            if self.y > 0 {
                 return .south
-            } else if (self.y < 0) {
+            } else if self.y < 0 {
                 return .north
             }
         case .plane:
-            if (self.plane > 0) {
+            if self.plane > 0 {
                 return .up
-            } else if (self.plane < 0) {
+            } else if self.plane < 0 {
                 return .down
             }
         }

@@ -89,7 +89,8 @@ public class AreaMap {
             }
 
             switch element {
-            case .room(let room) where room.exits[direction] != nil: fallthrough
+            case .room(let room) where room.exits[direction] != nil:
+                fallthrough
             case .passage(axis):
                 for fillCoordinate in fillRange {
                     var position = oldPosition
