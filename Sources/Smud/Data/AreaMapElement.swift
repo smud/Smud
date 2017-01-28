@@ -14,5 +14,5 @@ import Foundation
 
 enum AreaMapElement {
     case room(Room)
-    case passage(AreaMapPassageOrientation)
+    case passage(AreaMapPosition.Axis)
 }
