@@ -19,7 +19,16 @@ public class Room {
     public var id: String
     public var title: String
     public var exits = [Direction: Link]()
-    
+
+    public var orderedDirections: [Direction] {
+        var result = [Direction]()
+        for direction in Direction.orderedDirections {
+            guard exits[direction] != nil else { continue }
+            result.append(direction)
+        }
+        return result
+    }
+
     public var orderedExits: [(Direction, Link)] {
         var result = [(Direction, Link)]()
         for direction in Direction.orderedDirections {

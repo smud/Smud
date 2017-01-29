@@ -20,7 +20,18 @@ public enum Direction: String {
     case up
     case down
     
-    static var orderedDirections: [Direction] {
+    public var abbreviated: String {
+        switch self {
+        case .north: return "n"
+        case .east: return "e"
+        case .south: return "s"
+        case .west: return "w"
+        case .up: return "u"
+        case .down: return "d"
+        }
+    }
+    
+    public static var orderedDirections: [Direction] {
         return [.north, .east, .south, .west, .up, .down]
     }
 }
