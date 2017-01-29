@@ -19,4 +19,8 @@ public enum Direction: String {
     case west
     case up
     case down
+    
+    static var orderedDirections: [Direction] {
+        return [.north, .east, .south, .west, .up, .down]
+    }
 }

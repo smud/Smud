@@ -20,6 +20,15 @@ public class Room {
     public var title: String
     public var exits = [Direction: Link]()
     
+    public var orderedExits: [(Direction, Link)] {
+        var result = [(Direction, Link)]()
+        for direction in Direction.orderedDirections {
+            guard let exit = exits[direction] else { continue }
+            result.append((direction, exit))
+        }
+        return result
+    }
+    
     public init(prototype: Entity, instance: AreaInstance) {
         self.prototype = prototype
         self.areaInstance = instance
@@ -60,6 +69,10 @@ public class Room {
     
     public func resolveExit(direction: Direction) -> Room? {
         guard let link = exits[direction] else { return nil }
+        return resolveLink(link: link)
+    }
+    
+    public func resolveLink(link: Link) -> Room? {
         let roomId = link.object
         if let areaId = link.parent {
             guard let area = areaInstance.area.world.areasById[areaId] else {
