@@ -3,4 +3,5 @@ SMUD project authors
 --------------------
 
 - Andrey Fidrya <af@zabiyaka.com>
+- Anton Karandeev <tonygluk@gmail.com>
 
