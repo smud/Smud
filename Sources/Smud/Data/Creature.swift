@@ -45,6 +45,16 @@ public class Creature {
         }
     }
     
+    public func pluginData<Type>(id: ObjectIdentifier) -> Type where Type: PluginData {
+        if let data = pluginsData[id] as? Type {
+            return data
+        } else {
+            let data = Type()
+            pluginsData[id] = data
+            return data
+        }
+    }
+    
     func save(to: ConfigFile) {
         to["name"] = name
         to["gender"] = gender.rawValue
