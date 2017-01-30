@@ -62,7 +62,9 @@ public class AreaMap {
 
         for y in from.y..<to.y {
             fragment += String(map[y][from.x..<to.x])
-            fragment += "\n"
+            if y != to.y - 1 {
+                fragment += "\n"
+            }
         }
 
         return fragment
@@ -134,7 +136,16 @@ public class AreaMap {
 
             switch element {
             case .room(let room) where room.exits[direction] != nil:
-                fallthrough
+                if let neighborElement = mapElementsByPosition[oldPosition + AreaMapPosition(direction, 1)],
+                    case let .room(neighborRoom) = neighborElement,
+                    neighborRoom == room {
+                    
+                    for fillCoordinate in fillRange {
+                        var position = oldPosition
+                        position.set(axis: axis, value: fillCoordinate)
+                        mapElementsByPosition[position] = fillElement
+                    }
+                }
             case .passage(axis):
                 for fillCoordinate in fillRange {
                     var position = oldPosition
@@ -160,7 +171,7 @@ public class AreaMap {
 
         for (plane, range) in rangesByPlane {
             let width = (roomWidth + roomSpacingWidth) * (range.to.x - range.from.x + 1)
-            let height = (roomHeight + roomSpacingHeight) * (range.to.y - range.from.y + 1)
+            let height = roomHeight * (range.to.y - range.from.y + 1) + roomSpacingHeight * (range.to.y - range.from.y)
             renderedMap[plane] = [[Character]](repeating: [Character](repeating: fillCharacter, count: width), count: height)
         }
 
