@@ -18,6 +18,8 @@ public class AreaInstance {
     public var roomsById = [String: Room]()
     public var areaMap = AreaMap()
     
+    public var pluginsData = [ObjectIdentifier: AnyObject]()
+
     public init(area: Area, index: Int) {
         self.area = area
         self.index = index
@@ -43,6 +45,16 @@ public class AreaInstance {
         } else {
             areaMap = AreaMap()
         }    
+    }
+    
+    public func pluginData<Type>(id: ObjectIdentifier = ObjectIdentifier(Type.self)) -> Type where Type: PluginData {
+        if let data = pluginsData[id] as? Type {
+            return data
+        } else {
+            let data = Type(parent: self as! Type.Parent)
+            pluginsData[id] = data
+            return data
+        }
     }
 }
 

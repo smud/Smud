@@ -45,11 +45,11 @@ public class Creature {
         }
     }
     
-    public func pluginData<Type>(id: ObjectIdentifier) -> Type where Type: PluginData {
+    public func pluginData<Type>(id: ObjectIdentifier = ObjectIdentifier(Type.self)) -> Type where Type: PluginData {
         if let data = pluginsData[id] as? Type {
             return data
         } else {
-            let data = Type()
+            let data = Type(parent: self as! Type.Parent)
             pluginsData[id] = data
             return data
         }

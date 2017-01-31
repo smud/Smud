@@ -12,7 +12,7 @@
 
 import Foundation
 
-enum AreaMapElement {
+public enum AreaMapElement {
     case room(Room)
     case passage(AreaMapPosition.Axis)
 }

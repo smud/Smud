@@ -13,9 +13,9 @@
 
 import Foundation
 
-struct AreaMapPosition: Hashable, Equatable {
-    enum Axis {
-        init(_ direction: Direction) {
+public struct AreaMapPosition: Hashable, Equatable {
+    public enum Axis {
+        public init(_ direction: Direction) {
             switch direction {
             case .north: self = .y
             case .south: self = .y
@@ -28,17 +28,17 @@ struct AreaMapPosition: Hashable, Equatable {
         case x, y, plane
     }
 
-    var x: Int
-    var y: Int
-    var plane: Int
+    public var x: Int
+    public var y: Int
+    public var plane: Int
 
-    init(_ x: Int = 0, _ y: Int = 0, _ plane: Int = 0) {
+    public init(_ x: Int = 0, _ y: Int = 0, _ plane: Int = 0) {
         self.x = x
         self.y = y
         self.plane = plane
     }
 
-    init(_ direction: Direction, _ distance: Int) {
+    public init(_ direction: Direction, _ distance: Int) {
         switch direction {
         case .north: self.init(.y, -distance)
         case .south: self.init(.y, distance)
@@ -49,7 +49,7 @@ struct AreaMapPosition: Hashable, Equatable {
         }
     }
 
-    init(_ axis: Axis, _ value: Int) {
+    public init(_ axis: Axis, _ value: Int) {
         switch (axis) {
         case .x: self.init(value, 0, 0)
         case .y: self.init(0, value, 0)
@@ -57,7 +57,7 @@ struct AreaMapPosition: Hashable, Equatable {
         }
     }
 
-    func direction(axis: Axis) -> Direction? {
+    public func direction(axis: Axis) -> Direction? {
         switch axis {
         case .x:
             if self.x > 0 {
@@ -81,7 +81,7 @@ struct AreaMapPosition: Hashable, Equatable {
         return nil
     }
 
-    func get(axis: Axis) -> Int {
+    public func get(axis: Axis) -> Int {
         switch axis {
         case .x: return self.x
         case .y: return self.y
@@ -89,7 +89,7 @@ struct AreaMapPosition: Hashable, Equatable {
         }
     }
 
-    mutating func set(axis: Axis, value: Int) {
+    public mutating func set(axis: Axis, value: Int) {
         switch axis {
         case .x: self.x = value
         case .y: self.y = value
@@ -97,20 +97,20 @@ struct AreaMapPosition: Hashable, Equatable {
         }
     }
 
-    func adjustedBy(x: Int) -> AreaMapPosition {
+    public func adjustedBy(x: Int) -> AreaMapPosition {
         return AreaMapPosition(self.x + x, y, plane)
     }
 
-    func adjustedBy(y: Int) -> AreaMapPosition {
+    public func adjustedBy(y: Int) -> AreaMapPosition {
         return AreaMapPosition(x, self.y + y, plane)
     }
 
-    func adjustedBy(plane: Int) -> AreaMapPosition {
+    public func adjustedBy(plane: Int) -> AreaMapPosition {
         return AreaMapPosition(x, y, self.plane + plane)
     }
 
 
-    static func ==(lhs: AreaMapPosition, rhs: AreaMapPosition) -> Bool {
+    public static func ==(lhs: AreaMapPosition, rhs: AreaMapPosition) -> Bool {
         return lhs.plane == rhs.plane &&
             lhs.x == rhs.x && lhs.y == rhs.y
     }
@@ -125,27 +125,27 @@ struct AreaMapPosition: Hashable, Equatable {
     }
 }
 
-func +(left: AreaMapPosition, right: AreaMapPosition) -> AreaMapPosition {
+public func +(left: AreaMapPosition, right: AreaMapPosition) -> AreaMapPosition {
     return AreaMapPosition(left.x + right.x, left.y + right.y, left.plane + right.plane)
 }
 
-func -(left: AreaMapPosition, right: AreaMapPosition) -> AreaMapPosition {
+public func -(left: AreaMapPosition, right: AreaMapPosition) -> AreaMapPosition {
     return AreaMapPosition(left.x - right.x, left.y - right.y, left.plane - right.plane)
 }
 
-func +=(left: inout AreaMapPosition, right: AreaMapPosition) {
+public func +=(left: inout AreaMapPosition, right: AreaMapPosition) {
     left = left + right
 }
 
-func -=(left: inout AreaMapPosition, right: AreaMapPosition) {
+public func -=(left: inout AreaMapPosition, right: AreaMapPosition) {
     left = left - right
 }
 
-func lowerBound(_ one: AreaMapPosition, _ other: AreaMapPosition) -> AreaMapPosition {
+public func lowerBound(_ one: AreaMapPosition, _ other: AreaMapPosition) -> AreaMapPosition {
     return AreaMapPosition(min(one.x, other.x), min(one.y, other.y), min(one.plane, other.plane))
 }
 
-func upperBound(_ one: AreaMapPosition, _ other: AreaMapPosition) -> AreaMapPosition {
+public func upperBound(_ one: AreaMapPosition, _ other: AreaMapPosition) -> AreaMapPosition {
     return AreaMapPosition(max(one.x, other.x), max(one.y, other.y), max(one.plane, other.plane))
 }
 

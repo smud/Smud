@@ -13,5 +13,6 @@
 import Foundation
 
 public protocol PluginData: class {
-    init()
+    associatedtype Parent
+    init(parent: Parent)
 }
