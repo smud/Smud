@@ -32,6 +32,13 @@ enum Value {
         }
     }
     
+    var int: Int? {
+        switch self {
+        case .number(let value): return Int(value)
+        default: return nil
+        }
+    }
+    
     var link: Link? {
         switch self {
         case .link(let value): return value

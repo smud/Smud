@@ -47,11 +47,11 @@ public class AreaInstance {
         }    
     }
     
-    public func pluginData<Type>(id: ObjectIdentifier = ObjectIdentifier(Type.self)) -> Type where Type: PluginData {
+    public func pluginData<Type>(id: ObjectIdentifier = ObjectIdentifier(Type.self)) -> Type where Type: PluginData, Type.Parent == AreaInstance {
         if let data = pluginsData[id] as? Type {
             return data
         } else {
-            let data = Type(parent: self as! Type.Parent)
+            let data = Type(parent: self)
             pluginsData[id] = data
             return data
         }

@@ -747,14 +747,18 @@ class AreaFormatParser {
                     area.entity = entity
                 
             } else if let room = entity.value(named: T.roomTagFieldName),
-                let currentAreaId = currentAreaId,
                 case .tag(let roomId) = room {
+                    guard let currentAreaId = currentAreaId else {
+                        try throwError(.noCurrentArea)
+                    }
                     let area = findOrCreateArea(id: currentAreaId)
                     area.rooms[roomId] = entity
                 
             } else if let mobile = entity.value(named: T.mobileTagFieldName),
-                let currentAreaId = currentAreaId,
                 case .tag(let mobileId) = mobile {
+                    guard let currentAreaId = currentAreaId else {
+                        try throwError(.noCurrentArea)
+                    }
                     let area = findOrCreateArea(id: currentAreaId)
                     area.mobiles[mobileId] = entity
                 

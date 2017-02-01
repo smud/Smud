@@ -69,6 +69,8 @@ public class Smud: Config {
         try db.definitions.registerAreaFields()
         print("  rooms")
         try db.definitions.registerRoomFields()
+        print("  mobiles")
+        try db.definitions.registerMobileFields()
     }
     
     private func flushQueueusAndTerminate() {

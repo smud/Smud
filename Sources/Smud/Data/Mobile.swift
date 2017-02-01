@@ -13,14 +13,25 @@
 import Foundation
 
 public class Mobile: Creature {
-    public var tags: [String] = []
-    
-    public var synonyms: [String] = []
-    
-    public var description = ""
-    public var descriptionInRoom = ""
-    public var keywordsText: [String: String] = [:]
+    public let prototype: Entity
+
+    public var id: String
+
+    public var shortDescription: String
     
     public var health = 0
 
+    public init(prototype: Entity, world: World) {
+        self.prototype = prototype
+    
+        let id = prototype["mobile"]?.string ?? ""
+        assert(id != "")
+        self.id = id
+        
+        let name  = prototype["name"]?.string ?? "No name"
+        shortDescription = prototype["short"]?.string ?? ""
+        
+        super.init(name: name, world: world)
+
+    }
 }

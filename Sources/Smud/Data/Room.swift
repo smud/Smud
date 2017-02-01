@@ -19,6 +19,7 @@ public class Room {
     public var id: String
     public var title: String
     public var exits = [Direction: Link]()
+    public var creatures = [Creature]()
 
     public var orderedDirections: [Direction] {
         var result = [Direction]()
@@ -74,6 +75,15 @@ public class Room {
                 }
             }
         }
+        
+        if let lastMobileIndex = prototype.lastStructureIndex["load"] {
+            for i in 0...lastMobileIndex {
+                if let mobileLink = prototype["load.mobile", i]?.link {
+                    let count = prototype["load.count", i]?.int ?? 1
+                    loadMobiles(link: mobileLink, count: count)
+                }
+            }
+        }
     }
     
     public func resolveExit(direction: Direction) -> Room? {
@@ -93,6 +103,31 @@ public class Room {
             return instance.roomsById[roomId]
         } else {
             return areaInstance.roomsById[roomId]
+        }
+    }
+    
+    private func loadMobiles(link: Link, count: Int) {
+        let world = areaInstance.area.world
+        let mobileId = link.object
+        let mobileArea: Area
+        if let areaId = link.parent {
+            guard let area = world.areasById[areaId] else {
+                print("WARNING: area #\(areaId) not found")
+                return
+            }
+            mobileArea = area
+        } else {
+            mobileArea = areaInstance.area
+        }
+        guard let mobilePrototype = mobileArea.prototype.mobiles[mobileId] else {
+            print("WARNING: mobile prototype \(link) not found")
+            return
+        }
+
+        for _ in 0 ..< count {
+            let mobile = Mobile(prototype: mobilePrototype, world: world)
+            mobile.room = self
+            creatures.append(mobile)
         }
     }
 }

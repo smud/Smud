@@ -37,6 +37,16 @@ class Definitions {
         try d.insert(name: "exit.west", type: .link, flags: .structureStart)
         try d.insert(name: "exit.up", type: .link, flags: .structureStart)
         try d.insert(name: "exit.down", type: .link, flags: .structureStart)
+        
+        try d.insert(name: "load.mobile", type: .link, flags: .structureStart)
+        try d.insert(name: "load.count", type: .number)
+    }
+    
+    func registerMobileFields() throws {
+        let d = mobileFields
+        try d.insert(name: "mobile", type: .tag, flags: .required)
+        try d.insert(name: "name", type: .line, flags: .required)
+        try d.insert(name: "short", type: .line, flags: .required)
     }
 }
 
