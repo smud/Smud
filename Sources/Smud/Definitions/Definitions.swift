@@ -29,7 +29,7 @@ class Definitions {
         let d = roomFields
         try d.insert(name: "room", type: .tag, flags: .required)
         try d.insert(name: "title", type: .line, flags: .required)
-        try d.insert(name: "description", type: .longText)
+        try d.insert(name: "description", type: .line)
         
         try d.insert(name: "exit.north", type: .link, flags: .structureStart)
         try d.insert(name: "exit.east", type: .link, flags: .structureStart)

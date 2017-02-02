@@ -18,6 +18,7 @@ public class Room {
     
     public var id: String
     public var title: String
+    public var description: String
     public var exits = [Direction: Link]()
     public var creatures = [Creature]()
 
@@ -48,6 +49,7 @@ public class Room {
         self.id = id
         
         title = prototype["title"]?.string ?? "No title"
+        description = prototype["description"]?.string ?? ""
     }
     
     public func reset() {
