@@ -21,6 +21,7 @@ public class Room {
     public var description: String
     public var exits = [Direction: Link]()
     public var creatures = [Creature]()
+    public let fight = Fight()
 
     public var orderedDirections: [Direction] {
         var result = [Direction]()
@@ -136,7 +137,8 @@ public class Room {
 
 extension Room: Equatable {
     public static func ==(lhs: Room, rhs: Room) -> Bool {
-        return lhs.id == rhs.id
+        //return lhs.id == rhs.id
+        return lhs === rhs
     }
 }
 

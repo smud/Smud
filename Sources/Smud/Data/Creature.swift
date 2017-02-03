@@ -21,6 +21,7 @@ public class Creature {
     public var plural = false
     
     public var room: Room?
+    public weak var fighting: Creature?
     
     public var pluginsData = [ObjectIdentifier: AnyObject]()
     
@@ -59,6 +60,12 @@ public class Creature {
         to["name"] = name
         to["gender"] = gender.rawValue
         to["plural"] = plural
+    }
+}
+
+extension Creature: Equatable {
+    public static func ==(lhs: Creature, rhs: Creature) -> Bool {
+        return lhs === rhs
     }
 }
 
