@@ -36,6 +36,19 @@ public class Area {
         nextInstanceIndex = index + 1
         return instance
     }
+
+    public func createInstance(withIndex index: Int) -> AreaInstance? {
+        guard instancesByIndex[index] == nil else { return nil }
+
+        let instance = AreaInstance(area: self, index: index)
+        instancesByIndex[index] = instance
+
+        if nextInstanceIndex == index {
+            nextInstanceIndex += 1
+        }
+
+        return instance
+    }
     
     public func findUnusedInstanceIndex() -> Int {
         var index = nextInstanceIndex
