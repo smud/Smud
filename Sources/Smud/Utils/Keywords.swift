@@ -1,5 +1,5 @@
 //
-// World.swift
+// Keywords.swift
 //
 // This source file is part of the SMUD open source project
 //
@@ -10,15 +10,9 @@
 // See CONTRIBUTORS.txt for the list of SMUD project authors
 //
 
-
 import Foundation
 
-public class World {
-    public let smud: Smud
-    public var areasById = [String: Area]()
-    public var creatures = [Creature]()
-    
-    public init(smud: Smud) {
-        self.smud = smud
-    }
+func extractKeywords(from string: String) -> [String] {
+    // TODO: exclude filler words
+    return string.components(separatedBy: CharacterSet.whitespaces)
 }

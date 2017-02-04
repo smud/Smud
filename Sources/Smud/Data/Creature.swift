@@ -15,7 +15,12 @@ import ConfigFile
 
 public class Creature {
     public let world: World
-    public var name: String
+    public var name: String {
+        didSet {
+            self.nameKeywords = extractKeywords(from: self.name)
+        }
+    }
+    public private(set) var nameKeywords: [String] = []
     
     public var gender: Gender = .male
     public var plural = false
@@ -44,6 +49,13 @@ public class Creature {
         if let plural: Bool = from["plural"] {
             self.plural = plural
         }
+    }
+    
+    public func hasKeyword(withPrefix prefix: String, caseInsensitive: Bool = false) -> Bool {
+        for keyword in nameKeywords {
+            if keyword.hasPrefix(prefix, caseInsensitive: caseInsensitive) { return true }
+        }
+        return false
     }
     
     public func pluginData<Type>(id: ObjectIdentifier = ObjectIdentifier(Type.self)) -> Type where Type: PluginData, Type.Parent == Creature {
