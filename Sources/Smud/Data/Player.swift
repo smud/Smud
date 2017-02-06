@@ -58,11 +58,11 @@ public final class Player: Creature {
     }
 }
 
-extension Player: Equatable {
-    public static func ==(lhs: Player, rhs: Player) -> Bool {
-        return lhs.playerId == rhs.playerId
-    }
-}
+//extension Player: Equatable {
+//    public static func ==(lhs: Player, rhs: Player) -> Bool {
+//        return lhs.playerId == rhs.playerId
+//    }
+//}
 
 extension Player: Hashable {
     public var hashValue: Int { return playerId.hashValue }

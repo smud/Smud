@@ -15,12 +15,18 @@ import ConfigFile
 
 public class Creature {
     public let world: World
-    public var name: String
+    public var name: String {
+        didSet {
+            self.nameKeywords = extractKeywords(from: self.name)
+        }
+    }
+    public private(set) var nameKeywords: [String] = []
     
     public var gender: Gender = .male
     public var plural = false
     
     public var room: Room?
+    public weak var fighting: Creature?
     
     public var pluginsData = [ObjectIdentifier: AnyObject]()
     
@@ -45,6 +51,13 @@ public class Creature {
         }
     }
     
+    public func hasKeyword(withPrefix prefix: String, caseInsensitive: Bool = false) -> Bool {
+        for keyword in nameKeywords {
+            if keyword.hasPrefix(prefix, caseInsensitive: caseInsensitive) { return true }
+        }
+        return false
+    }
+    
     public func pluginData<Type>(id: ObjectIdentifier = ObjectIdentifier(Type.self)) -> Type where Type: PluginData, Type.Parent == Creature {
         if let data = pluginsData[id] as? Type {
             return data
@@ -59,6 +72,12 @@ public class Creature {
         to["name"] = name
         to["gender"] = gender.rawValue
         to["plural"] = plural
+    }
+}
+
+extension Creature: Equatable {
+    public static func ==(lhs: Creature, rhs: Creature) -> Bool {
+        return lhs === rhs
     }
 }
 

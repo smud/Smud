@@ -622,7 +622,7 @@ class AreaFormatParser {
         }
         currentEntity.replace(name: currentFieldNameWithIndex, value: value)
         if areasLog {
-            print("\(currentFieldNameWithIndex): \(result)")
+            print("\(currentFieldNameWithIndex): \(result.unwrapOptional)")
         }
     }
 

@@ -49,7 +49,8 @@ public final class Account {
 
 extension Account: Equatable {
     public static func ==(lhs: Account, rhs: Account) -> Bool {
-        return lhs.accountId == rhs.accountId
+        //return lhs.accountId == rhs.accountId
+        return lhs === rhs
     }
 }
 
