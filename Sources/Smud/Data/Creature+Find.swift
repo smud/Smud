@@ -43,7 +43,7 @@ public extension Creature {
         guard !name.isEmpty else { return [] }
         
         // Creature: Self
-        if name.isEqual(to: "i", "me", "self", caseInsensitive: true) {
+        if name.isEqual(toOneOf: "i", "me", "self", caseInsensitive: true) {
                 return [.creature(self)]
         }
         
