@@ -18,36 +18,62 @@ public extension Creature {
         case item(Item)
     }
     
-    public struct What: OptionSet {
+    public struct SearchEntityTypes: OptionSet {
         public let rawValue: Int
 
-        static let character = What(rawValue: 1 << 0)
-        static let item = What(rawValue: 1 << 1)
+        public static let creature = SearchEntityTypes(rawValue: 1 << 0)
+        public static let item = SearchEntityTypes(rawValue: 1 << 1)
 
         public init(rawValue: Int) { self.rawValue = rawValue }
     }
     
-    public struct Where: OptionSet {
+    public struct SearchLocations: OptionSet {
         public let rawValue: Int
         
-        static let world = Where(rawValue: 1 << 0)
-        static let room = Where(rawValue: 1 << 1)
-        static let inventory = Where(rawValue: 1 << 2)
-        static let equipment = Where(rawValue: 1 << 3)
+        public static let world = SearchLocations(rawValue: 1 << 0)
+        public static let room = SearchLocations(rawValue: 1 << 1)
+        public static let inventory = SearchLocations(rawValue: 1 << 2)
+        public static let equipment = SearchLocations(rawValue: 1 << 3)
 
         public init(rawValue: Int) { self.rawValue = rawValue }
     }
     
-    public func find(byName name: String, what: What, where: Where, index: Int = 1, count: Int = 1) -> [FindResult] {
+    public func findCreature(selector: EntitySelector, locations: SearchLocations) -> Creature? {
+        let result = find(selector: selector, entityTypes: .creature, locations: locations)
+        guard let first = result.first,
+            case .creature(let creature) = first else {
+                return nil
+        }
+        return creature
+    }
+    
+    public func find(selector: EntitySelector, entityTypes: SearchEntityTypes, locations: SearchLocations) -> [FindResult] {
         
-        guard !name.isEmpty else { return [] }
+        //guard !name.isEmpty else { return [] }
         
-        // Creature: Self
-        if name.isEqual(to: "i", "me", "self", caseInsensitive: true) {
+        // Creature: Self in Room | World
+        if case .pattern(let pattern) = selector,
+            pattern.startingIndex == 1,
+            pattern.count == 1,
+            let keyword = pattern.keywords.first,
+            keyword.isEqual(toOneOf: ["i", "me", "self"], caseInsensitive: true) {
                 return [.creature(self)]
         }
         
         var result: [FindResult] = []
+        
+        var startingIndex: Int
+        var requiredCount: Int
+        if case .pattern(let pattern) = selector {
+            guard pattern.startingIndex > 0 && pattern.count > 0 else { return result }
+            startingIndex = pattern.startingIndex
+            requiredCount = pattern.count
+        } else {
+            startingIndex = 1
+            requiredCount = 1
+        }
+
+        var currentIndex = 1
 
         // Item: Equipment | World
         
@@ -56,16 +82,23 @@ public extension Creature {
         // Creature: Room | World
         if let room = room {
             for creature in room.creatures {
-                guard creature.hasKeyword(withPrefix: name) else { continue }
-                result.append(.creature(creature))
+                guard self != creature else { continue }
+                guard selector.matches(creature: creature) else { continue }
+                if currentIndex >= startingIndex {
+                    result.append(.creature(creature))
+                    guard result.count < requiredCount else { return result }
+                }
+                currentIndex += 1
             }
         }
         
         // Item: Room | World
         
         // Creature: World
-        for creature in world.creatures where creature.room != room {
-            guard creature.hasKeyword(withPrefix: name) else { continue }
+        for creature in world.creatures {
+            guard self != creature else { continue }
+            guard creature.room != room else { continue }
+            guard selector.matches(creature: creature) else { continue }
             result.append(.creature(creature))
         }
         

@@ -32,6 +32,8 @@ public class Creature {
     
     public init(name: String, world: World) {
         self.name = name
+        self.nameKeywords = extractKeywords(from: self.name)
+        
         self.world = world
     }
     
@@ -51,12 +53,12 @@ public class Creature {
         }
     }
     
-    public func hasKeyword(withPrefix prefix: String, caseInsensitive: Bool = false) -> Bool {
-        for keyword in nameKeywords {
-            if keyword.hasPrefix(prefix, caseInsensitive: caseInsensitive) { return true }
-        }
-        return false
-    }
+//    public func hasKeyword(withPrefix prefix: String, caseInsensitive: Bool = false) -> Bool {
+//        for keyword in nameKeywords {
+//            if keyword.hasPrefix(prefix, caseInsensitive: caseInsensitive) { return true }
+//        }
+//        return false
+//    }
     
     public func pluginData<Type>(id: ObjectIdentifier = ObjectIdentifier(Type.self)) -> Type where Type: PluginData, Type.Parent == Creature {
         if let data = pluginsData[id] as? Type {
