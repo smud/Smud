@@ -23,6 +23,7 @@ class Definitions {
         let d = areaFields
         try d.insert(name: "area", type: .tag, flags: .required)
         try d.insert(name: "title", type: .line)
+        try d.insert(name: "origin", type: .link)
     }
     
     func registerRoomFields() throws {
