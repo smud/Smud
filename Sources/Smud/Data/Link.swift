@@ -11,13 +11,26 @@
 //
 
 import Foundation
+import ScannerUtils
 
 public class Link: CustomStringConvertible {
-    public var parent: String?
-    public var entity: String
-    public var instance: Int?
+    public var areaId: String?
+    public var entityId: String
+    public var instanceIndex: Int?
     
-    public var isQualified: Bool { return parent != nil || instance != nil }
+    public var isQualified: Bool { return areaId != nil || instanceIndex != nil }
+    
+    public convenience init?(scanFrom scanner: Scanner) {
+        let originalLocation = scanner.scanLocation
+        guard let text = scanner.scanUpTo("") else {
+            return nil
+        }
+        guard text.hasPrefix("#") else {
+            scanner.scanLocation = originalLocation
+            return nil
+        }
+        self.init(text)
+    }
     
     public init?(_ text: String) {
         guard text.hasPrefix("#") else { return nil }
@@ -26,30 +39,30 @@ public class Link: CustomStringConvertible {
         guard 1...2 ~= elements.count else { return nil }
         
         if elements.count == 2 {
-            guard let instance = Int(elements[1]) else { return nil }
-            self.instance = instance
+            guard let instanceIndex = Int(elements[1]) else { return nil }
+            self.instanceIndex = instanceIndex
         }
         
         var path = elements[0].components(separatedBy: ".")
         guard 1...2 ~= path.count else { return nil }
         
-        guard let entity = path.popLast(), !entity.isEmpty else { return nil }
-        self.entity = entity
+        guard let entityId = path.popLast(), !entityId.isEmpty else { return nil }
+        self.entityId = entityId
         
-        if let parent = path.popLast() {
-            if parent.isEmpty { return nil }
-            self.parent = parent
+        if let areaId = path.popLast() {
+            if areaId.isEmpty { return nil }
+            self.areaId = areaId
         }
     }
     
     public var description: String {
         var result = "#"
-        if let parent = parent {
-            result += "\(parent)."
+        if let areaId = areaId {
+            result += "\(areaId)."
         }
-        result += entity
-        if let instance = self.instance {
-            result += ":\(instance)"
+        result += entityId
+        if let instanceIndex = self.instanceIndex {
+            result += ":\(instanceIndex)"
         }
         return result
     }
@@ -58,15 +71,15 @@ public class Link: CustomStringConvertible {
         let mobile = creature as? Mobile
         let homeInstance = mobile?.home?.areaInstance
 
-        guard parent == nil || parent! == homeInstance?.area.id else {
+        guard areaId == nil || areaId! == homeInstance?.area.id else {
             return false
         }
 
-        guard instance == nil || instance! == homeInstance?.index else {
+        guard instanceIndex == nil || instanceIndex! == homeInstance?.index else {
             return false
         }
 
-        if entity.isEqual(toOneOf: creature.nameKeywords, caseInsensitive: true) {
+        if entityId.isEqual(toOneOf: creature.nameKeywords, caseInsensitive: true) {
             return true
         }
         

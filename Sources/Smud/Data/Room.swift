@@ -96,8 +96,8 @@ public class Room {
     }
     
     public func resolveLink(link: Link) -> Room? {
-        let roomId = link.entity
-        if let areaId = link.parent {
+        let roomId = link.entityId
+        if let areaId = link.areaId {
             guard let area = areaInstance.area.world.areasById[areaId] else {
                 return nil
             }
@@ -112,9 +112,9 @@ public class Room {
     
     private func loadMobiles(link: Link, count: Int) {
         let world = areaInstance.area.world
-        let mobileId = link.entity
+        let mobileId = link.entityId
         let mobileArea: Area
-        if let areaId = link.parent {
+        if let areaId = link.areaId {
             guard let area = world.areasById[areaId] else {
                 print("WARNING: area #\(areaId) not found")
                 return

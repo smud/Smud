@@ -47,32 +47,30 @@ public extension Creature {
         return creature
     }
     
+    public func findOne(selector: EntitySelector, entityTypes: SearchEntityTypes, locations: SearchLocations) -> FindResult? {
+        guard selector.startingIndex == 1 && selector.count == 1 else {
+            return nil
+        }
+        let results = find(selector: selector, entityTypes: entityTypes, locations: locations)
+        assert(0...1 ~= results.count)
+        return results.first
+    }
+    
     public func find(selector: EntitySelector, entityTypes: SearchEntityTypes, locations: SearchLocations) -> [FindResult] {
         
-        //guard !name.isEmpty else { return [] }
+        guard selector.startingIndex > 0 && selector.count > 0 else { return [] }
         
         // Creature: Self in Room | World
-        if case .pattern(let pattern) = selector,
-            pattern.startingIndex == 1,
-            pattern.count == 1,
+        if case .pattern(let pattern) = selector.type,
+            selector.startingIndex == 1,
+            selector.count == 1,
             let keyword = pattern.keywords.first,
             keyword.isEqual(toOneOf: ["i", "me", "self"], caseInsensitive: true) {
                 return [.creature(self)]
         }
-        
-        var result: [FindResult] = []
-        
-        var startingIndex: Int
-        var requiredCount: Int
-        if case .pattern(let pattern) = selector {
-            guard pattern.startingIndex > 0 && pattern.count > 0 else { return result }
-            startingIndex = pattern.startingIndex
-            requiredCount = pattern.count
-        } else {
-            startingIndex = 1
-            requiredCount = 1
-        }
 
+
+        var result: [FindResult] = []
         var currentIndex = 1
 
         // Item: Equipment | World
@@ -84,9 +82,9 @@ public extension Creature {
             for creature in room.creatures {
                 guard self != creature else { continue }
                 guard selector.matches(creature: creature) else { continue }
-                if currentIndex >= startingIndex {
+                if currentIndex >= selector.startingIndex {
                     result.append(.creature(creature))
-                    guard result.count < requiredCount else { return result }
+                    guard result.count < selector.count else { return result }
                 }
                 currentIndex += 1
             }
@@ -99,7 +97,11 @@ public extension Creature {
             guard self != creature else { continue }
             guard creature.room != room else { continue }
             guard selector.matches(creature: creature) else { continue }
-            result.append(.creature(creature))
+            if currentIndex >= selector.startingIndex {
+                result.append(.creature(creature))
+                guard result.count < selector.count else { return result }
+            }
+            currentIndex += 1
         }
         
         // Item: World
