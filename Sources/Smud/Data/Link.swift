@@ -14,7 +14,7 @@ import Foundation
 
 public class Link: CustomStringConvertible {
     public var parent: String?
-    public var object: String
+    public var entity: String
     public var instance: Int?
     
     public var isQualified: Bool { return parent != nil || instance != nil }
@@ -33,8 +33,8 @@ public class Link: CustomStringConvertible {
         var path = elements[0].components(separatedBy: ".")
         guard 1...2 ~= path.count else { return nil }
         
-        guard let object = path.popLast(), !object.isEmpty else { return nil }
-        self.object = object
+        guard let entity = path.popLast(), !entity.isEmpty else { return nil }
+        self.entity = entity
         
         if let parent = path.popLast() {
             if parent.isEmpty { return nil }
@@ -47,10 +47,29 @@ public class Link: CustomStringConvertible {
         if let parent = parent {
             result += "\(parent)."
         }
-        result += object
+        result += entity
         if let instance = self.instance {
             result += ":\(instance)"
         }
         return result
+    }
+    
+    public func matches(creature: Creature) -> Bool {
+        let mobile = creature as? Mobile
+        let homeInstance = mobile?.home?.areaInstance
+
+        guard parent == nil || parent! == homeInstance?.area.id else {
+            return false
+        }
+
+        guard instance == nil || instance! == homeInstance?.index else {
+            return false
+        }
+
+        if entity.isEqual(toOneOf: creature.nameKeywords, caseInsensitive: true) {
+            return true
+        }
+        
+        return false
     }
 }

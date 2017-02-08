@@ -16,6 +16,7 @@ public class Mobile: Creature {
     public let prototype: Entity
 
     public var id: String
+    public var home: Room?
 
     public var shortDescription: String
     

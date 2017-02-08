@@ -21,16 +21,19 @@ open class Config {
     public var port: UInt16 = 4000
     public var maximumLineLengthBytes = 1024
 
+    // Directories
+    public var areasDirectory = "Data/Areas"
+    public var areaFileExtensions = ["area", "rooms", "mobiles", "items"]
+    public var accountsDirectory = "Live/Accounts"
+    public var playersDirectory = "Live/Players"
+
     // Character naming
     public var playerNameLength = 2...16
     public var playerNameAllowedCharacters = CharacterSet(charactersIn: "abcdefghijklmnopqrstuvwxyz")
     public var playerNameInvalidCharactersMessage = "Name contains invalid characters. Allowed characters: a-z"
 
     public var internalErrorMessage =  "An internal error has occured, the developers have been notified. If the error persists, please contact the support."
-    
-    // Directories
-    public var areasDirectory = "Data/Areas"
-    public var areaFileExtensions = ["area", "rooms", "mobiles", "items"]
-    public var accountsDirectory = "Live/Accounts"
-    public var playersDirectory = "Live/Players"
+
+    // Game constants
+    public var combatRoundInterval: DispatchTimeInterval = .seconds(6)
 }

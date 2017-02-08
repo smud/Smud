@@ -21,7 +21,7 @@ public class Room {
     public var description: String
     public var exits = [Direction: Link]()
     public var creatures = [Creature]()
-    public let fight = Fight()
+    public let fight: Fight
 
     public var orderedDirections: [Direction] {
         var result = [Direction]()
@@ -42,6 +42,7 @@ public class Room {
     }
     
     public init(prototype: Entity, instance: AreaInstance) {
+        fight = Fight(smud: instance.area.world.smud)
         self.prototype = prototype
         self.areaInstance = instance
 
@@ -95,7 +96,7 @@ public class Room {
     }
     
     public func resolveLink(link: Link) -> Room? {
-        let roomId = link.object
+        let roomId = link.entity
         if let areaId = link.parent {
             guard let area = areaInstance.area.world.areasById[areaId] else {
                 return nil
@@ -111,7 +112,7 @@ public class Room {
     
     private func loadMobiles(link: Link, count: Int) {
         let world = areaInstance.area.world
-        let mobileId = link.object
+        let mobileId = link.entity
         let mobileArea: Area
         if let areaId = link.parent {
             guard let area = world.areasById[areaId] else {
@@ -129,6 +130,9 @@ public class Room {
 
         for _ in 0 ..< count {
             let mobile = Mobile(prototype: mobilePrototype, world: world)
+            world.creatures.append(mobile)
+            
+            mobile.home = self
             mobile.room = self
             creatures.append(mobile)
         }
