@@ -68,8 +68,8 @@ public class Link: CustomStringConvertible {
     }
     
     public func matches(creature: Creature) -> Bool {
-        let mobile = creature as? Mobile
-        let homeInstance = mobile?.home?.areaInstance
+        guard let mobile = creature as? Mobile else { return false }
+        let homeInstance = mobile.home?.areaInstance
 
         guard areaId == nil || areaId! == homeInstance?.area.id else {
             return false
@@ -79,7 +79,33 @@ public class Link: CustomStringConvertible {
             return false
         }
 
-        if entityId.isEqual(toOneOf: creature.nameKeywords, caseInsensitive: true) {
+        guard let id = mobile.prototype.value(named: "mobile")?.string else {
+            return false
+        }
+        
+        if entityId.isEqual(to: id, caseInsensitive: true) {
+            return true
+        }
+        
+        return false
+    }
+
+    public func matches(room: Room) -> Bool {
+        let homeInstance = room.areaInstance
+        
+        guard areaId == nil || areaId! == homeInstance.area.id else {
+            return false
+        }
+        
+        guard instanceIndex == nil || instanceIndex! == homeInstance.index else {
+            return false
+        }
+        
+        guard let id = room.prototype.value(named: "room")?.string else {
+            return false
+        }
+        
+        if entityId.isEqual(to: id, caseInsensitive: true) {
             return true
         }
         

@@ -51,4 +51,13 @@ public class EntitySelector {
             return pattern.matches(creature: creature)
         }
     }
+    
+    func matches(room: Room) -> Bool {
+        switch type {
+        case .link(let link):
+            return link.matches(room: room)
+        case .pattern:
+            return false
+        }
+    }
 }

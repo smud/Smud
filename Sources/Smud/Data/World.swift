@@ -10,12 +10,12 @@
 // See CONTRIBUTORS.txt for the list of SMUD project authors
 //
 
-
 import Foundation
 
 public class World {
     public let smud: Smud
     public var areasById = [String: Area]()
+    // TODO: consider using hash or linked list, otherwise addition/deletion is too costly
     public var creatures = [Creature]()
     
     public init(smud: Smud) {
