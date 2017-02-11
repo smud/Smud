@@ -54,6 +54,7 @@ public class Room {
         description = prototype["description"]?.string ?? ""
     }
 
+    // FIXME: create prototype in digRoom(), add it to world, construct Room from it
     public convenience init(id: String, instance: AreaInstance) {
         let prototype = Entity()
         _ = prototype.add(name: "room", value: .tag(id))
