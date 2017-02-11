@@ -17,6 +17,7 @@ public class Creature {
     public let world: World
     public var name: String {
         didSet {
+            // FIXME: duplicated in 3 places in this class
             self.nameKeywords = extractKeywords(from: self.name)
         }
     }
@@ -42,6 +43,8 @@ public class Creature {
             throw CreatureError(kind: .noName)
         }
         self.name = name
+        self.nameKeywords = extractKeywords(from: self.name)
+
         self.world = world
         
         if let genderString: String = from["gender"], let gender = Gender(rawValue: genderString) {

@@ -12,16 +12,52 @@
 
 import Foundation
 
-public enum EntitySelector {
-    case link(Link)
-    case pattern(EntityPattern)
+public class EntitySelector {
+    public enum SelectorType {
+        case link(Link)
+        case pattern(EntityPattern)
+    }
     
+    public var startingIndex = 1
+    public var count = 1
+    public var type: SelectorType
+    
+    public init?(_ string: String) {
+        let scanner = Scanner(string: string)
+        while !scanner.isAtEnd {
+            if let value = scanner.scanInteger() {
+                if scanner.skipString(".") {
+                    startingIndex = value
+                } else if scanner.skipString("*") {
+                    count = value
+                }
+            } else if let link = Link(scanFrom: scanner) {
+                type = .link(link)
+                return
+            } else {
+                let pattern = EntityPattern(scanFrom: scanner)
+                type = .pattern(pattern)
+                return
+            }
+        }
+        return nil
+    }
+
     func matches(creature: Creature) -> Bool {
-        switch self {
+        switch type {
         case .link(let link):
             return link.matches(creature: creature)
         case .pattern(let pattern):
             return pattern.matches(creature: creature)
+        }
+    }
+    
+    func matches(room: Room) -> Bool {
+        switch type {
+        case .link(let link):
+            return link.matches(room: room)
+        case .pattern:
+            return false
         }
     }
 }

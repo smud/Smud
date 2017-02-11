@@ -16,6 +16,7 @@ public class Area {
     public let id: String
     public let prototype: AreaPrototype
     public var title: String
+    public var origin: Link?
     public let world: World
     public var instancesByIndex = [Int: AreaInstance]()
     public var nextInstanceIndex = 1
@@ -27,6 +28,7 @@ public class Area {
         
         let entity = prototype.entity
         title = entity.value(named: "title")?.string ?? "No title"
+        origin = entity.value(named: "origin")?.link
     }
     
     public func createInstance(mode: AreaInstance.ResetMode) -> AreaInstance {

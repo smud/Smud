@@ -107,9 +107,9 @@ public class Room {
     
     private func loadMobiles(link: Link, count: Int) {
         let world = areaInstance.area.world
-        let mobileId = link.entity
+        let mobileId = link.entityId
         let mobileArea: Area
-        if let areaId = link.parent {
+        if let areaId = link.areaId {
             guard let area = world.areasById[areaId] else {
                 print("WARNING: area #\(areaId) not found")
                 return

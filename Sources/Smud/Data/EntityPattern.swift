@@ -16,25 +16,20 @@ public class EntityPattern {
     typealias T = EntityPattern
     static let keywordCharacterSet = CharacterSet.whitespacesAndNewlines
         .union(CharacterSet.decimalDigits)
-        .union(CharacterSet(charactersIn: ".*"))
+        .union(CharacterSet(charactersIn: "."))
         .inverted
     static let otherCharacterSet = T.keywordCharacterSet.inverted
     
-    public var startingIndex = 1
-    public var count = 1
     public var keywords = [String]()
     
-    public init(_ string: String) {
+    public convenience init(_ string: String) {
         let scanner = Scanner(string: string)
-        
+        self.init(scanFrom: scanner)
+    }
+
+    public init(scanFrom scanner: Scanner) {
         while !scanner.isAtEnd {
-            if let value = scanner.scanInteger() {
-                if scanner.skipString(".") {
-                    startingIndex = value
-                } else if scanner.skipString("*") {
-                    count = value
-                }
-            } else if let keyword = scanner.scanCharacters(from: T.keywordCharacterSet) {
+            if let keyword = scanner.scanCharacters(from: T.keywordCharacterSet) {
                 keywords.append(keyword)
                 scanner.skipString(".")
             } else {
