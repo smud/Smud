@@ -22,6 +22,7 @@ public class World {
         self.smud = smud
     }
 
+    // FIXME: should work when areaId is specified, but instance is not specified
     public func resolveRoom(link: Link, defaultInstance: AreaInstance? = nil) -> Room? {
         let roomId = link.entityId
 
