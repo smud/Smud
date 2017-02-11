@@ -13,29 +13,66 @@
 import Foundation
 
 public class AreaInstance {
+    public enum ResetMode {
+        case forPlaying
+        case forEditing
+    }
+
     public let area: Area
     public let index: Int
     public var roomsById = [String: Room]()
     public var areaMap = AreaMap()
-    
+    public var resetMode: ResetMode
+
     public var pluginsData = [ObjectIdentifier: AnyObject]()
 
-    public init(area: Area, index: Int) {
+    public init(area: Area, index: Int, mode: ResetMode = .forPlaying) {
         self.area = area
         self.index = index
-        spawnRooms()
+        self.resetMode = mode
+        spawnRooms(mode: mode)
     }
     
-    func spawnRooms() {
+    func spawnRooms(mode: ResetMode) {
         for (roomId, room) in area.prototype.rooms {
             let room = Room(prototype: room, instance: self)
             roomsById[roomId] = room
             
-            room.reset()
+            room.reset(mode: mode)
         }
     }
-    
-    func buildMap() {
+
+    public func digRoom(from fromRoom: Room, direction: Direction, id: String) -> Room? {
+        guard fromRoom.areaInstance == self else {
+            assertionFailure()
+            return nil
+        }
+
+        guard fromRoom.exits[direction] == nil else { return nil }
+
+        let room: Room
+        if let existingRoom = roomsById[id] {
+            guard existingRoom.resolveExit(direction: direction.opposite) != fromRoom else { return existingRoom }
+            guard existingRoom.exits[direction.opposite] == nil else { return nil }
+            room = existingRoom
+        } else {
+            room = Room(id: id, instance: self)
+            roomsById[id] = room
+        }
+
+        guard room != fromRoom else { return nil } // FIXME: compare ids instead?
+
+        fromRoom.exits[direction] = Link(room: room)
+        fromRoom.prototype.replace(name: "exit.\(direction.rawValue)", value: .link(Link(room: room)))
+        room.exits[direction.opposite] = Link(room: fromRoom)
+        room.prototype.replace(name: "exit.\(direction.opposite)", value: .link(Link(room: fromRoom)))
+
+        _ = areaMap.dig(toRoom: room, fromRoom: fromRoom, direction: direction)
+
+        return room
+    }
+
+    public func buildMap() {
         if let room = roomsById.first?.value {
             print("Bulding map for area instance #\(area.id):\(index): starting room: #\(room.id)")
             let mapper = AreaMapper()

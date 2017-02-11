@@ -15,7 +15,7 @@ import Foundation
 public class Room {
     public let prototype: Entity
     public var areaInstance: AreaInstance
-    
+
     public var id: String
     public var title: String
     public var description: String
@@ -53,8 +53,15 @@ public class Room {
         title = prototype["title"]?.string ?? "No title"
         description = prototype["description"]?.string ?? ""
     }
+
+    // FIXME: create prototype in digRoom(), add it to world, construct Room from it
+    public convenience init(id: String, instance: AreaInstance) {
+        let prototype = Entity()
+        _ = prototype.add(name: "room", value: .tag(id))
+        self.init(prototype: prototype, instance: instance)
+    }
     
-    public func reset() {
+    public func reset(mode: AreaInstance.ResetMode) {
         exits.removeAll(keepingCapacity: true)
         
         if let lastExitIndex = prototype.lastStructureIndex["exit"] {
@@ -96,18 +103,7 @@ public class Room {
     }
     
     public func resolveLink(link: Link) -> Room? {
-        let roomId = link.entityId
-        if let areaId = link.areaId {
-            guard let area = areaInstance.area.world.areasById[areaId] else {
-                return nil
-            }
-            guard let instance = area.instancesByIndex.first?.value else {
-                return nil
-            }
-            return instance.roomsById[roomId]
-        } else {
-            return areaInstance.roomsById[roomId]
-        }
+        return areaInstance.area.world.resolveRoom(link: link, defaultInstance: areaInstance)
     }
     
     private func loadMobiles(link: Link, count: Int) {

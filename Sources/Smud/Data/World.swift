@@ -21,4 +21,22 @@ public class World {
     public init(smud: Smud) {
         self.smud = smud
     }
+
+    // FIXME: should work when areaId is specified, but instance is not specified
+    public func resolveRoom(link: Link, defaultInstance: AreaInstance? = nil) -> Room? {
+        let roomId = link.entityId
+
+        if link.areaId == nil && link.instanceIndex == nil {
+            guard let defaultInstance = defaultInstance else { return nil }
+            guard let room = defaultInstance.roomsById[roomId] else { return nil }
+            return room
+        }
+
+        guard let areaId = link.areaId, let instanceIndex = link.instanceIndex else { return nil }
+        guard let area = areasById[areaId] else { return nil }
+        guard let areaInstance = area.instancesByIndex[instanceIndex] else { return nil }
+        guard let room = areaInstance.roomsById[roomId] else { return nil }
+
+        return room
+    }
 }

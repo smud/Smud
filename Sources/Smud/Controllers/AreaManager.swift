@@ -47,7 +47,7 @@ class AreaManager {
         // If area doesn't have any instances yet, create first instance
         let instance: AreaInstance
         if area.instancesByIndex.isEmpty {
-            instance = area.createInstance()
+            instance = area.createInstance(mode: .forPlaying)
             area.instancesByIndex[instance.index] = instance
         } else {
             instance = area.instancesByIndex.first!.value

@@ -31,12 +31,30 @@ public class Area {
         origin = entity.value(named: "origin")?.link
     }
     
-    public func createInstance() -> AreaInstance {
+    public func createInstance(mode: AreaInstance.ResetMode) -> AreaInstance {
         let index = findUnusedInstanceIndex()
-        let instance = AreaInstance(area: self, index: index)
+        let instance = AreaInstance(area: self, index: index, mode: mode)
         instancesByIndex[index] = instance
         nextInstanceIndex = index + 1
         return instance
+    }
+
+    public func createInstance(withIndex index: Int, mode: AreaInstance.ResetMode) -> AreaInstance? {
+        guard instancesByIndex[index] == nil else { return nil }
+
+        let instance = AreaInstance(area: self, index: index)
+        instancesByIndex[index] = instance
+
+        if nextInstanceIndex == index {
+            nextInstanceIndex += 1
+        }
+
+        return instance
+    }
+
+    public func removeInstance(_ instance: AreaInstance) {
+        instancesByIndex.removeValue(forKey: instance.index)
+        nextInstanceIndex = instance.index
     }
     
     public func findUnusedInstanceIndex() -> Int {
