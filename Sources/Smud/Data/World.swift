@@ -23,15 +23,15 @@ public class World {
     }
 
     public func resolveRoom(link: Link, defaultInstance: AreaInstance? = nil) -> Room? {
-        let roomId = link.entity
+        let roomId = link.entityId
 
-        if link.parent == nil && link.instance == nil {
+        if link.areaId == nil && link.instanceIndex == nil {
             guard let defaultInstance = defaultInstance else { return nil }
             guard let room = defaultInstance.roomsById[roomId] else { return nil }
             return room
         }
 
-        guard let areaId = link.parent, let instanceIndex = link.instance else { return nil }
+        guard let areaId = link.areaId, let instanceIndex = link.instanceIndex else { return nil }
         guard let area = areasById[areaId] else { return nil }
         guard let areaInstance = area.instancesByIndex[instanceIndex] else { return nil }
         guard let room = areaInstance.roomsById[roomId] else { return nil }
