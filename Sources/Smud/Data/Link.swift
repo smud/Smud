@@ -78,7 +78,7 @@ public class Link: CustomStringConvertible {
         guard instanceIndex == nil || instanceIndex! == homeInstance?.index else {
             return false
         }
-
+        
         guard let id = mobile.prototype.value(named: "mobile")?.string else {
             return false
         }
@@ -100,7 +100,12 @@ public class Link: CustomStringConvertible {
         guard instanceIndex == nil || instanceIndex! == homeInstance.index else {
             return false
         }
-        
+
+        if room == room.areaInstance.roomsById.first?.value,
+            entityId.isEqual(to: "origin", caseInsensitive: true) {
+                return true
+        }
+    
         guard let id = room.prototype.value(named: "room")?.string else {
             return false
         }
