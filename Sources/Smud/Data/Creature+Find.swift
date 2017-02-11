@@ -161,9 +161,17 @@ public extension Creature {
         
         // Item | World && !Room && !Inventory && !Equipment | World
         
-        // Room: World
+        // Room | World && !Instance | World
         if entityTypes.contains(.room), locations.contains(.world) {
-            
+            for (_, currentArea) in world.areasById {
+                for (_, currentInstance) in currentArea.instancesByIndex {
+                    guard currentInstance != room?.areaInstance else { return result }
+                    
+                    for (_, currentRoom) in currentInstance.roomsById {
+                        guard matchAndAppendRoom(currentRoom) else { return result }
+                    }
+                }
+            }
         }
         
         return result
