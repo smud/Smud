@@ -21,4 +21,21 @@ public class World {
     public init(smud: Smud) {
         self.smud = smud
     }
+
+    public func resolveRoom(link: Link, defaultInstance: AreaInstance? = nil) -> Room? {
+        let roomId = link.entity
+
+        if link.parent == nil && link.instance == nil {
+            guard let defaultInstance = defaultInstance else { return nil }
+            guard let room = defaultInstance.roomsById[roomId] else { return nil }
+            return room
+        }
+
+        guard let areaId = link.parent, let instanceIndex = link.instance else { return nil }
+        guard let area = areasById[areaId] else { return nil }
+        guard let areaInstance = area.instancesByIndex[instanceIndex] else { return nil }
+        guard let room = areaInstance.roomsById[roomId] else { return nil }
+
+        return room
+    }
 }

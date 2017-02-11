@@ -26,6 +26,17 @@ public struct AreaMapPosition: Hashable, Equatable {
             }
         }
         case x, y, plane
+        public static func axes() -> [Axis] {
+            return [.x, .y, .plane]
+        }
+
+        public static func axes(excluding axisToExclude: Axis) -> [Axis] {
+            switch axisToExclude {
+            case .x: return [.y, .plane]
+            case .y: return [.x, .plane]
+            case .plane: return [.x, .y]
+            }
+        }
     }
 
     public var x: Int

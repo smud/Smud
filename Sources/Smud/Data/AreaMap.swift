@@ -13,7 +13,7 @@
 import Foundation
 
 public class AreaMap {
-    enum DigResult {
+    public enum DigResult {
         case fromRoomDoesNotExist
         case toRoomAlreadyExists
         case didAddRoom
@@ -36,8 +36,12 @@ public class AreaMap {
         }
     }
 
-    func dig(toRoom: Room, fromRoom: Room, direction: Direction) -> DigResult {
-        guard positionsByRoom[toRoom] == nil else { return .toRoomAlreadyExists }
+    public func dig(toRoom: Room, fromRoom: Room, direction: Direction) -> DigResult {
+        guard positionsByRoom[toRoom] == nil else {
+            // redrawing still may be required (passage created)
+            version = version &+ 1
+            return .toRoomAlreadyExists
+        }
         guard let fromPosition = positionsByRoom[fromRoom] else { return .fromRoomDoesNotExist }
 
         let toPosition = fromPosition + AreaMapPosition(direction,  1)
@@ -102,9 +106,9 @@ public class AreaMap {
 
             switch element {
             case .room(let room) where room.exits[direction] != nil:
-                if let neighborElement = mapElementsByPosition[oldPosition + AreaMapPosition(direction, 1)],
+                if let neighborElement = oldMapElementsByPosition[oldPosition + AreaMapPosition(direction, 1)],
                     case let .room(neighborRoom) = neighborElement,
-                    neighborRoom == room {
+                    room.resolveExit(direction: direction) == neighborRoom {
                     
                     for fillCoordinate in fillRange {
                         var position = oldPosition

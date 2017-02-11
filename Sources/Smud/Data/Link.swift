@@ -41,6 +41,12 @@ public class Link: CustomStringConvertible {
             self.parent = parent
         }
     }
+
+    public init(room: Room) {
+        self.parent = room.areaInstance.area.id
+        self.entity = room.id
+        self.instance = room.areaInstance.index
+    }
     
     public var description: String {
         var result = "#"
