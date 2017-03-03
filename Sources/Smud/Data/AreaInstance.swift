@@ -48,6 +48,7 @@ public class AreaInstance {
             return nil
         }
 
+        guard id != fromRoom.id else { return nil }
         guard fromRoom.exits[direction] == nil else { return nil }
 
         let room: Room
@@ -61,8 +62,6 @@ public class AreaInstance {
             let area = room.areaInstance.area
             area.prototype.roomsById[id] = room.prototype
         }
-
-        guard room != fromRoom else { return nil } // FIXME: compare ids instead?
 
         fromRoom.exits[direction] = Link(room: room)
         fromRoom.prototype.replace(name: "exit.\(direction.rawValue)", value: .link(Link(room: room)))
