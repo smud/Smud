@@ -11,6 +11,7 @@
 //
 
 import Foundation
+import ConfigFile
 
 public class Area {
     public let id: String
@@ -30,7 +31,11 @@ public class Area {
         title = entity.value(named: "title")?.string ?? "No title"
         origin = entity.value(named: "origin")?.link
     }
-    
+
+    public func scheduleForSaving() {
+        world.smud.db.modifiedAreas.insert(self)
+    }
+
     public func createInstance(mode: AreaInstance.ResetMode) -> AreaInstance {
         let index = findUnusedInstanceIndex()
         let instance = AreaInstance(area: self, index: index, mode: mode)
@@ -65,4 +70,15 @@ public class Area {
         return index
     }
 }
+
+extension Area: Equatable {
+    public static func ==(lhs: Area, rhs: Area) -> Bool {
+        return lhs === rhs
+    }
+}
+
+extension Area: Hashable {
+    public var hashValue: Int { return id.hashValue }
+}
+
 

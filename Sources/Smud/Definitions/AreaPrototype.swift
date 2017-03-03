@@ -10,14 +10,13 @@
 // See CONTRIBUTORS.txt for the list of SMUD project authors
 //
 
-
 import Foundation
 
 public class AreaPrototype {
     public var entity = Entity()
     
-    public var items = [String: Entity]()
-    public var mobiles = [String: Entity]()
-    public var rooms = [String: Entity]()
+    public var itemsById = [String: Entity]()
+    public var mobilesById = [String: Entity]()
+    public var roomsById = [String: Entity]()
 }
 

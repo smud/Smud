@@ -15,9 +15,10 @@ import Foundation
 public struct FieldFlags: OptionSet {
     public let rawValue: Int
     
-    public static let required   = FieldFlags(rawValue: 1 << 0)
-    public static let newLine    = FieldFlags(rawValue: 1 << 1)
-    public static let structureStart = FieldFlags(rawValue: 1 << 2)
+    public static let entityId   = FieldFlags(rawValue: 1 << 0)
+    public static let required   = FieldFlags(rawValue: 1 << 1)
+    public static let newLine    = FieldFlags(rawValue: 1 << 2)
+    public static let structureStart = FieldFlags(rawValue: 1 << 3)
     
     public init(rawValue: Int) {
         self.rawValue = rawValue

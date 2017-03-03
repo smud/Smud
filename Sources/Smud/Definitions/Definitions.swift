@@ -21,14 +21,14 @@ class Definitions {
     
     func registerAreaFields() throws {
         let d = areaFields
-        try d.insert(name: "area", type: .tag, flags: .required)
+        try d.insert(name: "area", type: .tag, flags: [.entityId, .required])
         try d.insert(name: "title", type: .line)
         try d.insert(name: "origin", type: .link)
     }
     
     func registerRoomFields() throws {
         let d = roomFields
-        try d.insert(name: "room", type: .tag, flags: .required)
+        try d.insert(name: "room", type: .tag, flags: [.entityId, .required])
         try d.insert(name: "title", type: .line, flags: .required)
         try d.insert(name: "description", type: .line)
         
@@ -45,7 +45,7 @@ class Definitions {
     
     func registerMobileFields() throws {
         let d = mobileFields
-        try d.insert(name: "mobile", type: .tag, flags: .required)
+        try d.insert(name: "mobile", type: .tag, flags: [.entityId, .required])
         try d.insert(name: "name", type: .line, flags: .required)
         try d.insert(name: "short", type: .line, flags: .required)
     }

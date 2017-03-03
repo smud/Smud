@@ -43,7 +43,21 @@ public extension DB {
         }
     }
     
-    func saveWorld(completion: (_ count: Int) throws->()) throws {
-        try completion(0)
+    func saveWorldPrototypes(completion: (_ count: Int) throws->()) throws {
+        var count = 0
+        
+        for area in modifiedAreas {
+            let directory = URL(fileURLWithPath: smud.areasDirectory, isDirectory: true)
+                .appendingPathComponent(area.id, isDirectory: true)
+            try FileManager.default.createDirectory(atPath: directory.relativePath, withIntermediateDirectories: true, attributes: nil)
+
+            let parser = AreaFormatParser(worldPrototypes: worldPrototypes, definitions: definitions)
+            try parser.saveArea(id: area.id, toDirectory: directory)
+
+            count += 1
+        }
+        modifiedAreas.removeAll(keepingCapacity: true)
+
+        try completion(count)
     }
 }

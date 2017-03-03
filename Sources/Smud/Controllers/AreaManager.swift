@@ -22,7 +22,7 @@ class AreaManager {
     }
     
     func initializeAreas() {
-        smud.db.worldPrototypes.areaPrototypesById.forEach {
+        smud.db.worldPrototypes.areaPrototypesByLowercasedId.forEach {
                 id, areaPrototype in
             let area = Area(id: id, prototype: areaPrototype, world: world)
             smud.db.world.areasById[id] = area

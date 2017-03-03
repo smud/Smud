@@ -23,7 +23,7 @@ open class Config {
 
     // Directories
     public var areasDirectory = "Data/Areas"
-    public var areaFileExtensions = ["area", "rooms", "mobiles", "items"]
+    public var areaFileExtensions = ["smud", "area", "rooms", "mobiles", "items"]
     public var accountsDirectory = "Live/Accounts"
     public var playersDirectory = "Live/Players"
 

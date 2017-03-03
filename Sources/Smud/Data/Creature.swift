@@ -29,6 +29,8 @@ public class Creature {
     public var room: Room?
     public weak var fighting: Creature?
     
+    public var health = 1
+    
     public var pluginsData = [ObjectIdentifier: AnyObject]()
     
     public init(name: String, world: World) {
@@ -51,17 +53,9 @@ public class Creature {
             self.gender = gender
         }
         
-        if let plural: Bool = from["plural"] {
-            self.plural = plural
-        }
+        plural = from["plural"] ?? plural
+        health = from["health"] ?? health
     }
-    
-//    public func hasKeyword(withPrefix prefix: String, caseInsensitive: Bool = false) -> Bool {
-//        for keyword in nameKeywords {
-//            if keyword.hasPrefix(prefix, caseInsensitive: caseInsensitive) { return true }
-//        }
-//        return false
-//    }
     
     public func pluginData<Type>(id: ObjectIdentifier = ObjectIdentifier(Type.self)) -> Type where Type: PluginData, Type.Parent == Creature {
         if let data = pluginsData[id] as? Type {

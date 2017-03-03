@@ -20,8 +20,6 @@ public class Mobile: Creature {
 
     public var shortDescription: String
     
-    public var health = 0
-
     public init(prototype: Entity, world: World) {
         self.prototype = prototype
     
@@ -34,5 +32,6 @@ public class Mobile: Creature {
         
         super.init(name: name, world: world)
 
+        health = prototype["health"]?.int ?? health
     }
 }

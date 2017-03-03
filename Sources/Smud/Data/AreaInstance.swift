@@ -34,7 +34,7 @@ public class AreaInstance {
     }
     
     func spawnRooms(mode: ResetMode) {
-        for (roomId, room) in area.prototype.rooms {
+        for (roomId, room) in area.prototype.roomsById {
             let room = Room(prototype: room, instance: self)
             roomsById[roomId] = room
             
@@ -58,6 +58,8 @@ public class AreaInstance {
         } else {
             room = Room(id: id, instance: self)
             roomsById[id] = room
+            let area = room.areaInstance.area
+            area.prototype.roomsById[id] = room.prototype
         }
 
         guard room != fromRoom else { return nil } // FIXME: compare ids instead?
@@ -66,9 +68,11 @@ public class AreaInstance {
         fromRoom.prototype.replace(name: "exit.\(direction.rawValue)", value: .link(Link(room: room)))
         room.exits[direction.opposite] = Link(room: fromRoom)
         room.prototype.replace(name: "exit.\(direction.opposite)", value: .link(Link(room: fromRoom)))
-
+        
         _ = areaMap.dig(toRoom: room, fromRoom: fromRoom, direction: direction)
 
+        area.scheduleForSaving()
+        
         return room
     }
 

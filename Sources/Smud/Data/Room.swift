@@ -119,7 +119,7 @@ public class Room {
         } else {
             mobileArea = areaInstance.area
         }
-        guard let mobilePrototype = mobileArea.prototype.mobiles[mobileId] else {
+        guard let mobilePrototype = mobileArea.prototype.mobilesById[mobileId] else {
             print("WARNING: mobile prototype \(link) not found")
             return
         }

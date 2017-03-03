@@ -21,6 +21,7 @@ public class DB {
     let serialSaveQueue = DispatchQueue(label: "Smud.SerialSaveQueue")
 
     // Areas
+    var modifiedAreas = Set<Area>()
     let worldPrototypes = WorldPrototypes()
     let definitions = Definitions()
     public let world: World
@@ -71,7 +72,7 @@ public class DB {
             try savePlayers { count in
                 if count > 0 { print("\(count) player(s) saved") }
                 
-                try saveWorld { count in
+                try saveWorldPrototypes { count in
                     if count > 0 { print("\(count) area(s) saved") }
                 }
             }

@@ -44,6 +44,7 @@ struct AreaParseError: Error, CustomStringConvertible {
         case invalidTagFormat
         case linkShouldStartWithHash
         case invalidLinkFormat
+        case areaPrototypeNotFound
         
         var description: String {
             switch self {
@@ -81,6 +82,7 @@ struct AreaParseError: Error, CustomStringConvertible {
             case .invalidTagFormat: return "invalid tag format: tag should contain at least one alphanumeric value or underscore"
             case .linkShouldStartWithHash: return "link should start with hash"
             case .invalidLinkFormat: return "invalid link format"
+            case .areaPrototypeNotFound: return "area prototype not found"
             }
         }
     }

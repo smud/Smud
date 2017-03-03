@@ -17,6 +17,15 @@ class FieldDefinitions {
     private var fields = [String: FieldInfo]()
     private(set) public var requiredFieldNames = [String]()
     
+    func entityIdFieldName() -> String? {
+        for (name, fieldInfo) in fields {
+            if fieldInfo.flags.contains(.entityId) {
+                return name
+            }
+        }
+        return nil
+    }
+    
     func field(name: String) -> FieldInfo? {
         return fields[name]
     }

@@ -18,41 +18,46 @@ public class Entity {
     // Key is "structure name"."field name"[index]:
     // struct.name[0]
     // Index should be omitted for top level fields.
-    private var values = [String: Value]()
-    private(set) var orderedNames = [String]()
+    private var valuesByLowercasedName = [String: Value]()
+    private(set) var orderedLowercasedNames = [String]()
     
     var lastStructureIndex = [String: Int]()
     var startLine = 0
 
     // name is struct.field[index]
     func add(name: String, value: Value) -> Bool {
-        guard values[name] == nil else { return false }
-        values[name] = value
-        orderedNames.append(name)
+        let lowercasedName = name.lowercased()
+        guard valuesByLowercasedName[lowercasedName] == nil else { return false }
+        valuesByLowercasedName[lowercasedName] = value
+        orderedLowercasedNames.append(lowercasedName)
         return true
     }
     
     // name is struct.field[index]
     func replace(name: String, value: Value) {
-        guard values[name] == nil else {
-            values[name] = value
+        let lowercasedName = name.lowercased()
+        guard valuesByLowercasedName[lowercasedName] == nil else {
+            valuesByLowercasedName[lowercasedName] = value
             return
         }
-        values[name] = value
-        orderedNames.append(name)
+        valuesByLowercasedName[lowercasedName] = value
+        orderedLowercasedNames.append(lowercasedName)
     }
     
     // name is struct.field[index]
     func value(named name: String) -> Value? {
-        return values[name]
+        let lowercasedName = name.lowercased()
+        return valuesByLowercasedName[lowercasedName]
     }
     
     subscript(_ name: String) -> Value? {
-        return values[name]
+        let lowercasedName = name.lowercased()
+        return valuesByLowercasedName[lowercasedName]
     }
 
     subscript(_ name: String, _ index: Int) -> Value? {
-        return values["\(name)[\(index)]"]
+        let nameWithIndex = appendIndex(toName: name.lowercased(), index: index)
+        return valuesByLowercasedName[nameWithIndex]
     }
 
     // name is struct.field WITHOUT [index] suffix
@@ -64,12 +69,12 @@ public class Entity {
             }
             // Every structure should have required field:
             for i in 0...lastIndex {
-                let nameWithIndex = appendIndex(toName: name, index: i)
-                guard values[nameWithIndex] != nil else { return false }
+                let nameWithIndex = appendIndex(toName: name.lowercased(), index: i)
+                guard valuesByLowercasedName[nameWithIndex] != nil else { return false }
             }
             return true
         }
         
-        return values[name] != nil
+        return valuesByLowercasedName[name.lowercased()] != nil
     }
 }

@@ -16,29 +16,29 @@ import CollectionUtils
 let areasLog = false
 
 class AreaFormatParser {
-    private typealias T = AreaFormatParser
+    typealias T = AreaFormatParser
     
-    private enum StructureType {
+    enum StructureType {
         case none
         case extended
         case base
     }
     
-    private var scanner: Scanner!
-    private var lineUtf16Offsets = [Int]()
-    private let worldPrototypes: WorldPrototypes
-    private let definitions: Definitions
+    var scanner: Scanner!
+    var lineUtf16Offsets = [Int]()
+    let worldPrototypes: WorldPrototypes
+    let definitions: Definitions
     
-    private var fieldDefinitions: FieldDefinitions!
-    private var currentAreaId: String?
-    private var currentEntity: Entity!
-    private var animateByDefault = false
-    private var currentFieldInfo: FieldInfo?
-    private var currentFieldName = "" // struct.name
-    private var currentFieldNameWithIndex = "" // struct.name[0]
-    private var currentStructureType: StructureType = .none
-    private var currentStructureName = "" // struct
-    private var firstFieldInStructure = false
+    var fieldDefinitions: FieldDefinitions!
+    var currentAreaId: String?
+    var currentEntity: Entity!
+    var animateByDefault = false
+    var currentFieldInfo: FieldInfo?
+    var currentFieldName = "" // struct.name
+    var currentFieldNameWithIndex = "" // struct.name[0]
+    var currentStructureType: StructureType = .none
+    var currentStructureName = "" // struct
+    var firstFieldInStructure = false
     
     private static let areaTagFieldName = "area"
     private static let roomTagFieldName = "room"
@@ -58,22 +58,22 @@ class AreaFormatParser {
     #endif
     
     #if os(Linux) || os(Windows)
-    private static let tagCharacters: CharacterSet = {
+    static let tagCharacters: CharacterSet = {
         var c = CharacterSet.alphanumerics
         c.insert(charactersIn: "_.")
         return c
     }()
     #else
-    private static let tagCharacters = CharacterSet.alphanumerics.union(CharacterSet(charactersIn: "_."))
+    static let tagCharacters = CharacterSet.alphanumerics.union(CharacterSet(charactersIn: "_."))
     #endif
-    private static let linkCharacters = tagCharacters
+    static let linkCharacters = tagCharacters
     
-    init(worldPrototypes: WorldPrototypes, definitions: Definitions) {
+    public init(worldPrototypes: WorldPrototypes, definitions: Definitions) {
         self.worldPrototypes = worldPrototypes
         self.definitions = definitions
     }
     
-    func load(filename: String) throws {
+    public func load(filename: String) throws {
         let contents: String
         do {
             contents = try String(contentsOfFile: filename, encoding: .utf8)
@@ -339,402 +339,13 @@ class AreaFormatParser {
         }
     }
     
-    private func scanNumber() throws {
-        #if !os(Linux) && !os(Windows)
-        // Coredumps on Linux
-        assert(scanner.charactersToBeSkipped == CharacterSet.whitespaces)
-        #endif
-
-        guard let result = scanner.scanInt64() else {
-            try throwError(.expectedNumber)
-        }
-        let value = Value.number(result)
-        guard currentEntity.add(name: currentFieldNameWithIndex, value: value) else {
-            try throwError(.duplicateField)
-        }
-        if areasLog {
-            print("\(currentFieldNameWithIndex): \(result)")
-        }
-    }
-    
-    private func scanEnumeration() throws {
-        #if !os(Linux) && !os(Windows)
-        // Coredumps on Linux
-        assert(scanner.charactersToBeSkipped == CharacterSet.whitespaces)
-        #endif
-
-        let value: Value
-        if let number = scanner.scanInt64() {
-            value = Value.enumeration(number)
-            if areasLog {
-                print("\(currentFieldNameWithIndex): .\(number)")
-            }
-        } else if let word = scanWord() {
-            let result = word.lowercased()
-            guard let valuesByName = definitions.enumerations.valuesByNameForAlias[currentFieldName],
-                    let number = valuesByName[result] else {
-                try throwError(.invalidEnumerationValue)
-            }
-            value = Value.enumeration(number)
-            if areasLog {
-                print("\(currentFieldNameWithIndex): .\(number)")
-            }
-        } else {
-            try throwError(.expectedEnumerationValue)
-        }
-        
-        guard currentEntity.add(name: currentFieldNameWithIndex, value: value) else {
-            try throwError(.duplicateField)
-        }
-    }
-    
-    private func scanFlags() throws {
-        #if !os(Linux) && !os(Windows)
-        // Coredumps on Linux
-        assert(scanner.charactersToBeSkipped == CharacterSet.whitespaces)
-        #endif
-
-        let valuesByName = definitions.enumerations.valuesByNameForAlias[currentFieldName]
-        
-        var result: Int64
-        if let previousValue = currentEntity.value(named: currentFieldNameWithIndex),
-            case .flags(let previousResult) = previousValue {
-                result = previousResult
-        } else {
-                result = 0
-        }
-
-        while true {
-            if let flags = scanner.scanInt64() {
-                //let flags: Int64 = bitNumber <= 0 ? 0 : 1 << (bitNumber - 1)
-                guard (result & flags) == 0 else {
-                    try throwError(.duplicateValue)
-                }
-                result |= flags
-            } else if let word = scanWord()?.lowercased() {
-                guard let valuesByName = valuesByName else {
-                    // List without associated enumeration names
-                    try throwError(.expectedNumber)
-                }
-                guard let bitNumber = valuesByName[word] else {
-                    try throwError(.invalidEnumerationValue)
-                }
-                let flags = bitNumber <= 0 ? 0 : 1 << (bitNumber - 1)
-                guard (result & flags) == 0 else {
-                    try throwError(.duplicateValue)
-                }
-                result |= flags
-            } else {
-                break
-            }
-        }
-
-        let value = Value.flags(result)
-        currentEntity.replace(name: currentFieldNameWithIndex, value: value)
-        if areasLog {
-            print("\(currentFieldNameWithIndex): \(result)")
-        }
-    }
-
-    private func scanList() throws {
-        #if !os(Linux) && !os(Windows)
-        // Coredumps on Linux
-        assert(scanner.charactersToBeSkipped == CharacterSet.whitespaces)
-        #endif
-
-        let valuesByName = definitions.enumerations.valuesByNameForAlias[currentFieldName]
-        
-        var result: Set<Int64>
-        if let previousValue = currentEntity.value(named: currentFieldNameWithIndex),
-            case .list(let previousResult) = previousValue {
-            result = previousResult
-        } else {
-            result = Set<Int64>()
-        }
-        
-        while true {
-            if let number = scanner.scanInt64() {
-                guard result.insert(number).inserted else {
-                    try throwError(.duplicateValue)
-                }
-            } else if let word = scanWord()?.lowercased() {
-                guard let valuesByName = valuesByName else {
-                    // List without associated enumeration names
-                    try throwError(.expectedNumber)
-                }
-                guard let number = valuesByName[word] else {
-                    try throwError(.invalidEnumerationValue)
-                }
-                guard result.insert(number).inserted else {
-                    try throwError(.duplicateValue)
-                }
-            } else {
-                break
-            }
-        }
-
-        let value = Value.list(result)
-        currentEntity.replace(name: currentFieldNameWithIndex, value:  value)
-        if areasLog {
-            print("\(currentFieldNameWithIndex): \(result)")
-        }
-    }
-
-    private func scanDictionary() throws {
-        #if !os(Linux) && !os(Windows)
-        // Coredumps on Linux
-        assert(scanner.charactersToBeSkipped == CharacterSet.whitespaces)
-        #endif
-        
-        let valuesByName = definitions.enumerations.valuesByNameForAlias[currentFieldName]
-        
-        var result: [Int64: Int64?]
-        if let previousValue = currentEntity.value(named: currentFieldNameWithIndex),
-            case .dictionary(let previousResult) = previousValue {
-            result = previousResult
-        } else {
-            result = [Int64: Int64?]()
-        }
-        
-        while true {
-            if let key = scanner.scanInt64() {
-                guard result[key] == nil else {
-                    try throwError(.duplicateValue)
-                }
-                if scanner.skipString("=") {
-                    guard let value = scanner.scanInt64() else {
-                        try throwError(.expectedNumber)
-                    }
-                    result[key] = value
-                } else {
-                    result[key] = nil as Int64?
-                }
-            } else if let word = scanWord()?.lowercased() {
-                guard let valuesByName = valuesByName else {
-                    // List without associated enumeration names
-                    try throwError(.expectedNumber)
-                }
-                guard let key = valuesByName[word] else {
-                    try throwError(.invalidEnumerationValue)
-                }
-                guard result[key] == nil else {
-                    try throwError(.duplicateValue)
-                }
-                if scanner.skipString("=") {
-                    guard let value = scanner.scanInt64() else {
-                        try throwError(.expectedNumber)
-                    }
-                    result[key] = value
-                } else {
-                    result[key] = nil as Int64?
-                }
-            } else {
-                break
-            }
-        }
-        
-        let value = Value.dictionary(result)
-        currentEntity.replace(name: currentFieldNameWithIndex, value: value)
-        if areasLog {
-            print("\(currentFieldNameWithIndex): \(result)")
-        }
-    }
-
-    private func scanQuotedText() throws -> String {
-        var result = ""
-        try scanner.skipping(CharacterSet.whitespacesAndNewlines) {
-            guard scanner.skipString("\"") else {
-                try throwError(.expectedDoubleQuote)
-            }
-        }
-        try scanner.skipping(nil) {
-            while true {
-                if scanner.skipString("\"") {
-                    // End of string or escaped quote?
-                    if let cu = scanner.peekUtf16CodeUnit(), cu == 34 { // "
-                        // If a quote is immediately followed by another quote,
-                        // this is an escaped quote
-                        scanner.skipString("\"")
-                        result += "\""
-                        continue
-                    } else {
-                        // End of string
-                        break
-                    }
-                }
-                
-                guard let text = scanner.scanUpTo("\"") else {
-                    try throwError(.unterminatedString)
-                }
-                result += text
-            }
-        }
-        return result
-    }
-
-    private func scanTag() throws {
-        #if !os(Linux) && !os(Windows)
-            assert(scanner.charactersToBeSkipped == CharacterSet.whitespaces)
-        #endif
-
-        guard scanner.skipString("#") else {
-            try throwError(.tagShouldStartWithHash)
-        }
-        
-        var result = ""
-        try scanner.skipping(nil) {
-            guard let tag = scanner.scanCharacters(from: T.tagCharacters), !tag.isEmpty else {
-                try throwError(.invalidTagFormat)
-            }
-            result = tag
-        }
-        
-        let value = Value.tag(result)
-        if currentEntity.value(named: currentFieldNameWithIndex) != nil {
-            try throwError(.duplicateField)
-        }
-        currentEntity.replace(name: currentFieldNameWithIndex, value: value)
-        if areasLog {
-            print("\(currentFieldNameWithIndex): \(result)")
-        }
-    }
-
-    private func scanLink() throws {
-        #if !os(Linux) && !os(Windows)
-            assert(scanner.charactersToBeSkipped == CharacterSet.whitespaces)
-        #endif
-        
-        guard scanner.skipString("#") else {
-            try throwError(.linkShouldStartWithHash)
-        }
-        
-        var result: Link?
-        try scanner.skipping(nil) {
-            guard let linkString = scanner.scanCharacters(from: T.linkCharacters), !linkString.isEmpty, let link = Link("#" + linkString) else {
-                try throwError(.invalidLinkFormat)
-            }
-            result = link
-        }
-        
-        let value = Value.link(result!)
-        if currentEntity.value(named: currentFieldNameWithIndex) != nil {
-            try throwError(.duplicateField)
-        }
-        currentEntity.replace(name: currentFieldNameWithIndex, value: value)
-        if areasLog {
-            print("\(currentFieldNameWithIndex): \(result.unwrapOptional)")
-        }
-    }
-
-    private func scanLine() throws {
-        #if !os(Linux) && !os(Windows)
-        assert(scanner.charactersToBeSkipped == CharacterSet.whitespaces)
-        #endif
-
-        let result = try scanQuotedText()
-        //if currentFieldInfo?.flags.contains(.automorph) ?? false {
-        //    result = morpher.convertToSimpleAreaFormat(text: result,
-        //        animateByDefault: animateByDefault)
-        //}
-        let value = Value.line(result)
-        if currentEntity.value(named: currentFieldNameWithIndex) != nil {
-            try throwError(.duplicateField)
-        }
-        currentEntity.replace(name: currentFieldNameWithIndex, value: value)
-        if areasLog {
-            print("\(currentFieldNameWithIndex): \(result)")
-        }
-    }
-    
-    private func scanLongText() throws {
-        #if !os(Linux) && !os(Windows)
-        assert(scanner.charactersToBeSkipped == CharacterSet.whitespaces)
-        #endif
-
-        var result = [try scanQuotedText()]
-        while true {
-            do {
-                #if !os(Linux) && !os(Windows)
-                assert(scanner.charactersToBeSkipped == CharacterSet.whitespaces)
-                #endif
-                try scanner.skipping(CharacterSet.whitespacesAndNewlines) {
-                    let nextLine = try scanQuotedText()
-                    result.append(nextLine)
-                    try skipComments()
-                }
-            } catch let error as AreaParseError {
-                if case .expectedDoubleQuote = error.kind {
-                    // It's normal to not have continuation lines
-                    break
-                } else {
-                    throw error
-                }
-            }
-        }
-        //if currentFieldInfo?.flags.contains(.automorph) ?? false {
-        //    result = result.map {
-        //        morpher.convertToSimpleAreaFormat(text: $0, animateByDefault: animateByDefault)
-        //    }
-        //}
-        let value = Value.longText(result)
-        if currentEntity.value(named: currentFieldNameWithIndex) != nil {
-            try throwError(.duplicateField)
-        }
-        currentEntity.replace(name: currentFieldNameWithIndex, value:  value)
-        if areasLog {
-            print("\(currentFieldNameWithIndex): \(result)")
-        }
-    }
-    
-    private func scanDice() throws {
-        #if !os(Linux) && !os(Windows)
-        assert(scanner.charactersToBeSkipped == CharacterSet.whitespaces)
-        #endif
-        
-        guard let v1 = scanner.scanInt64() else {
-            try throwError(.expectedNumber)
-        }
-        
-        let hasK = scanner.skipString("К") || scanner.skipString("к")
-
-        let v2OrNil = scanner.scanInt64()
-        
-        let hasPlus = scanner.skipString("+")
-
-        let v3OrNil = scanner.scanInt64()
-        
-        if hasK && v2OrNil == nil {
-            try throwError(.syntaxError)
-        }
-        if hasPlus && (v2OrNil == nil || v3OrNil == nil) {
-            try throwError(.syntaxError)
-        }
-        
-        let value: Value
-        if v2OrNil == nil && v3OrNil == nil {
-            value = Value.dice(0, 0, v1)
-            if areasLog {
-                print("\(currentFieldNameWithIndex): 0к0+\(v1)")
-            }
-        } else {
-            value = Value.dice(v1, (v2OrNil ?? 0), (v3OrNil ?? 0))
-            if areasLog {
-                print("\(currentFieldNameWithIndex): \(v1)к\(v2OrNil ?? 0)+\(v3OrNil ?? 0)")
-            }
-        }
-
-        if currentEntity.value(named: currentFieldNameWithIndex) != nil {
-            try throwError(.duplicateField)
-        }
-        currentEntity.replace(name: currentFieldNameWithIndex, value:  value)
-    }
-    
     private func findOrCreateArea(id: String) -> AreaPrototype {
-        if let area = worldPrototypes.areaPrototypesById[id] {
+        let lowercasedId = id.lowercased()
+        if let area = worldPrototypes.areaPrototypesByLowercasedId[lowercasedId] {
             return area
         } else {
             let area = AreaPrototype()
-            worldPrototypes.areaPrototypesById[id] = area
+            worldPrototypes.areaPrototypesByLowercasedId[lowercasedId] = area
             return area
         }
     }
@@ -752,7 +363,7 @@ class AreaFormatParser {
                         try throwError(.noCurrentArea)
                     }
                     let area = findOrCreateArea(id: currentAreaId)
-                    area.rooms[roomId] = entity
+                    area.roomsById[roomId] = entity
                 
             } else if let mobile = entity.value(named: T.mobileTagFieldName),
                 case .tag(let mobileId) = mobile {
@@ -760,13 +371,13 @@ class AreaFormatParser {
                         try throwError(.noCurrentArea)
                     }
                     let area = findOrCreateArea(id: currentAreaId)
-                    area.mobiles[mobileId] = entity
+                    area.mobilesById[mobileId] = entity
                 
             } else if let item = entity.value(named: T.itemTagFieldName),
                 let currentAreaId = currentAreaId,
                 case .tag(let itemId) = item {
                     let area = findOrCreateArea(id: currentAreaId)
-                    area.items[itemId] = entity
+                    area.itemsById[itemId] = entity
                 
             } else {
                 try throwError(.unknownEntityType)
@@ -803,25 +414,25 @@ class AreaFormatParser {
         
         if let area = entity.value(named: T.areaTagFieldName),
             case .tag(let areaId) = area,
-            let oldEntity = worldPrototypes.areaPrototypesById[areaId] {
+            let oldEntity = worldPrototypes.areaPrototypesByLowercasedId[areaId.lowercased()] {
                 currentEntity = oldEntity.entity
 
         } else if let room = entity.value(named: T.roomTagFieldName),
             case .tag(let roomId) = room,
             let currentAreaId = currentAreaId,
-            let oldEntity = worldPrototypes.areaPrototypesById[currentAreaId]?.rooms[roomId] {
+            let oldEntity = worldPrototypes.areaPrototypesByLowercasedId[currentAreaId.lowercased()]?.roomsById[roomId] {
                 currentEntity = oldEntity
         
         } else if let mobile = entity.value(named: T.mobileTagFieldName),
             case .tag(let mobileId) = mobile,
             let currentAreaId = currentAreaId,
-            let oldEntity = worldPrototypes.areaPrototypesById[currentAreaId]?.mobiles[mobileId] {
+            let oldEntity = worldPrototypes.areaPrototypesByLowercasedId[currentAreaId.lowercased()]?.mobilesById[mobileId] {
                 currentEntity = oldEntity
         
         } else if let item = entity.value(named: T.itemTagFieldName),
             case .tag(let itemId) = item,
             let currentAreaId = currentAreaId,
-            let oldEntity = worldPrototypes.areaPrototypesById[currentAreaId]?.items[itemId] {
+            let oldEntity = worldPrototypes.areaPrototypesByLowercasedId[currentAreaId.lowercased()]?.itemsById[itemId] {
                 currentEntity = oldEntity
         
         } else {
@@ -831,7 +442,7 @@ class AreaFormatParser {
         return true
     }
 
-    private func skipComments() throws {
+    func skipComments() throws {
         while true {
             if scanner.skipString(";") {
                 let previousCharactersToBeSkipped = scanner.charactersToBeSkipped
@@ -864,7 +475,43 @@ class AreaFormatParser {
         }
     }
     
-    private func scanWord() -> String? {
+    func scanQuotedText() throws -> String {
+        var result = ""
+        try scanner.skipping(CharacterSet.whitespacesAndNewlines) {
+            guard scanner.skipString("\"") else {
+                try throwError(.expectedDoubleQuote)
+            }
+        }
+        try scanner.skipping(nil) {
+            while true {
+                if scanner.skipString("\"") {
+                    // End of string or escaped quote?
+                    if let cu = scanner.peekUtf16CodeUnit(), cu == 34 { // "
+                        // If a quote is immediately followed by another quote,
+                        // this is an escaped quote
+                        scanner.skipString("\"")
+                        result += "\""
+                        continue
+                    } else {
+                        // End of string
+                        break
+                    }
+                }
+                
+                guard let text = scanner.scanUpTo("\"") else {
+                    try throwError(.unterminatedString)
+                }
+                result += text
+            }
+        }
+        return result
+    }
+    
+    func escapeText(_ text: String) -> String {
+        return text.components(separatedBy: "\"").joined(separator: "\"\"")
+    }
+    
+    func scanWord() -> String? {
         return scanner.scanCharacters(from: T.wordCharacters)
     }
     
@@ -872,7 +519,7 @@ class AreaFormatParser {
         return lineUtf16Offsets.binarySearch { $0 < offset } /* - 1 */
     }
     
-    private func throwError(_ kind: AreaParseError.Kind) throws -> Never  {
+    func throwError(_ kind: AreaParseError.Kind) throws -> Never  {
         throw AreaParseError(kind: kind, scanner: scanner)
     }
 }
