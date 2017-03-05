@@ -26,6 +26,14 @@ public struct AreaMapRange {
         self.to = to
     }
 
+    public var size: AreaMapPosition {
+        return to - from + AreaMapPosition(1, 1, 1)
+    }
+
+    public func size(axis: AreaMapPosition.Axis) -> Int {
+        return to.get(axis: axis) - from.get(axis: axis) + 1
+    }
+
     public mutating func expand(with position: AreaMapPosition) {
         self.from = lowerBound(self.from, position)
         self.to = upperBound(self.to, position)
