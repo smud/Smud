@@ -12,6 +12,7 @@
 
 
 import Foundation
+import Utils
 
 public struct AreaMapPosition: Hashable, Equatable {
     public enum Axis {
@@ -126,14 +127,7 @@ public struct AreaMapPosition: Hashable, Equatable {
             lhs.x == rhs.x && lhs.y == rhs.y
     }
 
-    public var hashValue: Int {
-        // Smallest collision being x = -46272 and y = 46016
-        let prime = 92821
-        var result = prime &+ x
-        result = prime &* result &+ y
-        result = prime &* result &+ plane
-        return result
-    }
+    public var hashValue: Int { return combinedHash(x, y, plane) }
 }
 
 public func +(left: AreaMapPosition, right: AreaMapPosition) -> AreaMapPosition {

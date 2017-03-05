@@ -11,6 +11,7 @@
 //
 
 import Foundation
+import Utils
 
 class AreaMapper {
     struct RoomAndDirection: Hashable {
@@ -22,12 +23,7 @@ class AreaMapper {
                 lhs.direction == rhs.direction
         }
         
-        public var hashValue: Int {
-            let prime = 92821
-            var result = prime &+ room.hashValue
-            result = prime &* result &+ direction.hashValue
-            return result
-        }
+        public var hashValue: Int { return combinedHash(room, direction) }
     }
     
     func buildAreaMap(startingRoom: Room) -> AreaMap {
