@@ -98,6 +98,7 @@ extension AreaFormatParser {
             }
             return "\(name) #\(value)"
         case .link(let value):
+            value.instanceIndex = nil // Saving instance numbers makes no sense
             return "\(name) \(value)"
         case .number(let value):
             return "\(name) \(value)"
