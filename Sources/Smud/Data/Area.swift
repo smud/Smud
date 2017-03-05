@@ -22,6 +22,11 @@ public class Area {
     public var instancesByIndex = [Int: AreaInstance]()
     public var nextInstanceIndex = 1
 
+    public enum InstanceCreationResult {
+        case ok(AreaInstance)
+        case instanceAlreadyExists(AreaInstance)
+    }
+
     public init(id: String, prototype: AreaPrototype, world: World) {
         self.id = id
         self.prototype = prototype
@@ -36,23 +41,32 @@ public class Area {
         world.smud.db.modifiedAreas.insert(self)
     }
 
-    public func createInstance(mode: AreaInstance.ResetMode) -> AreaInstance {
-        let index = findUnusedInstanceIndex()
-        let instance = AreaInstance(area: self, index: index, mode: mode)
-        instancesByIndex[index] = instance
-        nextInstanceIndex = index + 1
-        return instance
+    public func createInstance(withIndex index: Int?, mode: AreaInstance.ResetMode) -> InstanceCreationResult {
+
+        if let index = index {
+            guard instancesByIndex[index] == nil else {
+                return .instanceAlreadyExists(instancesByIndex[index]!)
+            }
+
+            if nextInstanceIndex == index {
+                nextInstanceIndex += 1
+            }
+
+            let instance = AreaInstance(area: self, index: index, mode: mode)
+            instancesByIndex[index] = instance
+
+            return .ok(instance)
+        }
+
+        return .ok(createInstance(mode: mode))
     }
 
-    public func createInstance(withIndex index: Int, mode: AreaInstance.ResetMode) -> AreaInstance? {
-        guard instancesByIndex[index] == nil else { return nil }
+    public func createInstance(mode: AreaInstance.ResetMode) -> AreaInstance {
+        let index = findUnusedInstanceIndex()
+        nextInstanceIndex = index + 1
 
-        let instance = AreaInstance(area: self, index: index)
+        let instance = AreaInstance(area: self, index: index, mode: mode)
         instancesByIndex[index] = instance
-
-        if nextInstanceIndex == index {
-            nextInstanceIndex += 1
-        }
 
         return instance
     }
