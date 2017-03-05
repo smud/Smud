@@ -16,7 +16,9 @@ import ConfigFile
 public final class Player: Creature {
     public var playerId: Int64
     public var account: Account
-    
+
+    public var editedInstances = Set<AreaInstance>()
+
     public var filename: String {
         return name.lowercased()
     }

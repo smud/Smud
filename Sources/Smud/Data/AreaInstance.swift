@@ -104,3 +104,8 @@ extension AreaInstance: Equatable {
             lhs.index == rhs.index
     }
 }
+
+extension AreaInstance: Hashable {
+    public var hashValue: Int { return ObjectIdentifier(self).hashValue }
+}
+
