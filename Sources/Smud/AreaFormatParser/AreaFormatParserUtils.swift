@@ -28,3 +28,15 @@ func structureAndFieldName(_ fullName: String) -> (String, String) {
 func appendIndex(toName name: String, index: Int) -> String {
     return "\(name)[\(index)]"
 }
+
+func removeIndex(fromName name: String) -> (String, Int?) {
+    let scanner = Scanner(string: name)
+    guard let firstPortion = scanner.scanUpTo("[") else { return (name, nil) }
+    guard scanner.skipString("[") else { return (name, nil) }
+    guard let index = scanner.scanInteger() else { return (name, nil) }
+    guard scanner.skipString("]") else { return (name, nil) }
+
+    let allCharacters = CharacterSet().inverted
+    guard let remainingPortion = scanner.scanCharacters(from: allCharacters) else { return (firstPortion, index) }
+    return (firstPortion + remainingPortion, index)
+}

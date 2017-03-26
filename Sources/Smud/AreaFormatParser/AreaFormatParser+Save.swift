@@ -61,12 +61,14 @@ extension AreaFormatParser {
         output += "\n"
         
         for fieldName in entity.orderedLowercasedNames {
-            guard let fieldInfo = definitions.field(name: fieldName) else { continue }
-            
+            let (fieldNameWithoutIndex, index) = removeIndex(fromName: fieldName)
+            guard let fieldInfo = definitions.field(name: fieldNameWithoutIndex) else { continue }
+
             // Entity id already printed
             guard !fieldInfo.flags.contains(.entityId) else { continue }
             
-            guard let field = exportField(fieldInfo: fieldInfo, inEntity: entity) else { continue }
+            guard let field = exportField(field: fieldInfo, index: index, inEntity: entity) else { continue }
+
             output += "    "
             output += field
             output += "\n"
@@ -77,14 +79,16 @@ extension AreaFormatParser {
     private func idField(ofEntity entity: Entity, withDefinitions definitions: FieldDefinitions) -> String? {
         guard let entityIdFieldName = definitions.entityIdFieldName(),
             let entityIdFieldInfo = definitions.field(name: entityIdFieldName),
-            let entityIdField = exportField(fieldInfo: entityIdFieldInfo, inEntity: entity) else {
+            let entityIdField = exportField(field: entityIdFieldInfo, inEntity: entity) else {
                 return nil
         }
         return entityIdField
     }
     
-    private func exportField(fieldInfo: FieldInfo, inEntity entity: Entity) -> String? {
-        let name = fieldInfo.name
+    private func exportField(field: FieldInfo, index: Int? = nil, inEntity entity: Entity) -> String? {
+        let name = index != nil
+            ? appendIndex(toName: field.name, index: index!)
+            : field.name
         guard let value = entity.value(named: name) else {
             assertionFailure()
             return nil
@@ -96,33 +100,33 @@ extension AreaFormatParser {
                 assertionFailure()
                 return nil
             }
-            return "\(name) #\(value)"
+            return "\(field.name) #\(value)"
         case .link(let value):
             value.instanceIndex = nil // Saving instance numbers makes no sense
-            return "\(name) \(value)"
+            return "\(field.name) \(value)"
         case .number(let value):
-            return "\(name) \(value)"
+            return "\(field.name) \(value)"
         case .enumeration(let value):
-            return "\(name) \(value)" // TODO: use names
+            return "\(field.name) \(value)" // TODO: use names
         case .flags(let value):
-            return "\(name) \(value)" // TODO: use names
+            return "\(field.name) \(value)" // TODO: use names
         case .list(let values):
             let value = Array(values).map { String($0) }.joined(separator: " ")
-            return "\(name) \(value)" // TODO: use names
+            return "\(field.name) \(value)" // TODO: use names
         case .dictionary(let valuesAndKeys):
             let value = valuesAndKeys.map { $1 == nil ? String($0) : "\($0):\($1!)" }.joined(separator: " ")
-            return "\(name) \(value)" // TODO: use names
+            return "\(field.name) \(value)" // TODO: use names
         case .line(let line):
             guard isSingleLine(line) else {
                 assertionFailure()
                 return nil
             }
             let value = escapeText(line)
-            return "\(name) \"\(value)\""
+            return "\(field.name) \"\(value)\""
         case .longText(let lines):
             let text = lines.joined(separator: " ")
             let value = escapeText(text)
-            return "\(name) \"\(value)\""
+            return "\(field.name) \"\(value)\""
         case let .dice(x, y, z):
             let value: String
             if x != 0 && y != 0 {
